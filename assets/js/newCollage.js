@@ -18,7 +18,7 @@ function placeMark() {
 
     let rects = Object.keys(drawnMarks).map(d => drawnMarks[d])
     if (Object.keys(drawnMarks).length === 0) {
-        return {x: 250 - 30, y: 250 - 30, w: 60, h: 60};
+        return {x: 125 - 30, y: 125 - 30, w: 60, h: 60};
     } else {
         return placeRectangleSpiral(rects,
             {w: 60, h: 60}, spiralOptions
@@ -183,10 +183,10 @@ function placeRectangleSpiral(
 
 
     // console.log(size);
-    const center = {x: 250, y: 250}
+    const center = {x: 125, y: 125}
 
-    const containerWidth = 500
-    const containerHeight = 500;
+    const containerWidth = 250
+    const containerHeight = 250;
 
     const padding = options.padding ?? 6;
     const step = options.step ?? 12;

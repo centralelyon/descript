@@ -51,8 +51,6 @@
     <div style="justify-content: center;width: 80vw;margin-left: 60px;margin-top: 5px;display: flex" id="navButtonList">
         <button onclick="">Import CSV</button>
         <button onclick="switchPalette()">Make a Palette</button>
-        <button onclick="switchGrid()"> Grid Layout</button>
-        <button onclick="switchForce()"> Force Layout</button>
         <!--        <button onclick="fakeGpx()">Import GPX</button>-->
         <!--        <button onclick="fakeBg()">Import Background</button>-->
         <!--        <button onclick="">Import Data</button>-->
@@ -64,47 +62,7 @@
 </div>
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<div class="container"
-     style="max-width: unset;width:96vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 20px" id="">
-    <div style="width: 350px;display: flex;flex-direction:column " id="sideSettings">
-        <div>
-            <svg id="composition" width="320" height="320" style="border: 1px solid #555">
-
-
-            </svg>
-        </div>
-        <div>
-            <div style="" class="">
-                <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
-                <div id="AllPaletteCont">
-
-                </div>
-
-
-            </div>
-        </div>
-
-    </div>
-    <div style="width: calc(100% - 350px)">
-        <canvas  id="inVis" style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;display: none"> </canvas>
-<!--        <div id="fakePreview">-->
-            <svg id="fakePreviewSvg"></svg>
-<!--        </div>-->
-    </div>
-</div>
-
-
-
-<div id="fakeGrammar"></div>
-<div id="markTreeList">
-
-
-    <ul id="glyphTree" class="tree">
-
-    </ul>
-</div>
-
-<div class="container" style="max-width: unset;width:94vw;margin-bottom: 5%;display: none" id="testContainer">
+<div class="container" style="max-width: unset;width:94vw;margin-bottom: 5%" id="testContainer">
 
     <div id="paletteCollector" style="display: none">
         <div class="row" style="margin-top: 3%;text-align: center;display:flex">
@@ -145,8 +103,8 @@
             </div>
             <div class="ten columns " style="margin-left:1%">
 
-<!--                <canvas class="lightBorder" id="inVis"-->
-<!--                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>-->
+                <canvas class="lightBorder" id="inVis"
+                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>
             </div>
 
         </div>
@@ -360,9 +318,9 @@
         </div>
         <div style="" class="sideContent">
             <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
-<!--            <div id="AllPaletteCont">-->
+            <div id="AllPaletteCont">
 
-<!--            </div>-->
+            </div>
 
 
         </div>
@@ -394,13 +352,13 @@
                     </div>
                     <div>
                         <h5> Composition</h5>
-                       <!-- <div id="fakeGrammar"></div>
+                        <div id="fakeGrammar"></div>
                         <div id="markTreeList">
 
 
                             <ul id="glyphTree" class="tree">
 
-                            </ul>-->
+                            </ul>
 
 
                             <div style="width: 100%;">
@@ -410,7 +368,7 @@
                                 </div>
                             </div>
 
-<!--                        </div>-->
+                        </div>
 
                         <!--                        <div>
                                                     <ul class="tree">
@@ -446,9 +404,9 @@
                 </div>
 
 
-<!--                <div id="fakePreview">
+                <div id="fakePreview">
                     <svg id="fakePreviewSvg"></svg>
-                </div>-->
+                </div>
 
             </div>
         </div>

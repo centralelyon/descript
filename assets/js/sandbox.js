@@ -465,8 +465,8 @@ async function drawSvg() {
         function ticked() {
 
             timages
-                .attr("x", d => clampVal(d.x, 0, 800))
-                .attr("y", d => clampVal(d.y, 0, 460))
+                .attr("x", d => clampVal(d.x, 0, size.width))
+                .attr("y", d => clampVal(d.y, 0, size.height))
         }//function ticked
     }
     populateSandboxMenu(data)
