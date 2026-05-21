@@ -755,7 +755,7 @@ function getMinimalBoundingBox(canvas, step = 4) {
     return {
         x: left,
         y: top,
-        width: right - left + 1,
-        height: bottom - top + 1
+        width: right - left + 7,
+        height: bottom - top + 7
     };
 }

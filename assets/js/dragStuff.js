@@ -53,7 +53,7 @@ function dragElement(elmnt) {
             (e.pageX - offsetX) + "px";
 
         elmnt.style.top =
-            (e.pageY - offsetY) + "px";
+            (e.pageY - offsetY +50) + "px";
 
         // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -69,7 +69,6 @@ function dragElement(elmnt) {
         document.onmousemove = null;
         dragging = false
 
-        console.log(e.target);
         if (dragMode === "canvas") {
             dropCanvas(e, elmnt)
         } else {
@@ -101,8 +100,9 @@ function dropPalette(e, elmnt) {
 
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
-        addPaletteInfoToCollage(allPalettes[num],name)
         megaPalettes[name] = allPalettes[num]
+        addPaletteInfoToCollage(allPalettes[num],name)
+
 
         megaGlyph[name] = {
             dataColumn: "",
@@ -139,14 +139,14 @@ function dropCanvas(e, elmnt) {
         if (type === "range") {
             let num = telem.getAttribute("number")
             // marks[id][num].source = elmnt
-            megaPalettes[id].encodings.range.marks[num].source = elmnt
+            megaPalette2[id].encodings.range.marks[num].source = elmnt
 
-            drawCanvasWithScale(elmnt, can, megaPalettes[id].encodings.range.scale)
+            drawCanvasWithScale(elmnt, can, megaPalette2[id].encodings.range.scale)
         } else if (type === "morph") {
 
             let num = telem.getAttribute("number")
-            megaPalettes[id].encodings.morph[num].proto.canvas = elmnt
-            megaPalettes[id].encodings.morph[num].proto.size = [elmnt.width, elmnt.height]
+            megaPalette2[id].encodings.morph[num].proto.canvas = elmnt
+            megaPalette2[id].encodings.morph[num].proto.size = [elmnt.width, elmnt.height]
             drawCanvasWithScale(elmnt, can, 1)
 
         }

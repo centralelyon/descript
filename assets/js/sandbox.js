@@ -87,7 +87,6 @@ async function drawSvg() {
 
     let svg = d3.select("#fakePreviewSvg")
 
-
     let data = chartDataset.data
 
     svg.selectAll("*").remove();
@@ -103,11 +102,9 @@ async function drawSvg() {
 
     for (let i = 0; i < data.length; i++) {
         data[i].x = size.width / 2
-        // data[i].x =size.width /2+ xScale(data[i][chartAxis.x])
-        // data[i].y = size.height/2 +yScale(data[i][chartAxis.y])
         data[i].y = size.height / 2
-
     }
+
     let encodings = Object.keys(dataBinding)
 
     if (encodings.length === 0) {
@@ -121,7 +118,6 @@ async function drawSvg() {
                 }
             }
         }
-
 
         svg.selectAll("dots")
             .data(data)
@@ -140,10 +136,7 @@ async function drawSvg() {
                             return megaGlyph["new"].color.colors["default"]
                         }
                     }
-
                 }
-
-
             })
             .attr("r", 5)
 
@@ -248,7 +241,7 @@ async function drawSvg() {
                     for (let i = 0; i < data.length; i++) {
 
                         let d = data[i]
-                        let can = marks[d[dataBinding[encodings[0]]]].source
+                        let can = marks[d[dataBinding[encodings[0]]]].proto.canvas
                         let cl = 1
                         if (useColor) {
 
@@ -265,7 +258,7 @@ async function drawSvg() {
 
                             }
 
-                            removeColor(230, 230, 230, can, 25)
+                            // removeColor(230, 230, 230, can, 25)
 
 
                         }
@@ -308,7 +301,7 @@ async function drawSvg() {
                         .enter()
                         .append("image")
                         .attr("xlink:href", d => {
-                            let can = marks[d[dataBinding[encodings[0]]]].source
+                            let can = marks[d[dataBinding[encodings[0]]]].proto.canvas
                             let cl = 1
                             if (useColor) {
 
@@ -337,18 +330,18 @@ async function drawSvg() {
                         })
                         .attr("width", d => {
                             if (useMorph) {
-                                return marks[d[dataBinding[encodings[0]]]].source.width * morphScale(d[useDatMorph])
+                                return marks[d[dataBinding[encodings[0]]]].proto.canvas.width * morphScale(d[useDatMorph])
                             } else {
-                                return marks[d[dataBinding[encodings[0]]]].source.width
+                                return marks[d[dataBinding[encodings[0]]]].proto.canvas.width
                             }
 
 
                         })
                         .attr("height", d => {
                             if (useMorph) {
-                                return marks[d[dataBinding[encodings[0]]]].source.height * morphScale(d[useDatMorph])
+                                return marks[d[dataBinding[encodings[0]]]].proto.canvas.height * morphScale(d[useDatMorph])
                             } else {
-                                return marks[d[dataBinding[encodings[0]]]].source.height
+                                return marks[d[dataBinding[encodings[0]]]].proto.canvas.height
                             }
 
 
@@ -733,6 +726,8 @@ function makeDataColumnMenu(columns, name, selected, mode = "palette") {
             let palette = select.getAttribute("name");
             let mode = select.getAttribute("mode");
 
+            let container = d3.select(select.parentElement.parentElement)
+
             if (megaGlyph[palette]) {
 
 
@@ -744,21 +739,21 @@ function makeDataColumnMenu(columns, name, selected, mode = "palette") {
 
 
                             let t = d3.select(select.parentElement)
-                            t.selectAll(".colorRamp").remove()
-                            t.selectAll(".colorDisplay").remove()
+                            container.selectAll(".colorRamp").remove()
+                            container.selectAll(".colorDisplay").remove()
 
 
                             let tcont = makeContColorRamp(megaGlyph[palette].color)
-                            select.parentElement.appendChild(tcont)
+                            select.parentElement.parentElement.appendChild(tcont)
 
                             // setMinMaxPicker(palette, tcont)
                         } else {
                             let t = d3.select(select.parentElement)
-                            t.selectAll(".colorRamp").remove()
-                            t.selectAll(".colorDisplay").remove()
+                            container.selectAll(".colorRamp").remove()
+                            container.selectAll(".colorDisplay").remove()
                             // megaGlyph[palette][mode] = makeColorScale(palette, tval)
                             let tcont = makeContColorDisplay(megaGlyph[palette].color)
-                            select.parentElement.appendChild(tcont)
+                            select.parentElement.parentElement.appendChild(tcont)
                         }
                     } else {
                         megaGlyph[palette][mode].dataColumn = tval
@@ -867,7 +862,8 @@ function makeColorScale(palette, tval) {
 
 
 function makeParamOption(name, columns, palette) {
-    let list = document.createElement("li");
+    let list = document.createElement("div");
+    let tdiv = document.createElement("div");
 
     let tselected = undefined
 
@@ -880,21 +876,23 @@ function makeParamOption(name, columns, palette) {
 
     let div = document.createElement("div");
     div.classList.add("fakeGrammarRow")
+    tdiv.classList.add("dataEncodingColumn")
 
     let p = document.createElement("p");
     p.innerHTML = `${name}:`;
 
     let tkeys = Object.keys(options)
 
-    div.appendChild(p)
-    div.appendChild(select)
-    console.log(options);
+    tdiv.appendChild(p)
+    tdiv.appendChild(select)
+
     if (tkeys.length > 0) {
         if (options[tkeys[0]] !== undefined) {
             div.appendChild(options[tkeys[0]])
         }
     }
     // div.appendChild(select)
+    div.appendChild(tdiv)
     list.appendChild(div)
 
     return list

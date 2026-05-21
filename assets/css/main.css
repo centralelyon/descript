@@ -19,11 +19,12 @@ body {
 }
 
 .paletteMark canvas {
-    border: #555555 solid 1px;
+    border: #fff solid 1px;
     margin: 1px;
     border-radius: 3px;
     height: 60px;
     cursor: pointer;
+    background-color: rgba(240, 240, 240, 0.25);
 }
 
 .paletteNumber {
@@ -303,7 +304,7 @@ canvas {
 }
 
 .buttonImg img {
-    width: 32px;
+    width: 24px;
     display: inline-block;
     padding: 1px;
 }
@@ -351,7 +352,7 @@ canvas {
 }
 
 #inVis {
-    width: 100%;
+    /*width: 100%;*/
     cursor: crosshair;
     touch-action: none;
     min-width: 80%;
@@ -408,10 +409,15 @@ canvas {
 
 #paletteContainer {
     padding: 20px;
-    border: solid #555 thin;
-    position: relative;
-    width: min-content;
-    padding-right: 70px;
+    border: solid #333 thin;
+    position: absolute;
+    top: 270px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    left: 550px;
+    background-color: #424242;
+    color: #fff;
+
 
 }
 
@@ -572,6 +578,7 @@ table th {
     display: flex;
     width: 100%;
     flex-wrap: wrap;
+    flex-direction: column;
 }
 
 
@@ -784,9 +791,10 @@ li .fakeGrammarRow {
     /*display: flex;*/
     margin: 2px;
     border: solid 1px #555;
-    width: 95%;
+    width: 240px;
     border-radius: 5px;
     cursor: grab;
+    margin-left:42px ;
 
 }
 
@@ -807,6 +815,7 @@ li .fakeGrammarRow {
     overflow-y: scroll;
     /*border: 1px solid #555;*/
     border-radius: 4px;
+    text-align: center;
 }
 
 p, h3, h4, h5, img {
@@ -863,7 +872,7 @@ p, h3, h4, h5, img {
 #AllPaletteCont {
     overflow-y: auto;
     height: 74vh;
-    width: 240px;
+    width: 300px;
     -ms-overflow-style: none; /* Internet Explorer 10+ */
     scrollbar-width: none; /* Firefox, Safari 18.2+, Chromium 121+ */
     /*border: 1px solid #555;*/
@@ -884,4 +893,26 @@ p, h3, h4, h5, img {
     outline: solid 1px #333;
     border-radius: 4px;
     cursor: crosshair;
+}
+
+.dataEncodingColumn {
+    display: flex;
+    justify-content: center;
+}
+
+
+#paletteDetails p {
+    color: #fff
+}
+
+#paletteDetails {
+    /*padding-bottom: 15px;*/
+    position: absolute;
+    background-color: #424242;
+    /*width: 100%;*/
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 20px;
 }

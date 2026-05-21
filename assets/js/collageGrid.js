@@ -214,7 +214,7 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
             let mark = marks[order[j]][row[dataBinding[order[j]]]];
 
 
-            let can = mark.source
+            let can = mark.proto.canvas
             let cl = 1
 
             if (megaGlyph[order[j]].color.dataColumn !== "" && megaGlyph[order[j]].color.dataColumn !== "none") {
@@ -239,12 +239,11 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
                 sc = ref.encodings.range.scale
             }
 
-            let sourceW = mark.source.width * sc
-            let sourceH = mark.source.height * sc
+            let sourceW = mark.proto.canvas.width * sc
+            let sourceH = mark.proto.canvas.height * sc
 
             let offX = base[0]
             let offY = base[0]
-            console.log(ref.apply);
 
             let toOffX = 0
             let toOffY = 0
@@ -267,8 +266,8 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
                     }
 
 
-                    offX += ToAnchor.rx * (instancedMark.source.width * tsc)
-                    offY += ToAnchor.ry * (instancedMark.source.height * tsc)
+                    offX += ToAnchor.rx * (instancedMark.proto.canvas.width * tsc)
+                    offY += ToAnchor.ry * (instancedMark.proto.canvas.height * tsc)
 
                 }
                 // tcon.fillStyle = "red"

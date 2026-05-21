@@ -68,14 +68,19 @@
      style="max-width: unset;width:96vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 20px" id="">
     <div style="width: 350px;display: flex;flex-direction:column " id="sideSettings">
         <div>
-            <svg id="composition" width="320" height="320" style="border: 1px solid #555">
+            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center">Composition</p>
+            <div class="buttonImg" style="position: absolute;width: 15px" id="anchorBtn">
+                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
+            </div>
+            <svg id="composition" width="320" height="320" style="border: 1px solid #555;border-radius: 7px">
 
 
             </svg>
         </div>
         <div>
             <div style="" class="">
-                <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
+                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 69px"> Available
+                    Palettes</p>
                 <div id="AllPaletteCont">
 
                 </div>
@@ -86,17 +91,129 @@
 
     </div>
     <div style="width: calc(100% - 350px)">
-        <canvas  id="inVis" style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;display: none"> </canvas>
-<!--        <div id="fakePreview">-->
-            <svg id="fakePreviewSvg"></svg>
-<!--        </div>-->
+        <div style="display: none" id="paletteDetails">
+            <div id="paletteMarks" style="width: 100%; display: flex">
+            </div>
+            <div id="paletteControls" style="width: 100%; display: flex">
+            </div>
+
+        </div>
+
+        <div>
+            <div class="" style="display: none" id="paletteContainer">
+                <div style="height: 350px;display: inline-block;background: rgba(250,250,250,0.25);padding: 10px;border: 1px solid #fff;">
+                    <canvas style="height: 100%;width: 400px" id="paletteEdit"></canvas>
+                    <div style="display: flex;margin-top:10px ">
+                        <p style="font-weight: 600;display: inline-block;margin-bottom: 0;margin-right: 10px">
+                            Orientation:</p>
+                        <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
+                        <!--              <div style="display: inline-block">
+                                            <p style="font-weight: 600;display: inline-block">Anchors</p>
+                                            <div id="anchorsContainer" style="display: inline-block"></div>
+
+                                            <div id="plusAnchor" onclick="addAnchor()">
+                                                <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
+                                            </div> -->
+                    </div>
+                </div>
+                <div id="closePaletteContainer" style="">
+                    <img style="width: inherit" onclick="hidePaletteContainer()" src="assets/images/buttons/cross.png">
+                </div>
+                <div style="display: inline-block;width: 40px;position: absolute;top:83px;margin-left:5px "
+                     id="editControl">
+
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/magic.png" onclick="switchmod('eraseColor')"
+                             style="transform: scaleX(-1)"/>
+                    </div>
+
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/black.png" onclick="toBW()" style=""/>
+                    </div>
+                    <!--           <div class="buttonImg selectablePallete">
+                                   <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
+                               </div>-->
+                    <div class="buttonImg selectablePallete">
+
+                        <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" style=""/>
+                    </div>
+                    <div id="selectedButton2" class="buttonImg selectablePallete">
+                        <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" style=""/>
+                    </div>
+                    <div class="buttonImg ">
+                        <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
+
+                    </div>
+                    <div class="buttonImg">
+                        <input style="width: 35px;margin-top:-10px " type="color" value="#000000" id="strokecolor">
+                    </div>
+                    <div style="margin-top: -10px" class="buttonImg">
+                        <img src="assets/images/buttons/disk.png" onclick="savePalette()" style=""/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="canvasContainer" style="display: none;width: 100%">
+            <div style="display: flex"><p>Upload an image..  </p>
+                <div class="buttonImg" style="padding: 0;border: none">
+                    <input type="file" name="img" id="imgLoader" style="display: none;"/>
+                    <img src="assets/images/buttons/addimg.png" class="lightBorder"
+                         style="" onclick="fakeFile('imgLoader')"/>
+                </div>
+                <p>   ..Or load an example:</p>
+
+            </div>
+            <div id="selFlat"></div>
+
+            <div style="display: flex;">
+                <div id="inVisHolder" style="width: calc(100% - 35px)">
+                    <canvas id="inVis"
+                            style="width: 99%;height: 100%;border-radius: 5px;border: solid 1px #555"></canvas>
+                </div>
+                <div style="margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
+                    <div class="buttonImg">
+                        <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'rect')" style=""/>
+                    </div>
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/lasso.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'free')"
+                             style=""/>
+                    </div>
+
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/magic.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'grab')"
+                             style=""/>
+                    </div>
+                    <div>
+                        <div class="buttonImg" style="padding: 0;border: none">
+                            <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
+                            <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
+                            <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">
+
+            </div>
+            <div style=";overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">
+            </div>
+
+
+        </div>
+
+        <!--        <div id="fakePreview">-->
+        <svg id="fakePreviewSvg"></svg>
+        <!--        </div>-->
     </div>
 </div>
 
 
-
-<div id="fakeGrammar"></div>
-<div id="markTreeList">
+<!--<div id="fakeGrammar"></div>-->
+<div style="display: none" id="markTreeList">
 
 
     <ul id="glyphTree" class="tree">
@@ -109,17 +226,17 @@
     <div id="paletteCollector" style="display: none">
         <div class="row" style="margin-top: 3%;text-align: center;display:flex">
             <div class="one column"></div>
-            <div class="ten column" id="selFlat">
-                <!--            <p id="selFlatLabel"> Load one of Dear data's example:</p>-->
+     <!--       <div class="ten column" id="selFlat">
+                &lt;!&ndash;            <p id="selFlatLabel"> Load one of Dear data's example:</p>&ndash;&gt;
 
-            </div>
+            </div>-->
             <div class="one column"></div>
         </div>
         <div class="row" style="margin-top: 0.5%;text-align: center;display:flex">
             <div class="one column" style="">
                 <div class="buttonImg">
-                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'rect')" style=""/>
+                    <!--                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"-->
+                    <!--                         onclick="switchSampleSelect(this,'rect')" style=""/>-->
                 </div>
                 <div class="buttonImg">
                     <img src="assets/images/buttons/lasso.png" class="lightBorder"
@@ -137,16 +254,16 @@
                 </div>
                 <div>
                     <div class="buttonImg" style="padding: 0;border: none">
-                        <input type="file" name="img" id="imgLoader" style="display: none;"/>
-                        <img src="assets/images/buttons/addimg.png" class="lightBorder"
-                             style="" onclick="fakeFile('imgLoader')"/>
+                        <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
+                        <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
+                        <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
                     </div>
                 </div>
             </div>
             <div class="ten columns " style="margin-left:1%">
 
-<!--                <canvas class="lightBorder" id="inVis"-->
-<!--                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>-->
+                <!--                <canvas class="lightBorder" id="inVis"-->
+                <!--                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>-->
             </div>
 
         </div>
@@ -197,9 +314,9 @@
                     <!--   <div id="secondControl"
                             style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
                    </div>-->
-                    <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">
-
-                    </div>
+<!--                    <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
+<!---->
+<!--                    </div>-->
 
                     <!--   <svg style="width: 100%; height: 0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
                             id="svgDisplay">
@@ -225,61 +342,9 @@
                           onclick="addAPalette(  )">
         </h3>
 
-        <div style="margin-left:50px;width: 85vw;overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">
-        </div>
+<!--        <div style="margin-left:50px;width: 85vw;overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">-->
+<!--        </div>-->
 
-    </div>
-
-    <div class="" style="display: none" id="paletteContainer">
-        <div style="height: 350px;display: inline-block">
-            <canvas style="height: 100%;width: 700px" class="lightBorder" id="paletteEdit"></canvas>
-            <div>
-                <p style="font-weight: 600;display: inline-block">Orientation</p>
-                <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
-                <!--              <div style="display: inline-block">
-                                    <p style="font-weight: 600;display: inline-block">Anchors</p>
-                                    <div id="anchorsContainer" style="display: inline-block"></div>
-
-                                    <div id="plusAnchor" onclick="addAnchor()">
-                                        <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
-                                    </div> -->
-            </div>
-        </div>
-
-        <div id="closePaletteContainer" style="">
-            <img style="width: inherit" onclick="hidePaletteContainer()" src="assets/images/buttons/cross.png">
-        </div>
-        <div style="display: inline-block;width: 40px;position: absolute;top:20px" id="editControl">
-
-            <div class="buttonImg">
-                <img src="assets/images/buttons/magic.png" class="lightBorder" onclick="switchmod('eraseColor')"
-                     style="transform: scaleX(-1)"/>
-            </div>
-
-            <div class="buttonImg">
-                <img src="assets/images/buttons/black.png" class="lightBorder" onclick="toBW()" style=""/>
-            </div>
-            <!--           <div class="buttonImg selectablePallete">
-                           <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
-                       </div>-->
-            <div class="buttonImg selectablePallete">
-
-                <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" class="lightBorder" style=""/>
-            </div>
-            <div id="selectedButton2" class="buttonImg selectablePallete">
-                <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" class="lightBorder" style=""/>
-            </div>
-            <div class="buttonImg ">
-                <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
-
-            </div>
-            <div class="buttonImg">
-                <input style="width: 35px;margin-top:-10px " type="color" value="#000000" id="strokecolor">
-            </div>
-            <div style="margin-top: -10px" class="buttonImg">
-                <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="savePalette()" style=""/>
-            </div>
-        </div>
     </div>
 
 
@@ -360,9 +425,9 @@
         </div>
         <div style="" class="sideContent">
             <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
-<!--            <div id="AllPaletteCont">-->
+            <!--            <div id="AllPaletteCont">-->
 
-<!--            </div>-->
+            <!--            </div>-->
 
 
         </div>
@@ -394,23 +459,23 @@
                     </div>
                     <div>
                         <h5> Composition</h5>
-                       <!-- <div id="fakeGrammar"></div>
-                        <div id="markTreeList">
+                        <!-- <div id="fakeGrammar"></div>
+                         <div id="markTreeList">
 
 
-                            <ul id="glyphTree" class="tree">
+                             <ul id="glyphTree" class="tree">
 
-                            </ul>-->
+                             </ul>-->
 
 
-                            <div style="width: 100%;">
-                                <div class="buttonImg">
-                                    <img src="assets/images/buttons/plus.png"
-                                         onclick="addAMark()" style=""/>
-                                </div>
+                        <div style="width: 100%;">
+                            <div class="buttonImg">
+                                <img src="assets/images/buttons/plus.png"
+                                     onclick="addAMark()" style=""/>
                             </div>
+                        </div>
 
-<!--                        </div>-->
+                        <!--                        </div>-->
 
                         <!--                        <div>
                                                     <ul class="tree">
@@ -446,9 +511,9 @@
                 </div>
 
 
-<!--                <div id="fakePreview">
-                    <svg id="fakePreviewSvg"></svg>
-                </div>-->
+                <!--                <div id="fakePreview">
+                                    <svg id="fakePreviewSvg"></svg>
+                                </div>-->
 
             </div>
         </div>

@@ -26,8 +26,8 @@ let dragMod = false
 let rotateMod = false
 let dataEncoding = {}
 let examples = [
-    "assets/images/tempExamples/cholera.png",
-    "assets/images/tempExamples/xrousse.png",
+    // "assets/images/tempExamples/cholera.png",
+    // "assets/images/tempExamples/xrousse.png",
     // "assets/images/tempExamples/goodbye.png",
     // "assets/images/tempExamples/buy.png",
     // "assets/images/tempExamples/laugh.png",
@@ -144,7 +144,7 @@ async function init() {
         author = (author === null ? "giorgia" : author)
     }
     let authorRef = author === "giorgia" ? 0 : 1;
-    // loadExamples(week);
+    loadExamples(week);
 
     /*
         if (dataRef[author + "_" + week]) {
@@ -158,7 +158,7 @@ async function init() {
             loadImg(url)
         }
     */
-    loadImg("assets/images/hand/notice.png")
+    // loadImg("assets/images/hand/notice.png")
     switchMode("rect")
     initAllPalette()
 
@@ -371,6 +371,9 @@ onkeydown = function (e) {
     }
 
     if (keymap[27]) {
+
+        const container = document.getElementById("paletteDetails")
+        container.style.display = "none"
 
         if (document.activeElement === document.getElementById("dataInp")) {
             e.preventDefault()
@@ -840,12 +843,15 @@ async function fillAllPalette() {
 function switchPalette() {
 
     palSwitch = !palSwitch
-    let container = document.getElementById("paletteCollector")
+    let canContainer = document.getElementById("canvasContainer");
+    let svgContainer = document.getElementById("fakePreviewSvg");
 
     if (palSwitch) {
-        container.style.display = "block"
+        canContainer.style.display = "block"
+        svgContainer.style.display = "none"
     } else {
-        container.style.display = "none"
+        canContainer.style.display = "none"
+        svgContainer.style.display = "block"
     }
 
 }

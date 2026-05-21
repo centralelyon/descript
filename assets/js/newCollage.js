@@ -1,8 +1,8 @@
 let drawnMarks = {}
 const spiralOptions = {
     padding: 30,
-    step: 16,
-    maxRadius: 350,
+    step: 12,
+    maxRadius: 150,
 };
 
 let tFrom, tTo = {}
@@ -10,9 +10,10 @@ let tFrom, tTo = {}
 let anchoring = false
 
 let newAnchors = []
-
 let anchoringRef = ""
 let nAnchor = 0
+
+let collageMod = "details"
 
 function placeMark() {
 
@@ -35,6 +36,7 @@ function addPaletteInfoToCollage(palette, name) {
 
     drawnMarks[name] = placeMark()
 
+
     svg.append("image")
         .attr("class", "collageElement")
         .attr("xlink:href", show.toDataURL("image/png"))
@@ -45,80 +47,214 @@ function addPaletteInfoToCollage(palette, name) {
         .attr("height", drawnMarks[name].h)
         .on("click", function (e) {
             let elem = e.target
+            if (collageMod !== "details") {
+                if (!anchoring) {
+                    anchoring = true
+                    anchoringRef = name
 
-            if (!anchoring) {
-                anchoring = true
-                anchoringRef = name
-
-
-                let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
-
-
-                let offx = e.offsetX - imCord.x
-                let offy = e.offsetY - imCord.y
-                svg.append("circle")
-                    .attr("cx", drawnMarks[name].x + offx)
-                    .attr("cy", drawnMarks[name].y + offy)
-                    .attr("r", 5)
-                    .attr("fill", drawnMarks[name].x)
-
-                tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
-                megaPalettes[name].linkto = name
-                setAnchorOnAllMarks(name, offx, offy, nAnchor)
-            } else {
-                if (anchoringRef !== name) {
 
                     let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
 
 
                     let offx = e.offsetX - imCord.x
                     let offy = e.offsetY - imCord.y
-
-
                     svg.append("circle")
                         .attr("cx", drawnMarks[name].x + offx)
                         .attr("cy", drawnMarks[name].y + offy)
                         .attr("r", 5)
                         .attr("fill", drawnMarks[name].x)
 
-                    //TODO: Add a link
-                    tTo = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
-
-
-                    const cx = (tFrom.x + tTo.x) / 2;
-                    const curve = 2;
-
-                    svg.append("path")
-                        // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
-                        .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
-                        .attr("stroke-width", 3)
-                        .attr("stroke", "red")
-                        .attr("fill", "none")
-                    // .attr("stroke", drawnMarks[name].x)
-
-                    megaPalettes[name].apply = tFrom.name
-                    megaPalettes[name].linkTo = nAnchor
+                    tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
+                    megaPalettes[name].linkto = name
                     setAnchorOnAllMarks(name, offx, offy, nAnchor)
-                    // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
-                    nAnchor++
-                    anchoring = false
-                    anchoringRef = ""
-
                 } else {
-                    let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
+                    if (anchoringRef !== name) {
+
+                        let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
 
 
-                    let offx = e.offsetX - imCord.x
-                    let offy = e.offsetY - imCord.y
-                    svg.append("circle")
-                        .attr("cx", drawnMarks[name].x + offx)
-                        .attr("cy", drawnMarks[name].y + offy)
-                        .attr("r", 5)
-                        .attr("fill", drawnMarks[name].x)
+                        let offx = e.offsetX - imCord.x
+                        let offy = e.offsetY - imCord.y
 
+
+                        svg.append("circle")
+                            .attr("cx", drawnMarks[name].x + offx)
+                            .attr("cy", drawnMarks[name].y + offy)
+                            .attr("r", 5)
+                            .attr("fill", drawnMarks[name].x)
+
+                        //TODO: Add a link
+                        tTo = {
+                            x: drawnMarks[name].x + offx,
+                            y: drawnMarks[name].y + offy,
+                            rx: offx,
+                            ry: offy,
+                            name: name
+                        }
+
+
+                        const cx = (tFrom.x + tTo.x) / 2;
+                        const curve = 2;
+
+                        svg.append("path")
+                            // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+                            .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                            .attr("stroke-width", 3)
+                            .attr("stroke", "red")
+                            .attr("fill", "none")
+                        // .attr("stroke", drawnMarks[name].x)
+
+                        megaPalettes[name].apply = tFrom.name
+                        megaPalettes[name].linkTo = nAnchor
+                        setAnchorOnAllMarks(name, offx, offy, nAnchor)
+                        // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
+                        nAnchor++
+                        anchoring = false
+                        anchoringRef = ""
+
+                    } else {
+                        let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
+
+
+                        let offx = e.offsetX - imCord.x
+                        let offy = e.offsetY - imCord.y
+                        svg.append("circle")
+                            .attr("cx", drawnMarks[name].x + offx)
+                            .attr("cy", drawnMarks[name].y + offy)
+                            .attr("r", 5)
+                            .attr("fill", drawnMarks[name].x)
+
+                    }
                 }
+
+            } else {
+
+                displayPalette(name)
+
             }
         })
+
+    let tkeys = Object.keys(drawnMarks)
+
+    if (tkeys.length > 1) {
+        setAnchorOnAllMarks(name, drawnMarks[name].w * 0.5, drawnMarks[name].h * 0.5, nAnchor)
+        setAnchorOnAllMarks(tkeys[0], drawnMarks[tkeys[0]].w * 0.5, drawnMarks[tkeys[0]].h * 0.5, nAnchor)
+        megaPalettes[tkeys[0]].linkto = tkeys[0]
+
+        tFrom = {
+            x: drawnMarks[tkeys[0]].x + drawnMarks[tkeys[0]].w * 0.5,
+            y: drawnMarks[tkeys[0]].y + drawnMarks[tkeys[0]].h * 0.5,
+            name: tkeys[0]
+        }
+        tTo = {
+            x: drawnMarks[name].x + drawnMarks[name].w * 0.5,
+            y: drawnMarks[name].y + drawnMarks[name].h * 0.5,
+            name: name
+        }
+
+
+        svg.append("path")
+            // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+            .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+            .attr("stroke-width", 3)
+            .attr("stroke", "red")
+            .attr("fill", "none")
+        // .attr("stroke", drawnMarks[name].x)
+
+
+        svg.append("circle")
+            .attr("cx", tFrom.x)
+            .attr("cy", tFrom.y)
+            .attr("r", 5)
+            .attr("fill", drawnMarks[name].x)
+
+        svg.append("circle")
+            .attr("cx", tTo.x)
+            .attr("cy", tTo.y)
+            .attr("r", 5)
+            .attr("fill", drawnMarks[name].x)
+
+        megaPalettes[name].apply = tFrom.name
+        megaPalettes[name].linkTo = nAnchor
+    }
+}
+
+
+function displayPalette(name) {
+
+
+    let trange = document.getElementById("strokewidth")
+
+    trange.onchange = function (e) {
+
+        const val = parseInt(document.getElementById("strokewidth").value);
+        stWidth = val
+        console.log("dsdsadas");
+    }
+
+    document.getElementById('strokecolor').onchange = function () {
+
+        stColor = this.value
+    }
+
+
+    const container = document.getElementById("paletteDetails")
+    container.style.display = "flex"
+    const containerMarks = document.getElementById("paletteMarks")
+    const containerControls = document.getElementById("paletteControls")
+
+    containerMarks.innerHTML = ""
+    containerControls.innerHTML = ""
+
+    const palette = megaPalettes[name]
+
+    const tdiv_mark = document.createElement("div")
+    tdiv_mark.id = "mark_" + name
+    tdiv_mark.className = "paletteMark"
+    tdiv_mark.setAttribute("key", name)
+
+    tdiv_mark.onclick = function (e) {
+
+        if (mode !== "anchor") {
+            if (e.target.matches("canvas")) {
+                editPalette(this)
+            }
+        } else {
+            //TODO: Set for CATA and other primitive
+            setAnchorOnProto(e, this)
+        }
+    }
+
+    containerMarks.appendChild(tdiv_mark)
+
+    makeRangeMark(name, containerMarks, palette, "range")
+
+
+    let columns = Object.keys(chartDataset.data[0])
+    let [tsel, opts] = makeDataColumnMenu(columns, name, megaGlyph[name].dataColumn)
+
+    tsel.style.marginTop = "5px"
+
+    let tdiv = document.createElement("div")
+    tdiv.style.display = "flex";
+
+    tdiv.innerHTML = `<p style="margin-top: 9px;
+  margin-right: 6px;">Data Column: </p>`
+    tdiv.appendChild(tsel)
+
+    let color = makeParamOption("color", columns, name)
+    let size = makeParamOption("size", columns, name)
+
+    containerControls.appendChild(tdiv)
+    containerControls.appendChild(color)
+    containerControls.appendChild(size)
+
+}
+
+
+function makePaletteControls(name, container, palette) {
+
+
 }
 
 

@@ -12,8 +12,10 @@ function loadImg(src) {
 
         // let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
 
-        let t = Math.round((im.height * can.getBoundingClientRect().width) / im.width)
-        viewDim = [can.getBoundingClientRect().width, t]
+        let trect = document.getElementById("inVisHolder").getBoundingClientRect()
+
+        let t = Math.round((im.height * trect.width) / im.width)
+        viewDim = [trect.width, t]
         can.width = viewDim[0]
         can.style.width = viewDim[0] + 'px';
         can.style.height = viewDim[1] + "px"
@@ -23,10 +25,14 @@ function loadImg(src) {
         // cont.drawImage(im, 0, 0, rate[0], rate[1])
         cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
-        fillSvg(sampleData)
+        // fillSvg(sampleData)
+        megaPalette2 = {}
+         addAPalette()
+
     };
 
     im.src = src
+    // addAPalette()
 
 }
 
