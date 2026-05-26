@@ -104,6 +104,8 @@ function dropPalette(e, elmnt) {
         addPaletteInfoToCollage(allPalettes[num],name)
 
 
+
+
         megaGlyph[name] = {
             dataColumn: "",
             size: {
@@ -117,6 +119,8 @@ function dropPalette(e, elmnt) {
         }
         megaGlyph[name].color = makeColorScale(name, "")
         makeMarkTree()
+
+        displayPalette(name)
     }
 }
 

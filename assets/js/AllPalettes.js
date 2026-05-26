@@ -142,7 +142,7 @@ function openNav() {
     let img = document.getElementById("sideImg");
 
     if (flipSide) {
-        img.style.transform = "";
+        img.style.transform = "scaleX(-1)";
         container.style.width = `${containerWidth}px`
 
         // containerImg.style.right = `${sideOffset}px`
@@ -155,7 +155,8 @@ function openNav() {
             el.style.display = "inline-block";
         })
     } else {
-        img.style.transform = "scaleX(-1)";
+
+        img.style.transform = "";
         container.style.width = `${offsetWidth}px`
         containerImg.style.right = "-22px";
 

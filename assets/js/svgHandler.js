@@ -36,7 +36,41 @@ function fillSampleBar(marks) {
 
 
 function fillSvg(marks) {
-    fillSampleBar(marks)
+    // fillSampleBar(marks)
+
+    let svg = d3.select("#sampleDisplay")
+
+    if(marks.length > 0) {
+        svg.style("background-color","rgba(75,75,75,0.5)")
+        svg.style("display","block")
+    }else {
+        svg.style("display","none")
+    }
+
+    const rect = svg.node().getBoundingClientRect()
+
+    const w = rect.width
+    const h = rect.height
+    bounds = [w, h]
+
+    svg.selectAll("image").remove();
+
+    svg.selectAll("dot")
+        .data(marks)
+        .enter()
+        .append("svg:image")
+        .attr("xlink:href", (d) => d.canvas.toDataURL())
+        .attr('num', (d, i) => i)
+        .attr("x", (d) => d.rx * w)
+        .attr("y", (d) => d.ry * h)
+        .attr("width", (d) => d.rWidth * w)
+        .attr("height", (d) => d.rHeight * h)
+        .on("click", (e) => {
+
+            d3.selectAll("image").style("opacity", 1)
+            const el = e.target
+            loadModal(sampleData.find((d) => d === el.__data__))
+        })
 
     /*const tsvg = document.getElementById("inVis")
 
@@ -49,7 +83,7 @@ function fillSvg(marks) {
     svg.style("height", rect.height + "px")
 
 
-    svg.selectAll("image").remove();
+
 
     const w = rect.width
     const h = rect.height

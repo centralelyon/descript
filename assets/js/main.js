@@ -46,7 +46,7 @@ docReady(init)
 
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/full.json"
+    // giorgia_36: "assets/images/tempLoad/full.json"
 }
 
 

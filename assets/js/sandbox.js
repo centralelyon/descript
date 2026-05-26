@@ -9,7 +9,7 @@ let chartAxis = {
 const defaultMinColor = "#a50026"
 const defaultMaxColor = "#313695"
 
-let useForce = false
+let useForce = true
 let gridMod = false
 
 const datasetList = ["pinguin"]

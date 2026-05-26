@@ -28,6 +28,37 @@ function placeMark() {
 
 }
 
+function setMarker() {
+    let svg = d3.select("#composition")
+
+    svg.selectAll("defs").remove("*");
+
+    let def = svg.append("defs")
+
+    let marker = def.append("marker")
+        .attr("id", "arrow")
+        .attr("refX", "-0")
+        .attr("refY", "3.5")
+        .attr("markerWidth", "7")
+        .attr("markerHeight", "7")
+        .attr("orient", "mid")
+
+
+    // marker.append("path")
+    //     .attr("d", "M 0 5 L 8 0 L 8 9 z")
+    //     .attr("stroke-width", 3)
+    //     .attr("stroke", "red")
+    //     .attr("fill", "none")
+
+    marker.append("image")
+        .attr("xlink:href", "assets/images/buttons/side.png")
+        .attr("x", "0")
+        .attr("y", "0")
+        .attr("width", "7")
+        .attr("height", "7")
+}
+
+
 function addPaletteInfoToCollage(palette, name) {
 
     let svg = d3.select("#composition")
@@ -35,7 +66,7 @@ function addPaletteInfoToCollage(palette, name) {
     let show = palette.encodings.range.marks["mark0"].proto.canvas
 
     drawnMarks[name] = placeMark()
-
+    setMarker()
 
     svg.append("image")
         .attr("class", "collageElement")
@@ -96,12 +127,17 @@ function addPaletteInfoToCollage(palette, name) {
                         const cx = (tFrom.x + tTo.x) / 2;
                         const curve = 2;
 
+                        console.log("?????????????????????????????????????????");
+
                         svg.append("path")
                             // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
                             .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                            .attr("marker-end", "url(#arrow)")
                             .attr("stroke-width", 3)
                             .attr("stroke", "red")
                             .attr("fill", "none")
+
+
                         // .attr("stroke", drawnMarks[name].x)
 
                         megaPalettes[name].apply = tFrom.name
@@ -159,6 +195,7 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("stroke-width", 3)
             .attr("stroke", "red")
             .attr("fill", "none")
+            .attr("marker-end", "url(#arrow)")
         // .attr("stroke", drawnMarks[name].x)
 
 
@@ -189,7 +226,7 @@ function displayPalette(name) {
 
         const val = parseInt(document.getElementById("strokewidth").value);
         stWidth = val
-        console.log("dsdsadas");
+
     }
 
     document.getElementById('strokecolor').onchange = function () {
