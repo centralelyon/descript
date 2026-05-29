@@ -586,7 +586,7 @@ function toColor(canvas, r, g, b, threshold) {
 
     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
 
-    // let M = opencv.Mat.ones(2, 2, cv.CV_8U);
+    // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
     // let p = new opencv.Point(-1, -1)
     // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
 
@@ -614,6 +614,7 @@ function otherGrab(can, coords) {
     let bgdModel = new opencv.Mat();
     let fgdModel = new opencv.Mat();
     let rect = new opencv.Rect(coords.x, coords.y, coords.w, coords.h);
+
     opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 10, opencv.GC_INIT_WITH_RECT);
 // draw foreground
     for (let i = 0; i < src.rows; i++) {
@@ -758,4 +759,245 @@ function getMinimalBoundingBox(canvas, step = 4) {
         width: right - left + 7,
         height: bottom - top + 7
     };
+}
+
+function recolorCanvasLAB(canvas, targetRGB, strength = 1.0) {
+
+    const [targetR, targetG, targetB] = targetRGB;
+
+    // =========================
+    // READ CANVAS
+    // =========================
+
+    let src = opencv.imread(canvas);
+
+    // =========================
+    // ORIGINAL LAB
+    // Preserve original luminance/details
+    // =========================
+
+    let originalLab = new opencv.Mat();
+
+    opencv.cvtColor(src, originalLab, opencv.COLOR_RGBA2Lab);
+
+    let originalChannels = new opencv.MatVector();
+    opencv.split(originalLab, originalChannels);
+
+    let originalL = originalChannels.get(0);
+    let alpha = originalChannels.get(3);
+
+    // =========================
+    // GRAYSCALE BASE
+    // =========================
+
+    let gray = new opencv.Mat();
+
+    opencv.cvtColor(src, gray, opencv.COLOR_RGBA2GRAY);
+
+    let grayRGBA = new opencv.Mat();
+
+    opencv.cvtColor(gray, grayRGBA, opencv.COLOR_GRAY2RGBA);
+
+    // restore original alpha
+    let grayChannels = new opencv.MatVector();
+    opencv.split(grayRGBA, grayChannels);
+
+    grayChannels.set(3, alpha);
+
+    opencv.merge(grayChannels, grayRGBA);
+
+    // =========================
+    // RGBA -> LAB
+    // =========================
+
+    let lab = new opencv.Mat();
+
+    opencv.cvtColor(grayRGBA, lab, opencv.COLOR_RGBA2Lab);
+
+    let channels = new opencv.MatVector();
+    opencv.split(lab, channels);
+
+    // preserve original luminance
+    let L = originalL;
+
+    let A = channels.get(1);
+    let B = channels.get(2);
+
+    // =========================
+    // VISIBLE PIXELS MASK
+    // =========================
+
+    let visibleMask = new opencv.Mat();
+
+    opencv.threshold(
+        alpha,
+        visibleMask,
+        0,
+        255,
+        opencv.THRESH_BINARY
+    );
+
+    // =========================
+    // TARGET COLOR
+    // =========================
+
+    let targetMat = new opencv.Mat(
+        src.rows,
+        src.cols,
+        opencv.CV_8UC4,
+        new opencv.Scalar(targetR, targetG, targetB, 255)
+    );
+
+    let targetLab = new opencv.Mat();
+
+    opencv.cvtColor(targetMat, targetLab, opencv.COLOR_RGBA2Lab);
+
+    let targetChannels = new opencv.MatVector();
+    opencv.split(targetLab, targetChannels);
+
+    let targetA = targetChannels.get(1);
+    let targetBChannel = targetChannels.get(2);
+
+    // =========================
+    // BASE BLEND
+    // =========================
+
+    let mixedA = new opencv.Mat();
+    let mixedB = new opencv.Mat();
+
+    opencv.addWeighted(
+        A,
+        1.0 - strength,
+        targetA,
+        strength,
+        0,
+        mixedA
+    );
+
+    opencv.addWeighted(
+        B,
+        1.0 - strength,
+        targetBChannel,
+        strength,
+        0,
+        mixedB
+    );
+
+    // =========================
+    // DARK LINES BOOST
+    // stronger recolor on dark regions
+    // =========================
+
+    let luminanceMask = new opencv.Mat();
+
+    // invert luminance
+    opencv.bitwise_not(L, luminanceMask);
+
+    // soften transitions
+    opencv.GaussianBlur(
+        luminanceMask,
+        luminanceMask,
+        new opencv.Size(0, 0),
+        5
+    );
+
+    let darkA = new opencv.Mat();
+    let darkB = new opencv.Mat();
+
+    // stronger target influence
+    opencv.addWeighted(
+        mixedA,
+        0.6,
+        targetA,
+        0.4,
+        0,
+        darkA
+    );
+
+    opencv.addWeighted(
+        mixedB,
+        0.6,
+        targetBChannel,
+        0.4,
+        0,
+        darkB
+    );
+
+    // apply extra boost on dark areas
+    darkA.copyTo(mixedA, luminanceMask);
+    darkB.copyTo(mixedB, luminanceMask);
+
+    // apply only visible pixels
+    mixedA.copyTo(A, visibleMask);
+    mixedB.copyTo(B, visibleMask);
+
+    // =========================
+    // REBUILD LABA
+    // =========================
+
+    let merged = new opencv.Mat();
+    let mergedChannels = new opencv.MatVector();
+
+    mergedChannels.push_back(L);
+    mergedChannels.push_back(A);
+    mergedChannels.push_back(B);
+    mergedChannels.push_back(alpha);
+
+    opencv.merge(mergedChannels, merged);
+
+    // =========================
+    // LAB -> RGBA
+    // =========================
+
+    let result = new opencv.Mat();
+
+    opencv.cvtColor(merged, result, opencv.COLOR_Lab2RGBA);
+
+    // =========================
+    // WRITE BACK TO CANVAS
+    // =========================
+
+    opencv.imshow(canvas, result);
+
+    // =========================
+    // CLEANUP
+    // =========================
+
+    src.delete();
+
+    originalLab.delete();
+    originalChannels.delete();
+
+    gray.delete();
+    grayRGBA.delete();
+    grayChannels.delete();
+
+    lab.delete();
+    channels.delete();
+
+    visibleMask.delete();
+    luminanceMask.delete();
+
+    targetMat.delete();
+    targetLab.delete();
+    targetChannels.delete();
+
+    mixedA.delete();
+    mixedB.delete();
+
+    darkA.delete();
+    darkB.delete();
+
+    merged.delete();
+    mergedChannels.delete();
+
+    result.delete();
+
+    A.delete();
+    B.delete();
+
+    alpha.delete();
+
+    targetA.delete();
+    targetBChannel.delete();
 }

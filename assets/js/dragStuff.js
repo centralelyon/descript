@@ -53,7 +53,7 @@ function dragElement(elmnt) {
             (e.pageX - offsetX) + "px";
 
         elmnt.style.top =
-            (e.pageY - offsetY +50) + "px";
+            (e.pageY - offsetY + 50) + "px";
 
         // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
@@ -101,9 +101,7 @@ function dropPalette(e, elmnt) {
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
         megaPalettes[name] = allPalettes[num]
-        addPaletteInfoToCollage(allPalettes[num],name)
-
-
+        addPaletteInfoToCollage(allPalettes[num], name)
 
 
         megaGlyph[name] = {
@@ -162,18 +160,24 @@ function dropCanvas(e, elmnt) {
 
 function drawCanvasWithScale(elmnt, can, scale) {
 
+    let elemW = elmnt.width
+    let elemH = elmnt.height
     if (scale == null) {
         scale = 1
     }
 
+    if (typeof elemW === "object") {
+        elemW = +elmnt.getAttribute("width")
+        elemH = +elmnt.getAttribute("height")
+    }
 
     let cont = can.getContext("2d")
     cont.clearRect(0, 0, can.width, can.height)
     let x = can.width / 2
     let y = can.height / 2
 
-    let scaledW = elmnt.width * scale
-    let scaledH = elmnt.height * scale
+    let scaledW = elemW * scale
+    let scaledH = elemH * scale
 
     if (can.width > scaledW && can.height > scaledH) {
         x -= scaledH / 2
@@ -203,6 +207,48 @@ function drawCanvasWithScale(elmnt, can, scale) {
             cont.drawImage(elmnt, x, y, w, h)
         }
     }
+}
+
+
+function dragstarted(event, d) {
+
+    let elem = d3.select(this)
+
+    elem.raise().attr("stroke", "black");
+
+
+}
+
+function dragged(event, d) {
+    let elem = d3.select(this)
+    elem.attr("cx", event.x).attr("cy", event.y);
+
+    let type = elem.attr("type")
+    let name = elem.attr("name")
+
+    let svg = d3.select("#composition")
+
+    let from = svg.select(`circle[name='${name}'][type='from']`)
+    let to = svg.select(`circle[name='${name}'][type='to']`)
+
+    let link = svg.select(`path[name='${name}']`)
+
+
+    link.transition().duration(40).attr("d", makeLink(+from.attr("cx"), +from.attr("cy"), +to.attr("cx"), +to.attr("cy")))
+    // megaPalettes[name].apply = tFrom.name
+
+    if (type === "from") {
+
+    } else if (type === "to") {
+
+    }
+
+
+}
+
+function dragended(event, d) {
+    // d3.select(this).attr("stroke", null);
+    // let elem = d3.select(this)
 }
 
 

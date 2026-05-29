@@ -1,4 +1,5 @@
 let selectedPalette;
+let newSelectedPalette;
 let marks = {}
 let primitive = {}
 let palette_cat = {}
@@ -29,7 +30,7 @@ let nSelType;
 
 function addAPalette() {
 
-    megaPalette2["temp" + palIt] = {
+    megaPalettes["temp" + palIt] = {
         displayType: "range",
         encodings: {
             "range": {marks: {}},
@@ -38,11 +39,13 @@ function addAPalette() {
         }
     }
     // marks["temp" + palIt] = {}
+    displayPalette("temp" + palIt)
 
+    newSelectedPalette = "temp" + palIt
     ++palIt
-    fillPalette()
-    addAMark()
-    drawSvg()
+    // fillPalette()
+    // addAMark()
+    // drawSvg()
 }
 
 
@@ -59,31 +62,31 @@ function fillPalette(reset = false) {
     const container = document.getElementById("paletteCont")
     container.innerHTML = ""
 
-/*    const anchorCont = document.createElement("div")
-    anchorCont.className = "paletteMarks"
-    // const anchorBlock = document.createElement("div")
+    /*    const anchorCont = document.createElement("div")
+        anchorCont.className = "paletteMarks"
+        // const anchorBlock = document.createElement("div")
 
-    anchorCont.innerHTML = '' +
-        '<h4 style="display: inline-block">Anchors</h4>'*/
-/*
+        anchorCont.innerHTML = '' +
+            '<h4 style="display: inline-block">Anchors</h4>'*/
+    /*
 
-    let anchorsDiv = document.getElementById("anchorsContainer")
-    if (anchorsDiv === null) {
-        anchorsDiv = document.createElement("div")
-        anchorsDiv.setAttribute("id", "anchorsContainer")
-    }
+        let anchorsDiv = document.getElementById("anchorsContainer")
+        if (anchorsDiv === null) {
+            anchorsDiv = document.createElement("div")
+            anchorsDiv.setAttribute("id", "anchorsContainer")
+        }
 
-    updateAnchorCont(anchorsDiv)
+        updateAnchorCont(anchorsDiv)
 
-    anchorCont.appendChild(anchorsDiv)
-    anchorCont.innerHTML += '<div id="plusAnchor" onclick="addAnchor()">' +
-        '<img src="assets/images/buttons/plus.png" style="width:25px;height:25px;margin-top: 12%;margin-left: 4.4%;">' +
-        '</div>' +
-        '<div class="buttonImg " id="anchorBtn">' +
-        '<img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style=""/>' +
-        '</div>'
-    container.appendChild(anchorCont)
-*/
+        anchorCont.appendChild(anchorsDiv)
+        anchorCont.innerHTML += '<div id="plusAnchor" onclick="addAnchor()">' +
+            '<img src="assets/images/buttons/plus.png" style="width:25px;height:25px;margin-top: 12%;margin-left: 4.4%;">' +
+            '</div>' +
+            '<div class="buttonImg " id="anchorBtn">' +
+            '<img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style=""/>' +
+            '</div>'
+        container.appendChild(anchorCont)
+    */
 
 
     const mess = getOptions()
@@ -214,36 +217,36 @@ function fillPalette(reset = false) {
             // makeRangeMark(range, key, tdiv, value, typesDisplay)
         }
 
-/*        const div1 = document.createElement("div")
-        const div2 = document.createElement("div")
-        const div3 = document.createElement("div")
+        /*        const div1 = document.createElement("div")
+                const div2 = document.createElement("div")
+                const div3 = document.createElement("div")
 
-        div1.className = "primitiveData"
-        div2.className = "primitiveData"
-        div3.className = "primitiveData"
+                div1.className = "primitiveData"
+                div2.className = "primitiveData"
+                div3.className = "primitiveData"
 
-        div1.innerHTML = "<p class='primitiveLabel'> Linked to Palette </p>" +
-            "<select id='" + key + "_markLinkedToPalette' class='palettelinkedTo'>" +
-            "<option selected>None</option>" +
-            +"" + allPalName +
-            "</select>"
+                div1.innerHTML = "<p class='primitiveLabel'> Linked to Palette </p>" +
+                    "<select id='" + key + "_markLinkedToPalette' class='palettelinkedTo'>" +
+                    "<option selected>None</option>" +
+                    +"" + allPalName +
+                    "</select>"
 
-        div2.innerHTML =
-            "<p class='primitiveLabel'> On Anchor </p>" +
-            "<select id='" + key + "_markLinkedTo' class='anchorLinkTo'>" +
-            "<option selected>None</option>" +
-            +mess +
-            "</select>"
-
-
-        div3.innerHTML =
-            "<p class='primitiveLabel'>Scale </p>" +
-            "<input type='range' min='0.5' max='3' step='0.1' value='1' id='" + key + "_markScale' class='scaleMarks'>"
+                div2.innerHTML =
+                    "<p class='primitiveLabel'> On Anchor </p>" +
+                    "<select id='" + key + "_markLinkedTo' class='anchorLinkTo'>" +
+                    "<option selected>None</option>" +
+                    +mess +
+                    "</select>"
 
 
-        tdiv.appendChild(div1)
-        tdiv.appendChild(div2)
-        tdiv.appendChild(div3)*/
+                div3.innerHTML =
+                    "<p class='primitiveLabel'>Scale </p>" +
+                    "<input type='range' min='0.5' max='3' step='0.1' value='1' id='" + key + "_markScale' class='scaleMarks'>"
+
+
+                tdiv.appendChild(div1)
+                tdiv.appendChild(div2)
+                tdiv.appendChild(div3)*/
 
 
         container.appendChild(tdiv)
@@ -255,10 +258,10 @@ function fillPalette(reset = false) {
             savePalette2(key)
         }
 
-/*        document.querySelectorAll("#" + key + "_displayTypes option").forEach(option => {
-            if (option.value === value.displayType)
-                option.setAttribute("selected", "true")
-        })*/
+        /*        document.querySelectorAll("#" + key + "_displayTypes option").forEach(option => {
+                    if (option.value === value.displayType)
+                        option.setAttribute("selected", "true")
+                })*/
 
 
     }
@@ -449,9 +452,9 @@ function onClickPalette(e) {
         xy = toWorld(xy, paletteOrigin, paletteScale)
         console.log(xy);
 
-        paletteTempCan
+
         // let tcan = megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source
-        let tcan =  paletteTempCan
+        let tcan = paletteTempCan
 
         let tw = 60
         let th = 60
@@ -786,8 +789,8 @@ function savePalette() {
     // resCont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
 
 
-    let tw = Math.min (corn.width,resCan.width)
-    let th = Math.min (corn.height,resCan.height)
+    let tw = Math.min(corn.width, resCan.width)
+    let th = Math.min(corn.height, resCan.height)
 
 
     resCont.drawImage(paletteTempCan,
@@ -806,15 +809,15 @@ function savePalette() {
         if (selectedPalette[1]) {
 
             // marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
-            megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.corners = [[corn.x,corn.y],[corn.x+corn.width,corn.y+corn.height]]
+            megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
         } else {
-            marks[selectedPalette[0]].proto.corners = [[corn.x,corn.y],[corn.x+corn.width,corn.y+corn.height]]
+            marks[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
 
         }
 
 
     } else if (selectedPalette[2] === "cat") {
-        palette_cat[selectedPalette[0]].proto.corners = [[corn.x,corn.y],[corn.x+corn.width,corn.y+corn.height]]
+        palette_cat[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
         let tcan = document.getElementById("canvas_" + selectedPalette[0])
         let tcont = tcan.getContext('2d')
         let size = fixRatio2([palette_cat[selectedPalette[0]].proto.canvas.width, palette_cat[selectedPalette[0]].proto.canvas.height], [60, 60])
@@ -940,56 +943,56 @@ function setPrimitveEvents(type, key) { //TODO: key is out of scope
         // primitive[key].anchor_type = this.value
     }
 
-/*
-    document.getElementById(key + "_primitivelinkedTo").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        // primitive[key].anchor_type = this.value
-        primitive[key].linkTo = this.value
-    }
-*/
-
-/*    document.getElementById(key + "_primitivelinkedToPalette").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        // primitive[key].anchor_type = this.value
-        primitive[key].apply = this.value
-    }*/
-
-
-/*    document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
-
-        const key = this.getAttribute("id").split("_")[0];
-        let anchor = document.getElementById(key + "_primitiveAnchors").value
-
-        if (anchor === "None") {
-            anchor = currAnchor
-        }
-
-        const val = +this.value
-        if (primitive[key].anchors) {
-            primitive[key].anchors[anchor] = {percent: val}
-
-        } else {
-            primitive[key].anchors = {}
-            primitive[key].anchors[anchor] = {percent: val}
-        }
-
-        global_anchors[anchor] = {
-            from:
-                {
-                    data: {percent: val, type: "line"},
-                    key: key,
-                    type: "primitive",
-                }
-        }
-
+    /*
         document.getElementById(key + "_primitivelinkedTo").onchange = function () {
             const key = this.getAttribute("id").split("_")[0];
-            primitive[key].apply = this.value
+            // primitive[key].anchor_type = this.value
+            primitive[key].linkTo = this.value
         }
+    */
 
-        // primitive[key].anchors = this.value
+    /*    document.getElementById(key + "_primitivelinkedToPalette").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            // primitive[key].anchor_type = this.value
+            primitive[key].apply = this.value
+        }*/
 
-    }*/
+
+    /*    document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
+
+            const key = this.getAttribute("id").split("_")[0];
+            let anchor = document.getElementById(key + "_primitiveAnchors").value
+
+            if (anchor === "None") {
+                anchor = currAnchor
+            }
+
+            const val = +this.value
+            if (primitive[key].anchors) {
+                primitive[key].anchors[anchor] = {percent: val}
+
+            } else {
+                primitive[key].anchors = {}
+                primitive[key].anchors[anchor] = {percent: val}
+            }
+
+            global_anchors[anchor] = {
+                from:
+                    {
+                        data: {percent: val, type: "line"},
+                        key: key,
+                        type: "primitive",
+                    }
+            }
+
+            document.getElementById(key + "_primitivelinkedTo").onchange = function () {
+                const key = this.getAttribute("id").split("_")[0];
+                primitive[key].apply = this.value
+            }
+
+            // primitive[key].anchors = this.value
+
+        }*/
 
     /*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
             const key = this.getAttribute("id").split("_")[0];
@@ -1096,25 +1099,6 @@ function getOptions() {
 }
 
 
-/*
-function getMarks() {
-    let tmarks = Object.keys(marks)
-    let prim = Object.keys(primitive)
-
-
-    let mess = ""
-
-    for (let i = 0; i < tmarks.length; i++) {
-        mess += "<option type='mark' id ='apply2_" + tmarks[i] + "'>" + tmarks[i] + "</option>"
-    }
-    for (let i = 0; i < prim.length; i++) {
-        mess += "<option type='prim' id ='apply2_" + prim[i] + "'>" + prim[i] + "</option>"
-    }
-
-    return mess
-}
-*/
-
 function addAnchor() {
 
     let nb = Object.keys(global_anchors).length
@@ -1202,10 +1186,6 @@ function setAnchorOnProto(e, el) {
         if (selProto.anchors === undefined) {
             selProto.anchors = {}
         }
-
-
-        console.log(xy.x);
-
         selProto.anchors[currAnchor] = {
             x: tx,
             y: ty,
@@ -1370,52 +1350,52 @@ function setMarkEvent(key, type) {
         }
     }
 
-/*
-    document.getElementById(key + "_markScale").onchange = function (e) {
+    /*
+        document.getElementById(key + "_markScale").onchange = function (e) {
 
-        const key = this.getAttribute("id").split("_")[0];
-        megaPalettes[key].encodings.range.scale = +this.value
+            const key = this.getAttribute("id").split("_")[0];
+            megaPalettes[key].encodings.range.scale = +this.value
 
-        for (const [tkey, value] of Object.entries(megaPalettes[key].encodings[type].marks)) {
-            if (value.source)
-                drawCanvasWithScale(value.source, value.proto.canvas, megaPalettes[key].encodings[type].scale)
+            for (const [tkey, value] of Object.entries(megaPalettes[key].encodings[type].marks)) {
+                if (value.source)
+                    drawCanvasWithScale(value.source, value.proto.canvas, megaPalettes[key].encodings[type].scale)
+            }
+
+
+            drawSvg()
+
+
+        }
+
+        document.getElementById(key + "_markLinkedToPalette").onchange = function (e) {
+
+            const key = this.getAttribute("id").split("_")[0];
+            // primitive[key].anchor_type = this.value
+            megaPalettes[key].apply = this.value
+            //
+            // for (const [key, value] of Object.entries(megaPalettes)) {
+            //     value.apply = this.value
+            // }
         }
 
 
-        drawSvg()
+        document.getElementById(key + "_displayTypes").onchange = function (e) {
 
+            const key = this.getAttribute("id").split("_")[0];
 
-    }
+            megaPalettes[key].displayType = this.value
 
-    document.getElementById(key + "_markLinkedToPalette").onchange = function (e) {
-
-        const key = this.getAttribute("id").split("_")[0];
-        // primitive[key].anchor_type = this.value
-        megaPalettes[key].apply = this.value
-        //
-        // for (const [key, value] of Object.entries(megaPalettes)) {
-        //     value.apply = this.value
-        // }
-    }
-
-
-    document.getElementById(key + "_displayTypes").onchange = function (e) {
-
-        const key = this.getAttribute("id").split("_")[0];
-
-        megaPalettes[key].displayType = this.value
-
-        // #TODO: Here fill 2 canvases for morph
-        fillPalette()
-    }
-
-    document.getElementById(key + "_markLinkedTo").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        // primitive[key].anchor_type = this.value
-        for (const [key, value] of Object.entries(megaPalettes)) {
-            value.linkTo = this.value
+            // #TODO: Here fill 2 canvases for morph
+            fillPalette()
         }
-    }*/
+
+        document.getElementById(key + "_markLinkedTo").onchange = function () {
+            const key = this.getAttribute("id").split("_")[0];
+            // primitive[key].anchor_type = this.value
+            for (const [key, value] of Object.entries(megaPalettes)) {
+                value.linkTo = this.value
+            }
+        }*/
 
 }
 
@@ -1433,17 +1413,17 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
 
     let names = Object.keys(marks)
 
-    if (names.length === 0) {
-        const tcan = document.createElement("canvas")
-        tcan.width = 60
-        tcan.height = 60
+    /*    if (names.length === 0) {
+            const tcan = document.createElement("canvas")
+            tcan.width = 60
+            tcan.height = 60
 
-        marks["mark0"] = {
-            value: "mark0",
-            type: "fake",
-            proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
-        }
-    }
+            marks["mark0"] = {
+                value: "mark0",
+                type: "fake",
+                proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
+            }
+        }*/
 
     for (const [name, value] of Object.entries(marks)) {
         let tmark = makeSingleMark(key, name, "range", value.proto.canvas)
@@ -1490,21 +1470,25 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
 
     let moreCan = document.createElement("div")
 
-    moreCan.innerHTML = ` <img  src="assets/images/buttons/plus.png" class="buttonImg" style=";margin-top: 41px;
+    moreCan.innerHTML = ` <img  id="palettePlusMark" src="assets/images/buttons/plus.png" class="buttonImg" style=";margin-top: 41px;
   width: 25px;
   margin-left: 5px;cursor: pointer" onclick="addACan(this,'${key}')">`
     tdiv.appendChild(moreCan)
 }
 
-function addACan(elem, key) {
-    let len = Object.keys(megaPalette2[key].encodings.range.marks).length
+function addACan(elem, key, img = undefined) {
+    let len = Object.keys(megaPalettes[key].encodings.range.marks).length
+
     let tcan = document.createElement("canvas")
 
     tcan.width = 60
     tcan.height = 60
     let name = "mark" + len
+    if (img) {
+        drawCanvasWithScale(img, tcan, 1)
+    }
 
-    megaPalette2[key].encodings.range.marks[name] = {
+    megaPalettes[key].encodings.range.marks[name] = {
         value: name,
         type: "fake",
         proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
@@ -1575,26 +1559,25 @@ function makeSingleMark(key, label, type, can = undefined) {
     return tdiv_mark
 }
 
-function renameRow(elem, key,) {
+function renameRow(elem, key) {
 
     let name = elem.value
 
-    if (name !== "") {
+
+    document.getElementById("exportPaletteBtn_" + key).setAttribute("name", name)
+
+    if (name !== "" && !palSources.includes(key)) {
         megaPalettes[name] = megaPalettes[key]
+        delete megaPalettes[key]
     }
 
-    delete megaPalettes[key]
 
     fillPalette()
 }
 
 function savePalette2(key) {
 
-    console.log("dadasdsadas");
-    console.log(key);
     let res = megaPalettes[key]
-
-
     for (const [key, value] of Object.entries(res)) {
         if (typeof value === "object") {
             const tval = {...value}

@@ -133,7 +133,7 @@ function saveRow() {
         addProto2Collage(order[i], drawingData[order[i]])
     }
 
-    dataList = drawingData
+    // dataList = drawingData
 
 
 }

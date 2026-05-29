@@ -76,19 +76,18 @@ async function initAllPalette() {
     let tPalCont = document.getElementById("paletteCont")
 
 
-    tPalCont.onmouseover= function (e) {
+    tPalCont.onmouseover = function (e) {
         if (dragging) {
 
-        this.classList.add("draggedover");
+            this.classList.add("draggedover");
         }
     }
 
-    tPalCont.onmouseleave= function (e) {
+    tPalCont.onmouseleave = function (e) {
         if (dragging) {
             this.classList.remove("draggedover");
         }
     }
-
 
 
 }
@@ -168,5 +167,58 @@ function openNav() {
         })
     }
 
+
+}
+
+
+function appendSingle(palette,name) {
+    const container = document.getElementById("AllPaletteCont");
+
+
+    palSources.push(name)
+
+    console.log(palette);
+
+    let tdiv = document.createElement("div");
+    tdiv.className = "allPaletteRow";
+    tdiv.setAttribute("number", palSources.length-1)
+    tdiv.setAttribute("name", name)
+
+    let canContainer = document.createElement("div");
+    tdiv.innerHTML = `<p>${name}</p>`;
+    canContainer.className = "canPreview";
+
+    tdiv.appendChild(canContainer);
+    container.appendChild(tdiv);
+
+    dragElement(tdiv)
+    let allMarks = palette.encodings.range.marks;
+
+    let MarkNames = Object.keys(allMarks)
+    let n = MarkNames.length;
+    let offx = 14
+    let offy = 3
+
+    if (offx * n + subW > prevW || offy * n + subH > prevH) {
+        offx = (prevW - subW) / n
+        offy = (prevH - subH) / n
+    }
+    canContainer.style.width = prevW + "px"
+    canContainer.style.height = prevH + "px"
+
+    for (let j = n - 1; j > -1; j--) {
+
+        let tcan = cloneCanvas(allMarks[MarkNames[j]].proto.canvas)
+        tcan.style.width = `${subW}px`
+        tcan.style.height = `${subH}px`
+
+        tcan.style.left = `${offx + (j * offx)}px`
+        tcan.style.top = `${(prevH - subH) - (j * offy)}px`
+
+
+        canContainer.appendChild(tcan);
+
+        allPalettes.push(palette)
+    }
 
 }

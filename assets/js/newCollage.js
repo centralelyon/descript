@@ -41,7 +41,7 @@ function setMarker() {
         .attr("refY", "3.5")
         .attr("markerWidth", "7")
         .attr("markerHeight", "7")
-        .attr("orient", "mid")
+        .attr("orient", "auto")
 
 
     // marker.append("path")
@@ -83,9 +83,7 @@ function addPaletteInfoToCollage(palette, name) {
                     anchoring = true
                     anchoringRef = name
 
-
                     let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
-
 
                     let offx = e.offsetX - imCord.x
                     let offy = e.offsetY - imCord.y
@@ -113,6 +111,7 @@ function addPaletteInfoToCollage(palette, name) {
                             .attr("cy", drawnMarks[name].y + offy)
                             .attr("r", 5)
                             .attr("fill", drawnMarks[name].x)
+                            .call(dragCircle)
 
                         //TODO: Add a link
                         tTo = {
@@ -127,12 +126,11 @@ function addPaletteInfoToCollage(palette, name) {
                         const cx = (tFrom.x + tTo.x) / 2;
                         const curve = 2;
 
-                        console.log("?????????????????????????????????????????");
 
                         svg.append("path")
                             // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
                             .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
-                            .attr("marker-end", "url(#arrow)")
+                            .attr("marker-mid", "url(#arrow)")
                             .attr("stroke-width", 3)
                             .attr("stroke", "red")
                             .attr("fill", "none")
@@ -159,6 +157,7 @@ function addPaletteInfoToCollage(palette, name) {
                             .attr("cy", drawnMarks[name].y + offy)
                             .attr("r", 5)
                             .attr("fill", drawnMarks[name].x)
+                            .call(dragCircle)
 
                     }
                 }
@@ -195,27 +194,46 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("stroke-width", 3)
             .attr("stroke", "red")
             .attr("fill", "none")
-            .attr("marker-end", "url(#arrow)")
+            .attr("name", name)
+            // .attr("marker-mid", "url(#arrow)")
         // .attr("stroke", drawnMarks[name].x)
+
 
 
         svg.append("circle")
             .attr("cx", tFrom.x)
             .attr("cy", tFrom.y)
+            .attr("type", "from")
+            .attr("name", name)
             .attr("r", 5)
             .attr("fill", drawnMarks[name].x)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended))
+
 
         svg.append("circle")
             .attr("cx", tTo.x)
             .attr("cy", tTo.y)
+            .attr("type", "to")
+            .attr("name", name)
             .attr("r", 5)
             .attr("fill", drawnMarks[name].x)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended))
 
         megaPalettes[name].apply = tFrom.name
         megaPalettes[name].linkTo = nAnchor
     }
 }
 
+function hidePalette() {
+    const container = document.getElementById("paletteDetails")
+    container.style.display = "none"
+}
 
 function displayPalette(name) {
 
@@ -235,22 +253,54 @@ function displayPalette(name) {
     }
 
 
+    const expo = document.createElement("button")
+    expo.innerHTML = `<img class="buttonImg" src="/assets/images/buttons/export.png">`
+
+    expo.setAttribute("class", "exportPaletteBtn")
+    expo.setAttribute("id", "exportPaletteBtn_" + name)
+
+
+    const tdiv = document.createElement("div")
+    tdiv.id = "palette_" + name
+    tdiv.className = "paletteName"
+    tdiv.appendChild(expo)
+    tdiv.innerHTML += `<input type="text" onchange="renameRow(this,'${name}')" row="${tdiv.id}" value="${name}" class="waypointTitle" />`
+
     const container = document.getElementById("paletteDetails")
     container.style.display = "flex"
+
+
+    const containerTitle = document.getElementById("paletteTitle")
     const containerMarks = document.getElementById("paletteMarks")
     const containerControls = document.getElementById("paletteControls")
 
+    containerTitle.innerHTML = ""
     containerMarks.innerHTML = ""
     containerControls.innerHTML = ""
 
     const palette = megaPalettes[name]
+    containerTitle.appendChild(tdiv)
 
+
+    document.getElementById("exportPaletteBtn_" + name).onclick = function (e) {
+
+        // savePalette2(name)
+        // console.log(e.target.parentElement);
+
+        let tname = e.target.parentElement.getAttribute("name")
+
+        appendSingle(palette, tname)
+    }
+
+    newSelectedPalette = name
     const tdiv_mark = document.createElement("div")
     tdiv_mark.id = "mark_" + name
     tdiv_mark.className = "paletteMark"
     tdiv_mark.setAttribute("key", name)
 
     tdiv_mark.onclick = function (e) {
+
+        console.log("dasdasdadasdas dasd asdad asd ");
 
         if (mode !== "anchor") {
             if (e.target.matches("canvas")) {
@@ -262,30 +312,30 @@ function displayPalette(name) {
         }
     }
 
-    containerMarks.appendChild(tdiv_mark)
-
     makeRangeMark(name, containerMarks, palette, "range")
 
+    containerMarks.appendChild(tdiv_mark)
+    if (megaGlyph[name]) {
+        let columns = Object.keys(chartDataset.data[0])
+        let [tsel, opts] = makeDataColumnMenu(columns, name, megaGlyph[name].dataColumn)
 
-    let columns = Object.keys(chartDataset.data[0])
-    let [tsel, opts] = makeDataColumnMenu(columns, name, megaGlyph[name].dataColumn)
+        tsel.style.marginTop = "5px"
 
-    tsel.style.marginTop = "5px"
+        let tdiv = document.createElement("div")
+        tdiv.style.display = "flex";
 
-    let tdiv = document.createElement("div")
-    tdiv.style.display = "flex";
-
-    tdiv.innerHTML = `<p style="margin-top: 9px;
+        tdiv.innerHTML = `<p style="margin-top: 9px;
   margin-right: 6px;">Data Column: </p>`
-    tdiv.appendChild(tsel)
+        tdiv.appendChild(tsel)
 
-    let color = makeParamOption("color", columns, name)
-    let size = makeParamOption("size", columns, name)
+        let color = makeParamOption("color", columns, name)
+        let size = makeParamOption("size", columns, name)
 
-    containerControls.appendChild(tdiv)
-    containerControls.appendChild(color)
-    containerControls.appendChild(size)
+        containerControls.appendChild(tdiv)
+        containerControls.appendChild(color)
+        containerControls.appendChild(size)
 
+    }
 }
 
 

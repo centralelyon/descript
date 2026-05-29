@@ -167,6 +167,7 @@ async function init() {
     
     chartDataset.data = fakeWeek26()
     drawSvg()
+    fillSidePanel()
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("paletteLoader").addEventListener("change", importPalette);
@@ -849,6 +850,8 @@ function switchPalette() {
     if (palSwitch) {
         canContainer.style.display = "block"
         svgContainer.style.display = "none"
+
+
     } else {
         canContainer.style.display = "none"
         svgContainer.style.display = "block"
@@ -872,10 +875,7 @@ function fakeWeek26() {
             })
             ++id
         }
-
     }
 
     return res
-
-
 }

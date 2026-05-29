@@ -31,6 +31,7 @@
     <script src="assets/js/sandbox.js"></script>
     <script src="assets/js/newCollage.js"></script>
     <script src="assets/js/AllPalettes.js"></script>
+    <script src="assets/js/datasetStuff.js"></script>
     <script src="assets/js/main.js"></script>
 
 
@@ -71,7 +72,8 @@
             <div class="buttonImg" style="position: absolute;width: 15px" id="anchorBtn">
                 <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
             </div>
-            <svg  id="composition" width="320" height="320" style="background-color:#fff;border: 1px solid #555;border-radius: 7px">
+            <svg id="composition" width="320" height="320"
+                 style="background-color:#fff;border: 1px solid #555;border-radius: 7px">
 
 
             </svg>
@@ -90,6 +92,13 @@
     </div>
     <div style="width: calc(100% - 350px);border-radius: 14px">
         <div style="display: none" id="paletteDetails">
+            <div style="position: absolute;width: 25px;height: 25px;right: 10px;top: 10px;cursor: pointer">
+                <img style="width: inherit;filter: invert(1)" onclick="hidePalette()"
+                     src="assets/images/buttons/cross.png">
+            </div>
+            <div id="paletteTitle" style="width: 100%; display: flex">
+            </div>
+            <div></div>
             <div id="paletteMarks" style="width: 100%; display: flex">
             </div>
             <div id="paletteControls" style="width: 100%; display: flex">
@@ -115,7 +124,8 @@
                     </div>
                 </div>
                 <div id="closePaletteContainer" style="">
-                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()" src="assets/images/buttons/cross.png">
+                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()"
+                         src="assets/images/buttons/cross.png">
                 </div>
                 <div style="display: inline-block;width: 40px;position: absolute;top:83px;margin-left:5px "
                      id="editControl">
@@ -151,7 +161,7 @@
                 </div>
             </div>
         </div>
-        <div id="canvasContainer" style="display: none;width: 100%">
+        <div id="canvasContainer" style="display: none;width: 100%;z-index: 2">
             <div style="display: flex"><p>Upload an image.. </p>
                 <div class="buttonImg" style="padding: 0;border: none">
                     <input type="file" name="img" id="imgLoader" style="display: none;"/>
@@ -168,7 +178,8 @@
 
                     <canvas id="inVis"
                             style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;"></canvas>
-                    <svg   id="sampleDisplay" style="width: 100%;height: 100%;position: absolute;pointer-events: none;top: 0">
+                    <svg id="sampleDisplay"
+                         style="width: 100%;height: 100%;position: absolute;pointer-events: none;top: 0">
 
                     </svg>
                 </div>
@@ -198,9 +209,9 @@
                 </div>
             </div>
 
-<!--            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
+            <!--            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
 
-<!--            </div>-->
+            <!--            </div>-->
             <div style=";overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">
             </div>
 
@@ -214,13 +225,11 @@
             <div style="" class="sideContent">
                 <div>
                     <p style="margin: 0;font-size:16pt;font-weight: 600;"> Dataset</p>
+                    <select id="availableData"> </select>
                     <button onclick="">Import CSV</button>
+                    <div id="datasetInfo"> </div>
                 </div>
-                <div>
-                    <p style="margin: 0;font-size:16pt;font-weight: 600;"> Chart Setting</p>
-                    <button onclick="switchGrid()"> Grid Layout</button>
-                    <button onclick="switchForce()"> Force Layout</button>
-                </div>
+
 
                 <!--            <div id="AllPaletteCont">-->
 
@@ -231,6 +240,11 @@
         </div>
 
         <!--        <div id="fakePreview">-->
+        <div>
+            <button style="border: darkred solid 1px" onclick="switchForce()"> Force Layout</button>
+            <button  onclick="switchGrid()"> Grid Layout</button>
+
+        </div>
         <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
         <!--        </div>-->
     </div>

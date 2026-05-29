@@ -1,5 +1,6 @@
 body {
     font-family: Helvetica Neue, sans-serif;
+    user-select: none;
 }
 
 .editCat {
@@ -84,6 +85,8 @@ body {
     display: inline-block;
 
 }
+
+
 
 #catData {
     width: 30%;
@@ -417,6 +420,7 @@ canvas {
     left: 550px;
     background-color: #424242;
     color: #fff;
+    z-index: 99;
 
 
 }
@@ -489,12 +493,20 @@ table th {
     width: 75px;
 }
 
+.paletteName {
+    display: flex;
+}
+
+#palettePlusMark {
+filter: invert(1);
+}
 
 .waypointTitle {
+    background-color: #424242 !important;
     font-weight: 600;
     text-align: left;
-    margin-left: 29px;
-    color: #333;
+    margin-left: 10px;
+    color: #fff;
     border-radius: 0 !important;
     border: none !important;
     border-color: #333;
@@ -502,11 +514,11 @@ table th {
     /*padding: 5px 10px !important;*/
     padding: 5px 2px !important;
     outline: none !important;
-    width: 15%;
-    font-size: 20pt;
+    /*width: 15%;*/
+    font-size: 14pt;
     margin-right: 10px;
-    margin-top: 14px;
     min-width: 90px;
+    height: 27px !important;
 }
 
 #sampledMarks canvas {
@@ -767,16 +779,17 @@ li .fakeGrammarRow {
 
 .exportPaletteBtn {
     cursor: pointer;
-    width: 50px;
+    width: 32px;
     padding: 0;
     height: 29px;
-    margin-top: 35px;
+    /*margin-top: 35px;*/
 }
 
 .exportPaletteBtn img {
     transform: scaleX(-1);
     width: 21px;
     height: 21px;
+    filter: invert(1);
 }
 
 .canPreview {
@@ -859,7 +872,7 @@ p, h3, h4, h5, img {
     width: 32px;
     height: 35px;
     background-color: inherit;
-    left: -22px;
+    left: -12px;
     border-radius: 5px;
     transition: .5s;
 }
@@ -870,11 +883,11 @@ p, h3, h4, h5, img {
 }
 
 #AllPaletteCont {
-    overflow-y: auto;
-    height: 74vh;
+    overflow-y: scroll;
+    height: 50vh;
     width: 300px;
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-    scrollbar-width: none; /* Firefox, Safari 18.2+, Chromium 121+ */
+    /*-ms-overflow-style: none; !* Internet Explorer 10+ *!*/
+    /*scrollbar-width: none; !* Firefox, Safari 18.2+, Chromium 121+ *!*/
     /*border: 1px solid #555;*/
 }
 
@@ -915,8 +928,53 @@ p, h3, h4, h5, img {
     border-radius: 10px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     padding: 20px;
+    z-index: 99;
 }
 
-#svgDisplay image{
+#sampleDisplay image{
     pointer-events: all;
+
+}
+
+#sampleDisplay .sample {
+    outline: solid 1px #424242;
+}
+
+.LassoControls {
+    cursor: pointer;
+}
+
+.LassoControls circle {
+    fill: rgba(244, 244, 244, 0.9);
+    stroke-width: 2px;
+    stroke: #222
+}
+
+.LassoControls:hover {
+    fill: rgba(244, 244, 244, 0.5);
+}
+
+
+#composition path:hover {
+
+    stroke-width: 6px ;
+    cursor: pointer;
+
+}
+
+#composition circle:hover {
+
+    r: 9px ;
+    cursor: grab;
+
+
+}
+.dataRow {
+    display: flex;
+    justify-content: center;
+}
+
+.dataColumn {
+    font-weight: 600;
+    text-decoration: underline;
 }

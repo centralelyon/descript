@@ -1,6 +1,6 @@
 let options_type = {}
 let displayedMarks = {}
-let dataList = {}
+// let dataList = {}
 
 
 function populateSelect() {

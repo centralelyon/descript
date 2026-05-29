@@ -313,12 +313,14 @@ async function drawSvg() {
                                     let tcol = hexToRgb(colScale["default"])
                                     if (colScale[d[useDatCol]])
                                         tcol = hexToRgb(colScale[d[useDatCol]])
-                                    can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+                                    // can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+                                    // can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+                                    recolorCanvasLAB(can,[tcol.r,tcol.g,tcol.b],1)
                                 }
 
-                                removeColor(230, 230, 230, can, 25)
+                                // removeColor(230, 230, 230, can, 25)
                             }
-                            removeColor(240, 240, 240, can, 15)
+                            // removeColor(240, 240, 240, can, 15)
                             return can.toDataURL("image/png")
 
                         })
@@ -426,12 +428,10 @@ async function drawSvg() {
                 .attr("xlink:href", d =>
                     makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
                 .attr("x", d => {
-                    d.x = xScale(d[chartAxis.x]);
-                    return d.x
+                    return xScale(d[chartAxis.x])
                 })
                 .attr("y", d => {
-                    d.y = yScale(d[chartAxis.y]);
-                    return d.y
+                    return yScale(d[chartAxis.y]);
                 })
 
 
