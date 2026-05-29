@@ -34,5 +34,14 @@ function fillSidePanel() {
 
     }
 
+    const elements =  document.querySelectorAll(".dataRow")
+
+    for (let i = 0; i <elements.length; i++) {
+
+
+        dragElement2(elements[i])
+    }
+
+
 
 }

@@ -11,7 +11,6 @@ function dragElement(elmnt) {
 
     elmnt.onmousedown = dragMouseDown;
 
-
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -73,6 +72,73 @@ function dragElement(elmnt) {
             dropCanvas(e, elmnt)
         } else {
             dropPalette(e, elmnt)
+        }
+
+
+    }
+}
+
+
+function dragElement2(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    elmnt.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+
+        console.log();
+        const rect = elmnt.getBoundingClientRect();
+
+        offsetX = e.clientX - rect.left
+        offsetY = e.clientY - rect.top;
+
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        // set the element's new position:
+        elmnt.style.position = "absolute";
+
+        let tcords = elmnt.parentElement.getBoundingClientRect();
+
+        elmnt.style.left =
+            ((e.pageX - offsetX) - tcords.x) + "px";
+
+        elmnt.style.top =
+            ((e.pageY - offsetY + 50) - 50) + "px";
+
+        // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+    }
+
+    function closeDragElement(e) {
+        // stop moving when mouse button is released:
+        elmnt.style.position = "";
+        elmnt.style.top = ""
+        elmnt.style.left = ""
+        document.onmouseup = null;
+        document.onmousemove = null;
+        dragging = false
+
+
+        if (e.target.matches("#paletteDetails")) {
+
         }
 
 

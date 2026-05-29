@@ -972,6 +972,12 @@ p, h3, h4, h5, img {
 .dataRow {
     display: flex;
     justify-content: center;
+    padding: 4px;
+}
+
+.dataRow:hover {
+  border: solid 1px #424242;
+    cursor:grab;
 }
 
 .dataColumn {
