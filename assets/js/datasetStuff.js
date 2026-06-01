@@ -24,11 +24,11 @@ function fillSidePanel() {
         let cont = isCont(chartDataset.data, tkeys[i])
         if (cont) {
             let trange = d3.extent(chartDataset.data.map(d => d[tkeys[i]]))
-            container.innerHTML += `<div class="dataRow"><p  class="dataColumn">${tkeys[i]}: </p><p>  [${trange[0]}-${trange[1]}]</p></div>`
+            container.innerHTML += `<div dataColumn="${tkeys[i]}" class="dataRow"><p  class="dataColumn">${tkeys[i]}: </p><p>  [${trange[0]}-${trange[1]}]</p></div>`
         } else {
 
             let set = new Set(chartDataset.data.map(d => d[tkeys[i]]));
-            container.innerHTML += `<div class="dataRow"><p class="dataColumn">${tkeys[i]}: </p><p> [${Array.from(set)}]</p></div>`
+            container.innerHTML += `<div dataColumn="${tkeys[i]}" class="dataRow"><p class="dataColumn">${tkeys[i]}: </p><p> [${Array.from(set)}]</p></div>`
         }
 
 

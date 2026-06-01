@@ -5,6 +5,7 @@ let dragging = false;
 let offsetX = 0;
 let offsetY = 0;
 
+let selectedDataColumn = ""
 
 function dragElement(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -20,6 +21,7 @@ function dragElement(elmnt) {
         } else {
             dragMode = "canvas";
         }
+
 
 
         const rect = elmnt.getBoundingClientRect();
@@ -84,11 +86,12 @@ function dragElement2(elmnt) {
 
     elmnt.onmousedown = dragMouseDown;
 
+
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
+        selectedDataColumn = elmnt.getAttribute("datacolumn");
 
-        console.log();
         const rect = elmnt.getBoundingClientRect();
 
         offsetX = e.clientX - rect.left
@@ -137,9 +140,22 @@ function dragElement2(elmnt) {
         dragging = false
 
 
-        if (e.target.matches("#paletteDetails")) {
+        if (e.target.matches(".collageElement")) {
+            let id = e.target.getAttribute("id").split("collage-")[1]
+
+            console.log(id);
+            console.log(selectedDataColumn);
+
+            megaGlyph[id].dataColumn =   selectedDataColumn
+
+            dataBinding[id]  = selectedDataColumn
+
+            drawSvg()
+
 
         }
+
+        selectedDataColumn =  ""
 
 
     }
@@ -287,29 +303,47 @@ function dragstarted(event, d) {
 
 function dragged(event, d) {
     let elem = d3.select(this)
-    elem.attr("cx", event.x).attr("cy", event.y);
+
 
     let type = elem.attr("type")
     let name = elem.attr("name")
-
     let svg = d3.select("#composition")
 
-    let from = svg.select(`circle[name='${name}'][type='from']`)
-    let to = svg.select(`circle[name='${name}'][type='to']`)
-
-    let link = svg.select(`path[name='${name}']`)
-
-
-    link.transition().duration(40).attr("d", makeLink(+from.attr("cx"), +from.attr("cy"), +to.attr("cx"), +to.attr("cy")))
-    // megaPalettes[name].apply = tFrom.name
-
+    let tname = ""
     if (type === "from") {
+        let node = svg.select(`circle[name='${name}'][type='from']`)
+
+        tname += svg.select(`circle[name='${name}'][type='from']`).attr("from")
 
     } else if (type === "to") {
-
+        tname += svg.select(`circle[name='${name}'][type='to']`).attr("to")
     }
 
+    let mark = svg.select(`#collage-${tname}`)
 
+
+    let tx = event.x - mark.attr("x")
+    let ty = event.y - mark.attr("y")
+
+    if ((tx > 0 && tx < 60) && (ty > 0 && ty < 60)) {
+        elem.attr("cx", event.x).attr("cy", event.y);
+
+
+        let from = svg.select(`circle[name='${name}'][type='from']`)
+        let to = svg.select(`circle[name='${name}'][type='to']`)
+
+        let link = svg.select(`path[name='${name}']`)
+
+        link.transition().duration(40).attr("d", makeLink(+from.attr("cx"), +from.attr("cy"), +to.attr("cx"), +to.attr("cy")))
+        // megaPalettes[name].apply = tFrom.name
+
+        let id = from.attr("nAnchor")
+
+
+        setAnchorOnAllMarks(tname, tx, ty, +id)
+
+
+    }
 }
 
 function dragended(event, d) {

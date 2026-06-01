@@ -83,7 +83,7 @@ function isCont(data, column) {
     }
 }
 
-async function drawSvg() {
+function drawSvg() {
 
     let svg = d3.select("#fakePreviewSvg")
 
@@ -105,7 +105,7 @@ async function drawSvg() {
         data[i].y = size.height / 2
     }
 
-    let encodings = Object.keys(dataBinding)
+    let encodings = Object.keys(dataBinding) //TODO: Replace with MegaGlyph
 
     if (encodings.length === 0) {
 
@@ -315,7 +315,7 @@ async function drawSvg() {
                                         tcol = hexToRgb(colScale[d[useDatCol]])
                                     // can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
                                     // can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
-                                    recolorCanvasLAB(can,[tcol.r,tcol.g,tcol.b],1)
+                                    recolorCanvasLAB(can, [tcol.r, tcol.g, tcol.b], 1)
                                 }
 
                                 // removeColor(230, 230, 230, can, 25)

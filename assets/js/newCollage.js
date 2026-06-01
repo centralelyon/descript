@@ -92,6 +92,14 @@ function addPaletteInfoToCollage(palette, name) {
                         .attr("cy", drawnMarks[name].y + offy)
                         .attr("r", 5)
                         .attr("fill", drawnMarks[name].x)
+                        .attr("type", "from")
+                        .attr("from", name)
+                        .attr("name", name)
+                        .attr("nAnchor", nAnchor)
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended))
 
                     tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
                     megaPalettes[name].linkto = name
@@ -157,8 +165,15 @@ function addPaletteInfoToCollage(palette, name) {
                             .attr("cy", drawnMarks[name].y + offy)
                             .attr("r", 5)
                             .attr("fill", drawnMarks[name].x)
-                            .call(dragCircle)
-
+                            .attr("type", "to")
+                            .attr("from", tFrom.name)
+                            .attr("to", tTo.name)
+                            .attr("name", name)
+                            .attr("nAnchor", nAnchor)
+                            .call(d3.drag()
+                                .on("start", dragstarted)
+                                .on("drag", dragged)
+                                .on("end", dragended))
                     }
                 }
 
@@ -195,16 +210,18 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("stroke", "red")
             .attr("fill", "none")
             .attr("name", name)
-            // .attr("marker-mid", "url(#arrow)")
+        // .attr("marker-mid", "url(#arrow)")
         // .attr("stroke", drawnMarks[name].x)
-
 
 
         svg.append("circle")
             .attr("cx", tFrom.x)
             .attr("cy", tFrom.y)
             .attr("type", "from")
+            .attr("from", tFrom.name)
+            .attr("to", tTo.name)
             .attr("name", name)
+            .attr("nAnchor", nAnchor)
             .attr("r", 5)
             .attr("fill", drawnMarks[name].x)
             .call(d3.drag()
@@ -217,7 +234,10 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("cx", tTo.x)
             .attr("cy", tTo.y)
             .attr("type", "to")
+            .attr("from", tFrom.name)
+            .attr("to", tTo.name)
             .attr("name", name)
+            .attr("nAnchor", nAnchor)
             .attr("r", 5)
             .attr("fill", drawnMarks[name].x)
             .call(d3.drag()
@@ -227,6 +247,7 @@ function addPaletteInfoToCollage(palette, name) {
 
         megaPalettes[name].apply = tFrom.name
         megaPalettes[name].linkTo = nAnchor
+        nAnchor++
     }
 }
 
