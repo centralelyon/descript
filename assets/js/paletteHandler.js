@@ -829,6 +829,8 @@ function savePalette() {
     document.getElementById("paletteContainer").style.display = "none";
 
     // fillPalette()
+
+    drawSvg()
 }
 
 

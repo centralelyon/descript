@@ -92,10 +92,16 @@
     </div>
     <div style="width: calc(100% - 350px);border-radius: 14px">
         <div style="display: none" id="paletteDetails">
+            <div style="position: absolute;width: 25px;height: 25px;right: 40px;top: 10px;cursor: pointer">
+                <img style="width: inherit;filter: invert(1)" onclick="delPalette()"
+                     src="assets/images/buttons/del.png">
+            </div>
             <div style="position: absolute;width: 25px;height: 25px;right: 10px;top: 10px;cursor: pointer">
                 <img style="width: inherit;filter: invert(1)" onclick="hidePalette()"
                      src="assets/images/buttons/cross.png">
             </div>
+
+
             <div id="paletteTitle" style="width: 100%; display: flex">
             </div>
             <div></div>

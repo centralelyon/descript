@@ -256,8 +256,20 @@ function hidePalette() {
     container.style.display = "none"
 }
 
+
+function delPalette() {
+    console.log(selectedPalette)
+    delete  megaPalettes[selectedPalette]
+    delete  megaGlyph[selectedPalette]
+    delete  dataBinding[selectedPalette]
+    d3.select("#collage-"+selectedPalette).remove()
+    drawSvg()
+    hidePalette()
+}
+
 function displayPalette(name) {
 
+    selectedPalette = name
 
     let trange = document.getElementById("strokewidth")
 

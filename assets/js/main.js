@@ -2,7 +2,7 @@ let currImg;
 let tsaveim
 let viewDim = []
 let sampleData = []
-const totalExamples = 52
+const totalExamples = 28
 let categories = {
     default: {
         name: "default",
@@ -75,7 +75,7 @@ function loadExamples(week = 0, author = "giorgia") {
             el.onclick = loadEx
             container.appendChild(el);
         }*/
-    for (let i = 1; i < totalExamples; i++) {
+    for (let i = 25; i < totalExamples; i++) {
         let num = i
 
         if (num < 10) {
