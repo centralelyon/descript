@@ -281,7 +281,7 @@ function fillPalette(reset = false) {
     }
     // populateSelect()
     // updateLink2Palette()
-    drawSvg()
+    updateSvg()
 }
 
 
@@ -830,7 +830,7 @@ function savePalette() {
 
     // fillPalette()
 
-    drawSvg()
+ updateSvg()
 }
 
 
@@ -1430,53 +1430,82 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
     for (const [name, value] of Object.entries(marks)) {
         let tmark = makeSingleMark(key, name, "range", value.proto.canvas)
         tdiv.appendChild(tmark)
-    }
+        let tcan = tmark.lastChild;
+        let trect = tcan.getBoundingClientRect()
 
-    /*    for (let i = 0; i < tnb; i++) {
+        let tsvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        tmark.appendChild(tsvg)
+        tsvg = d3.select(tsvg)
+
+        tsvg
+            .attr("id", "svg" + key)
+            .attr("class", "markAnchorSvg")
+            .attr("viewBox", `0 0 ${trect.width} ${trect.height}`)
+            .attr("width", trect.width)
+            .attr("height", trect.height)
 
 
-
-
-
-            const tdiv_mark = document.createElement("div")
-            tdiv_mark.id = "mark_" + key
-            tdiv_mark.className = "paletteMark"
-            tdiv_mark.setAttribute("number", "" + i)
-            tdiv_mark.setAttribute("key", key)
-            tdiv_mark.setAttribute("type", "range")
-            tdiv_mark.innerHTML = "<input type='text' value='mark" + i + "' class='paletteMarkName'>"
-            if (marks[i]) {
-                tdiv_mark.append(value[i].proto.canvas)
-            } else {
-                const tcan = document.createElement("canvas")
-                tcan.width = 60
-                tcan.height = 60
-                tdiv_mark.append(tcan)
-                marks[i] = {
-                    value: i,
-                    type: "fake",
-                    proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
-                }
+        if (value.proto.anchors) {
+            for (const [id, coords] of Object.entries(value.proto.anchors)) {
+                tsvg.append("circle")
+                    .attr("cx", trect.width * coords.rx)
+                    .attr("cy", trect.height * coords.ry)
+                    .attr("num", id)
+                    .attr("palette", key)
+                    .attr("name", name)
+                    .attr("r", "5")
+                    .call(d3.drag()
+                        .on("start", nodeDragst)
+                        .on("drag", nodeDragged)
+                        .on("end", nodeDragend))
             }
-            tdiv_mark.onclick = function (e) {
 
-                if (mode !== "anchor") {
-                    editPalette(this)
-                } else {
-                    //TODO: Set for CATA and other primitive
-                    setAnchorOnProto(e, this)
-                }
-            }*/
-    // tdiv.appendChild(tdiv_mark)
+        }
 
+    }
 
     let moreCan = document.createElement("div")
 
-    moreCan.innerHTML = ` <img  id="palettePlusMark" src="assets/images/buttons/plus.png" class="buttonImg" style=";margin-top: 41px;
-  width: 25px;
-  margin-left: 5px;cursor: pointer" onclick="addACan(this,'${key}')">`
+    moreCan.innerHTML = ` <img  id="palettePlusMark" src="assets/images/buttons/plus.png" class="buttonImg" 
+ style=";margin-top: 41px;width: 25px; margin-left: 5px;cursor: pointer" onclick="addACan(this,'${key}')">`
     tdiv.appendChild(moreCan)
 }
+
+
+function nodeDragst() {
+
+}
+
+function nodeDragged(event) {
+    let elem = d3.select(this)
+    let htmlSvg = elem.node().parentElement
+    let svg = d3.select(htmlSvg)
+
+    let x = clampVal(event.x, 0, htmlSvg.getAttribute("width"));
+    let y = clampVal(event.y, 0, htmlSvg.getAttribute("height"));
+
+    elem.attr("cx", x)
+    elem.attr("cy", y)
+
+    let pal = elem.attr("palette")
+    let mark = elem.attr("name")
+    let num = elem.attr("num")
+
+
+
+    megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].x = x
+    megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].y = y
+    megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].rx = x / htmlSvg.getAttribute("width")
+    megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].ry = y / htmlSvg.getAttribute("height")
+
+
+
+}
+
+function nodeDragend() {
+    updateSvg()
+}
+
 
 function addACan(elem, key, img = undefined) {
     let len = Object.keys(megaPalettes[key].encodings.range.marks).length
@@ -1538,10 +1567,12 @@ function makeSingleMark(key, label, type, can = undefined) {
         */
 
         tdiv_mark.innerHTML = `${mess}
-            <canvas id='${"canvas_" + key}' style='width: 60px;height: 60px'>`
+            <canvas id='${"canvas_" + key}' style='width: 60px;height: 60px'></canvas>`
     } else {
         tdiv_mark.innerHTML = mess
         tdiv_mark.appendChild(can)
+
+
         can.id = `${"canvas_" + key}`
 
     }
@@ -1562,15 +1593,14 @@ function makeSingleMark(key, label, type, can = undefined) {
 }
 
 function renameRow(elem, key) {
-
     let name = elem.value
-
 
     document.getElementById("exportPaletteBtn_" + key).setAttribute("name", name)
 
     if (name !== "" && !palSources.includes(key)) {
         megaPalettes[name] = megaPalettes[key]
         delete megaPalettes[key]
+        selectedPalette = name
     }
 
 

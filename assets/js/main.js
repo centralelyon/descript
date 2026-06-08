@@ -2,7 +2,7 @@ let currImg;
 let tsaveim
 let viewDim = []
 let sampleData = []
-const totalExamples = 28
+const totalExamples = 50
 let categories = {
     default: {
         name: "default",
@@ -166,7 +166,8 @@ async function init() {
     // await loadDataset("assets/tempData/datasets/week26.csv")
     
     chartDataset.data = fakeWeek26()
-    drawSvg()
+    // drawSvg()
+    // tdrawRefactor()
     fillSidePanel()
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);

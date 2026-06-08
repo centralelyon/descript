@@ -381,8 +381,8 @@ function drawSvg() {
     } else {
 
         let tmarks = makeMarks(encodings, data)
-
         let order = getOrder(encodings)
+
         if (gridMod) {
 
             let xCumul = 5
@@ -528,7 +528,7 @@ function setOrdinalPicker(palette, div, key) {
             palette.colors[key] = tcolpick.value
             // ramp(tcan, palette.colorScale)
 
-            drawSvg()
+            updateSvg()
             tcolpick.remove()
         }
     }
@@ -556,7 +556,7 @@ function setMinMaxPicker(palette, minDiv, maxDiv, tcan) {
             minDiv.children[1].style.backgroundColor = `${palette.colors[0][0]}`
             palette.colorScale = d3.interpolateLab(palette.colors[0][0], palette.colors[1][1])
             ramp(tcan, palette.colorScale)
-            drawSvg()
+            updateSvg()
             tcolpick.remove()
         }
     }
@@ -580,7 +580,7 @@ function setMinMaxPicker(palette, minDiv, maxDiv, tcan) {
                 palette.colorScale = d3.interpolateLab(palette.colors[0][0], palette.colors[1][1])
                 ramp(tcan, palette.colorScale)
 
-                drawSvg()
+                updateSvg()
                 tcolpick.remove()
             }
         }
@@ -702,7 +702,7 @@ function makeDataColumnMenu(columns, name, selected, mode = "palette") {
             } else {
                 dataBinding[palette] = tval
             }
-            drawSvg()
+            updateSvg()
             // delete megaGlyph[prev];
 
         }
@@ -774,7 +774,7 @@ function makeDataColumnMenu(columns, name, selected, mode = "palette") {
                 }
             }
 
-            drawSvg()
+            updateSvg()
 
         }
 
@@ -1108,4 +1108,145 @@ function switchForce() {
 
     useForce = !useForce;
     drawSvg()
+}
+
+function updateSvg() {
+    let svg = d3.select("#fakePreviewSvg")
+    let data = chartDataset.data
+
+    let encodings = Object.keys(dataBinding)
+    let [xScale, yScale] = getScales(svg, data)
+
+
+    let tmarks = makeMarks(encodings, data)
+
+    let order = getOrder(encodings)
+
+    svg.selectAll("image")
+        .attr("xlink:href", d =>
+            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png")).transition().duration(120)
+    /*        .attr("x", d => {
+                return xScale(d[chartAxis.x])
+            })
+            .attr("y", d => {
+                return yScale(d[chartAxis.y]);
+            })*/
+
+}
+
+
+function tdrawRefactor() {
+    let svg = d3.select("#fakePreviewSvg")
+    svg.selectAll("*").remove();
+    let data = chartDataset.data
+
+    let [xScale, yScale] = getScales(svg, data)
+
+    let encodings = Object.keys(dataBinding)
+
+    let tmarks = makeMarks(encodings, data)
+    let order = getOrder(encodings)
+    let size = svg.node().getBoundingClientRect()
+
+    let timages
+    //TODO: here use makeColorScale(data, palette) and make dicts for each palette
+    /*    let allColScales = {}
+
+        for (let i = 0; i < encodings.length; i++) {
+            allColScales[encodings[i]] = {}
+        }*/
+    if (gridMod) {
+
+        let xCumul = 5
+        let yCumul = 5
+
+        let width = 700
+
+        for (let i = 0; i < data.length; i++) {
+
+            let d = data[i]
+
+            let can = makeCollageFromData(encodings, order, tmarks, d)
+
+
+            let tw = can.width
+            let th = can.height
+
+            timages = svg.append("image")
+                .attr("xlink:href", can.toDataURL("image/png"))
+                .attr("x", xCumul)
+                .attr("y", yCumul)
+                .attr("width", tw)
+                .attr("height", th)
+
+            xCumul += tw
+            if (xCumul + tw > width) {
+                yCumul += th
+                xCumul = 5
+            }
+
+        }
+    } else {
+
+
+        timages = svg.selectAll("dots")
+            .data(data)
+            .enter()
+            .append("image")
+            .attr("xlink:href", d =>
+                makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+            .attr("x", d => {
+                return xScale(d[chartAxis.x])
+            })
+            .attr("y", d => {
+                return yScale(d[chartAxis.y]);
+            })
+
+
+        if (timages && !gridMod && useForce) {
+
+            const simulation = d3.forceSimulation(data)
+                .force("collide", d3.forceCollide().radius(d => 18).strength(0.01))
+                .force("x", d3.forceX().strength(0.00025))
+                .force("y", d3.forceY().strength(0.00032))
+                .on("tick", ticked)
+
+            let duration = 2000
+
+            let t = d3.timer(elapsed => {
+                let dt = elapsed / duration
+                simulation.force("collide").strength(dt)
+                if (dt >= 1.0) t.stop()
+            })//timer
+
+
+            function ticked() {
+
+                timages
+                    .attr("x", d => clampVal(d.x, 0, size.width))
+                    .attr("y", d => clampVal(d.y, 0, size.height))
+            }//function ticked
+        }
+    }
+}
+
+
+function getScales(svg, data) {
+
+    let size = svg.node().getBoundingClientRect()
+
+    let margin = 20
+
+
+    let xScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.x])), [margin, size.width - margin])
+    let yScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.y])), [size.height - margin, margin])
+
+
+    for (let i = 0; i < data.length; i++) {
+        data[i].x = size.width / 2
+        data[i].y = size.height / 2
+    }
+
+
+    return [xScale, yScale]
 }

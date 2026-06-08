@@ -281,8 +281,6 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
                 toOffX = selfAnchor.rx * sourceW
                 toOffY = selfAnchor.ry * sourceH
 
-                console.log(toOffX * sourceW,toOffY)
-
                 tcon.drawImage(can,
                     offX - toOffX,
                     offY - toOffY,

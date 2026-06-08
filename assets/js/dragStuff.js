@@ -23,7 +23,6 @@ function dragElement(elmnt) {
         }
 
 
-
         const rect = elmnt.getBoundingClientRect();
 
         offsetX = e.clientX - rect.left;
@@ -146,16 +145,16 @@ function dragElement2(elmnt) {
             console.log(id);
             console.log(selectedDataColumn);
 
-            megaGlyph[id].dataColumn =   selectedDataColumn
+            megaGlyph[id].dataColumn = selectedDataColumn
 
-            dataBinding[id]  = selectedDataColumn
+            dataBinding[id] = selectedDataColumn
 
-            drawSvg()
+            updateSvg()
 
 
         }
 
-        selectedDataColumn =  ""
+        selectedDataColumn = ""
 
 
     }
@@ -168,21 +167,40 @@ function dropPalette(e, elmnt) {
 
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
-        console.log(num);
         let tpal = allPalettes[num]
 
+
+        if (megaPalettes[name] !== undefined) {
+            name += Object.keys(megaPalettes[name]).length
+        }
         megaPalettes[name] = tpal
 
         fillPalette()
 
         let tPalCont = document.getElementById("paletteCont")
         tPalCont.classList.remove("draggedover")
+
     } else if (e.target.matches("#composition")) {
 
 
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
+
+        if (megaPalettes[name] !== undefined) {
+            name += Object.keys(megaPalettes).length
+        }
+
+        let tflag = false
+
+        if( Object.keys(megaPalettes).length === 0 ) {
+            tflag = true
+        }
+
         megaPalettes[name] = allPalettes[num]
+
+        dataBinding[name] = ""
+
+
         addPaletteInfoToCollage(allPalettes[num], name)
 
 
@@ -198,9 +216,15 @@ function dropPalette(e, elmnt) {
             }
         }
         megaGlyph[name].color = makeColorScale(name, "")
-        makeMarkTree()
+        // makeMarkTree()
 
         displayPalette(name)
+
+        if (tflag) {
+            tdrawRefactor()
+        } else {
+            updateSvg()
+        }
     }
 }
 
@@ -235,7 +259,7 @@ function dropCanvas(e, elmnt) {
 
         }
 
-        drawSvg()
+        updateSvg()
 
     }
 }
@@ -349,6 +373,7 @@ function dragged(event, d) {
 function dragended(event, d) {
     // d3.select(this).attr("stroke", null);
     // let elem = d3.select(this)
+    updateSvg()
 }
 
 

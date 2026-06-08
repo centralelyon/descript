@@ -5,8 +5,10 @@ let palSources = [
     "sudoku_level",
     "sudoku_hint",
     "sudoku_mistake",
-    "week26_circle"
-
+    "week26_circle",
+    "week15_squares",
+    "week15_RightSymbol",
+    "week15_InnerCircle",
 ]
 
 const prevW = 160
@@ -58,8 +60,13 @@ async function initAllPalette() {
         canContainer.style.height = prevH + "px"
 
         for (let j = n - 1; j > -1; j--) {
+            let b64 = allMarks[MarkNames[j]].source
+            if (allMarks[MarkNames[j]].source === undefined) {
+                b64 =  allMarks[MarkNames[j]].proto.canvas
+                allMarks[MarkNames[j]].source = allMarks[MarkNames[j]].proto.canvas
+            }
 
-            let tcan = cloneCanvas(allMarks[MarkNames[j]].source)
+            let tcan = cloneCanvas(b64)
             tcan.style.width = `${subW}px`
             tcan.style.height = `${subH}px`
 

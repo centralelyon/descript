@@ -17,6 +17,7 @@ body {
     display: flex;
     width: fit-content;
     flex-direction: column;
+    position: relative;
 }
 
 .paletteMark canvas {
@@ -983,4 +984,17 @@ p, h3, h4, h5, img {
 .dataColumn {
     font-weight: 600;
     text-decoration: underline;
+}
+
+.markAnchorSvg {
+    /*background-color: rgba(255,10,10,0.7);*/
+    position: absolute;
+    top: 18px;
+    pointer-events: none;
+
+}
+
+.markAnchorSvg circle{
+    pointer-events: all;
+    cursor: grab;
 }

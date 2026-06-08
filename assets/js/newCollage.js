@@ -259,12 +259,17 @@ function hidePalette() {
 
 function delPalette() {
     console.log(selectedPalette)
-    delete  megaPalettes[selectedPalette]
-    delete  megaGlyph[selectedPalette]
-    delete  dataBinding[selectedPalette]
-    d3.select("#collage-"+selectedPalette).remove()
-    drawSvg()
+    delete megaPalettes[selectedPalette]
+    delete megaGlyph[selectedPalette]
+    delete dataBinding[selectedPalette]
+    d3.select("#collage-" + selectedPalette).remove()
+    updateSvg()
     hidePalette()
+}
+
+
+function newSavePalette() {
+    savePalette2(selectedPalette)
 }
 
 function displayPalette(name) {
@@ -332,9 +337,6 @@ function displayPalette(name) {
     tdiv_mark.setAttribute("key", name)
 
     tdiv_mark.onclick = function (e) {
-
-        console.log("dasdasdadasdas dasd asdad asd ");
-
         if (mode !== "anchor") {
             if (e.target.matches("canvas")) {
                 editPalette(this)
@@ -393,6 +395,7 @@ function setAnchorOnAllMarks(name, x, y, from) {
             ry: y / 60,
         }
     }
+    d3.selectAll(".markAnchorSvg circle").transition().duration(60).attr("cx", x).attr("cy", y)
 }
 
 
