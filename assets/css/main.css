@@ -584,7 +584,7 @@ filter: invert(1);
     width: 100%;
     border: solid #555 1px;
     border-radius: 14px;
-    height: 100%;
+    height: 75%;
 }
 
 .fakeGrammarRow {
@@ -1012,4 +1012,11 @@ p, h3, h4, h5, img {
 #composition circle, .markAnchorSvg circle {
     stroke: #000;
     stroke-width: 2px;
+}
+
+#datasetContainer {
+    border-radius: 15px;
+
+    background-color: #FFF;
+    border: solid 1px #424242;
 }

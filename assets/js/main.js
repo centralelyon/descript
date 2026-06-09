@@ -172,7 +172,7 @@ async function init() {
     // drawSvg()
     // tdrawRefactor()
     fillSidePanel()
-
+    fillTable()
     collageColScale = d3.scaleOrdinal(d3.schemeAccent)
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);

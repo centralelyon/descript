@@ -68,7 +68,9 @@ function addPaletteInfoToCollage(palette, name) {
     drawnMarks[name] = placeMark()
     setMarker()
 
-    svg.append("image")
+    svg.append("g")
+        .attr("id","g-"+name)
+        .append("image")
         .attr("class", "collageElement")
         .style("outline", `${collageColScale(name)} solid 3px`)
         .attr("xlink:href", show.toDataURL("image/png"))

@@ -34,14 +34,36 @@ function fillSidePanel() {
 
     }
 
-    const elements =  document.querySelectorAll(".dataRow")
+    const elements = document.querySelectorAll(".dataRow")
 
-    for (let i = 0; i <elements.length; i++) {
+    for (let i = 0; i < elements.length; i++) {
 
 
         dragElement2(elements[i])
     }
 
+
+}
+
+
+function fillTable() {
+    let table = document.getElementById("newDataTable")
+    let tkeys = Object.keys(chartDataset.data[0])
+    let row = document.createElement("tr")
+    for (let i = 0; i < tkeys.length; i++) {
+        row.innerHTML += `<th>${tkeys[i]}</th>`
+
+
+    }
+    table.appendChild(row)
+    for (let i = 0; i < chartDataset.data.length; i++) {
+        let row = document.createElement("tr")
+        for (let j = 0; j < tkeys.length; j++) {
+            row.innerHTML += `<td>${chartDataset.data[i][tkeys[j]]}</td>`
+        }
+        table.appendChild(row)
+
+    }
 
 
 }
