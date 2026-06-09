@@ -42,6 +42,9 @@ const fakePalettesBase = "assets/tempData/"
 // const fakePalettes = ["palette_anxiety.json", "palette_stem.json", "palette_you.json", "palette_wrong.json"]
 const fakePalettes = []
 let palSwitch = false
+
+
+let collageColScale
 docReady(init)
 
 
@@ -169,6 +172,8 @@ async function init() {
     // drawSvg()
     // tdrawRefactor()
     fillSidePanel()
+
+    collageColScale = d3.scaleOrdinal(d3.schemeAccent)
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("paletteLoader").addEventListener("change", importPalette);

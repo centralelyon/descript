@@ -70,6 +70,7 @@ function addPaletteInfoToCollage(palette, name) {
 
     svg.append("image")
         .attr("class", "collageElement")
+        .style("outline", `${collageColScale(name)} solid 3px`)
         .attr("xlink:href", show.toDataURL("image/png"))
         .attr("id", `collage-${name}`)
         .attr("x", drawnMarks[name].x)
@@ -103,7 +104,7 @@ function addPaletteInfoToCollage(palette, name) {
 
                     tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
                     megaPalettes[name].linkto = name
-                    setAnchorOnAllMarks(name, offx, offy, nAnchor)
+                    setAnchorOnAllMarks(name, offx, offy, nAnchor, "")
                 } else {
                     if (anchoringRef !== name) {
 
@@ -140,7 +141,7 @@ function addPaletteInfoToCollage(palette, name) {
                             .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
                             .attr("marker-mid", "url(#arrow)")
                             .attr("stroke-width", 3)
-                            .attr("stroke", "red")
+                            .style("stroke", "#424242")
                             .attr("fill", "none")
 
 
@@ -148,7 +149,7 @@ function addPaletteInfoToCollage(palette, name) {
 
                         megaPalettes[name].apply = tFrom.name
                         megaPalettes[name].linkTo = nAnchor
-                        setAnchorOnAllMarks(name, offx, offy, nAnchor)
+                        setAnchorOnAllMarks(name, offx, offy, nAnchor,tFrom.name)
                         // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
                         nAnchor++
                         anchoring = false
@@ -187,8 +188,9 @@ function addPaletteInfoToCollage(palette, name) {
     let tkeys = Object.keys(drawnMarks)
 
     if (tkeys.length > 1) {
-        setAnchorOnAllMarks(name, drawnMarks[name].w * 0.5, drawnMarks[name].h * 0.5, nAnchor)
-        setAnchorOnAllMarks(tkeys[0], drawnMarks[tkeys[0]].w * 0.5, drawnMarks[tkeys[0]].h * 0.5, nAnchor)
+        console.log(tkeys[0]);
+        setAnchorOnAllMarks(name, drawnMarks[name].w * 0.5, drawnMarks[name].h * 0.5, nAnchor,0,tkeys[0])
+        setAnchorOnAllMarks(tkeys[0], drawnMarks[tkeys[0]].w * 0.5, drawnMarks[tkeys[0]].h * 0.5, nAnchor,0,name)
         megaPalettes[tkeys[0]].linkto = tkeys[0]
 
         tFrom = {
@@ -207,7 +209,7 @@ function addPaletteInfoToCollage(palette, name) {
             // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
             .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
             .attr("stroke-width", 3)
-            .attr("stroke", "red")
+            .style("stroke", "#424242")
             .attr("fill", "none")
             .attr("name", name)
         // .attr("marker-mid", "url(#arrow)")
@@ -218,11 +220,13 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("cx", tFrom.x)
             .attr("cy", tFrom.y)
             .attr("type", "from")
+            .style("fill", collageColScale(tTo.name))
             .attr("from", tFrom.name)
             .attr("to", tTo.name)
             .attr("name", name)
             .attr("nAnchor", nAnchor)
             .attr("r", 5)
+
             .attr("fill", drawnMarks[name].x)
             .call(d3.drag()
                 .on("start", dragstarted)
@@ -237,6 +241,7 @@ function addPaletteInfoToCollage(palette, name) {
             .attr("from", tFrom.name)
             .attr("to", tTo.name)
             .attr("name", name)
+            .style("fill", collageColScale(tFrom.name))
             .attr("nAnchor", nAnchor)
             .attr("r", 5)
             .attr("fill", drawnMarks[name].x)
@@ -263,6 +268,8 @@ function delPalette() {
     delete megaGlyph[selectedPalette]
     delete dataBinding[selectedPalette]
     d3.select("#collage-" + selectedPalette).remove()
+    d3.selectAll(`#composition circle[name="${selectedPalette}"]`).remove()
+    d3.select(`#composition path[name="${selectedPalette}"]`).remove()
     updateSvg()
     hidePalette()
 }
@@ -337,6 +344,7 @@ function displayPalette(name) {
     tdiv_mark.setAttribute("key", name)
 
     tdiv_mark.onclick = function (e) {
+        e.preventDefault()
         if (mode !== "anchor") {
             if (e.target.matches("canvas")) {
                 editPalette(this)
@@ -347,9 +355,13 @@ function displayPalette(name) {
         }
     }
 
+
     makeRangeMark(name, containerMarks, palette, "range")
 
     containerMarks.appendChild(tdiv_mark)
+
+    // dragElement3(tdiv_mark)
+
     if (megaGlyph[name]) {
         let columns = Object.keys(chartDataset.data[0])
         let [tsel, opts] = makeDataColumnMenu(columns, name, megaGlyph[name].dataColumn)
@@ -380,7 +392,7 @@ function makePaletteControls(name, container, palette) {
 }
 
 
-function setAnchorOnAllMarks(name, x, y, from) {
+function setAnchorOnAllMarks(name, x, y, from, nb,related) {
 
 
     for (const [id, value] of Object.entries(megaPalettes[name].encodings.range.marks)) {
@@ -393,9 +405,12 @@ function setAnchorOnAllMarks(name, x, y, from) {
             y: y,
             rx: x / 60,
             ry: y / 60,
+            relatedTo: related
         }
     }
-    d3.selectAll(".markAnchorSvg circle").transition().duration(60).attr("cx", x).attr("cy", y)
+    if (selectedPalette === name) {
+        d3.selectAll(`.markAnchorSvg circle[num="${nb}"]`).attr("fill",collageColScale(related)).transition().duration(60).attr("cx", x).attr("cy", y)
+    }
 }
 
 

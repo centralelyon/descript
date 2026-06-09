@@ -1001,3 +1001,72 @@ function recolorCanvasLAB(canvas, targetRGB, strength = 1.0) {
     targetA.delete();
     targetBChannel.delete();
 }
+
+
+async function grabCutFromSelection(imageElement, polygonPoints, iterations = 5) {
+    const src = opencv.imread(imageElement);
+
+    // Create mask initialized as "probable background"
+    const mask = new opencv.Mat(src.rows, src.cols, opencv.CV_8UC1);
+    mask.setTo(new opencv.Scalar(opencv.GC_BGD));
+
+    // Convert polygon to OpenCV format
+    const pts = polygonPoints.flatMap(p => [p.x, p.y]);
+    const contour = opencv.matFromArray(
+        polygonPoints.length,
+        1,
+        opencv.CV_32SC2,
+        pts
+    );
+
+    const contours = new opencv.MatVector();
+    contours.push_back(contour);
+
+    // Mark selected region as probable foreground
+    opencv.fillPoly(mask, contours, new opencv.Scalar(cv.GC_PR_FGD));
+
+    const bgdModel = new opencv.Mat();
+    const fgdModel = new opencv.Mat();
+
+    // Run GrabCut using the mask
+    opencv.grabCut(
+        src,
+        mask,
+        new opencv.Rect(),
+        bgdModel,
+        fgdModel,
+        iterations,
+        opencv.GC_INIT_WITH_MASK
+    );
+
+    // Build binary foreground mask
+    const fgMask = new cv.Mat();
+    const prFgMask = new cv.Mat();
+
+    opencv.compare(mask, opencv.GC_FGD, fgMask, opencv.CMP_EQ);
+    opencv.compare(mask, opencv.GC_PR_FGD, prFgMask, opencv.CMP_EQ);
+    opencv.bitwise_or(fgMask, prFgMask, fgMask);
+
+    // Apply mask to image
+    const result = new opencv.Mat();
+    src.copyTo(result, fgMask);
+
+    // Output canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = src.cols;
+    canvas.height = src.rows;
+    opencv.imshow(canvas, result);
+
+    // Cleanup
+    src.delete();
+    mask.delete();
+    contour.delete();
+    contours.delete();
+    bgdModel.delete();
+    fgdModel.delete();
+    fgMask.delete();
+    prFgMask.delete();
+    result.delete();
+
+    return canvas;
+}

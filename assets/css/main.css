@@ -998,3 +998,18 @@ p, h3, h4, h5, img {
     pointer-events: all;
     cursor: grab;
 }
+
+.placeholder {
+    width: 4px;
+    height: 80px;
+    background: dodgerblue;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#composition circle, .markAnchorSvg circle {
+    stroke: #000;
+    stroke-width: 2px;
+}

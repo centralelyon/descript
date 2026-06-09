@@ -192,7 +192,7 @@ function dropPalette(e, elmnt) {
 
         let tflag = false
 
-        if( Object.keys(megaPalettes).length === 0 ) {
+        if (Object.keys(megaPalettes).length === 0) {
             tflag = true
         }
 
@@ -334,8 +334,9 @@ function dragged(event, d) {
     let svg = d3.select("#composition")
 
     let tname = ""
+    let related = ""
     if (type === "from") {
-        let node = svg.select(`circle[name='${name}'][type='from']`)
+        // let node = svg.select(`circle[name='${name}'][type='from']`)
 
         tname += svg.select(`circle[name='${name}'][type='from']`).attr("from")
 
@@ -361,10 +362,23 @@ function dragged(event, d) {
         link.transition().duration(40).attr("d", makeLink(+from.attr("cx"), +from.attr("cy"), +to.attr("cx"), +to.attr("cy")))
         // megaPalettes[name].apply = tFrom.name
 
+        if (type === "from") {
+            related = from.attr("to")
+        } else {
+            related = to.attr("from")
+        }
+
+
         let id = from.attr("nAnchor")
 
+        let nb = elem.attr("nAnchor")
 
-        setAnchorOnAllMarks(tname, tx, ty, +id)
+
+
+
+        // setAnchorOnAllMarks(tname, tx, ty, +id)
+
+        setAnchorOnAllMarks(tname, tx, ty, +id,nb,related)
 
 
     }
@@ -377,3 +391,128 @@ function dragended(event, d) {
 }
 
 
+function dragElement3(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    elmnt.onmousedown = dragMouseDown;
+
+    let placeholder = document.createElement("div");
+    placeholder.classList.add("placeholder");
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        // e.preventDefault();
+        selectedDataColumn = elmnt.getAttribute("datacolumn");
+        const rect = elmnt.getBoundingClientRect();
+
+        offsetX = e.clientX - rect.left
+        offsetY = e.clientY - rect.top;
+
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        // set the element's new position:
+        elmnt.style.position = "absolute";
+
+        let tcords = elmnt.parentElement.getBoundingClientRect();
+
+        elmnt.style.left =
+            ((e.pageX - offsetX) - tcords.x) + "px";
+
+        elmnt.style.top =
+            ((e.pageY - offsetY + 50) - 50) + "px";
+
+        // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+
+        let container = document.getElementById("paletteMarks")
+        let tt = getInsertionPoint(container, (e.pageX))
+
+        if (tt === placeholder.nextSibling) {
+            return;
+        }
+
+        if (tt) {
+            container.insertBefore(placeholder, tt);
+        } else {
+            container.appendChild(placeholder);
+        }
+
+    }
+
+    function closeDragElement(e) {
+        // stop moving when mouse button is released:
+        elmnt.style.position = "";
+        elmnt.style.top = ""
+        elmnt.style.left = ""
+        document.onmouseup = null;
+        document.onmousemove = null;
+        dragging = false
+        let telem = placeholder.nextSibling
+
+        if (telem !== null) {
+            let curNb = elmnt.getAttribute("number")
+
+
+            let id = elmnt.getAttribute("id").split("mark_")[1]
+            let tkeys = Object.keys(megaPalettes[id].encodings.range.marks)
+            let nb = tkeys[tkeys.length - 1]
+
+            if (telem.getAttribute("id") != null) {
+                nb = telem.getAttribute("number")
+            }
+
+
+            // console.log("from:", curNb, " to:", nb)
+
+            let nMarks = {}
+            let tid = tkeys.indexOf(nb)
+            let oldid = tkeys.indexOf(curNb)
+            for (let i = 0; i < tkeys.length; i++) {
+
+                if (i === tid) {
+                    nMarks[curNb] = megaPalettes[id].encodings.range.marks[curNb]
+                    nMarks[nb] = megaPalettes[id].encodings.range.marks[nb]
+                } else if (i === oldid) {
+
+                } else {
+                    nMarks[tkeys[i]] = megaPalettes[id].encodings.range.marks[tkeys[i]]
+                }
+            }
+            megaPalettes[id].encodings.range.marks = nMarks
+
+            placeholder.replaceWith(elmnt);
+
+            updateSvg()
+        }
+    }
+
+
+    function getInsertionPoint(container, mouseX) {
+        const items = [...container.children].filter(
+            el => !el.classList.contains("dragging") &&
+                !el.classList.contains("placeholder")
+        );
+
+        return items.find(item => {
+            const rect = item.getBoundingClientRect();
+            return mouseX < rect.left + rect.width / 2;
+        });
+    }
+
+}

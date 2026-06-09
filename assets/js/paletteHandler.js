@@ -1404,28 +1404,6 @@ function setMarkEvent(key, type) {
 function makeRangeMark(key, tdiv, value, typesDisplay) {
 
     const marks = value.encodings.range.marks
-    // const t = "<div class='primitiveData'>" +
-    //     "<p class='primitiveLabel'> Display </p>" +
-    //     "<select id='" + key + "_displayTypes' class='displayTypes'>" +
-    //     typesDisplay +
-    //     "</select>" +
-    //     "</div>"
-
-    // tdiv.innerHTML += t
-
-    let names = Object.keys(marks)
-
-    /*    if (names.length === 0) {
-            const tcan = document.createElement("canvas")
-            tcan.width = 60
-            tcan.height = 60
-
-            marks["mark0"] = {
-                value: "mark0",
-                type: "fake",
-                proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
-            }
-        }*/
 
     for (const [name, value] of Object.entries(marks)) {
         let tmark = makeSingleMark(key, name, "range", value.proto.canvas)
@@ -1435,6 +1413,8 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
 
         let tsvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         tmark.appendChild(tsvg)
+
+        dragElement3(tmark)
         tsvg = d3.select(tsvg)
 
         tsvg
@@ -1451,6 +1431,8 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
                     .attr("cx", trect.width * coords.rx)
                     .attr("cy", trect.height * coords.ry)
                     .attr("num", id)
+                    .attr("fill", collageColScale(coords.relatedTo))
+                    .style("stroke", "1px")
                     .attr("palette", key)
                     .attr("name", name)
                     .attr("r", "5")

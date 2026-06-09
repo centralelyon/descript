@@ -1,3 +1,5 @@
+let gSampleType = "rect"
+
 function resetListeners(can) {
     // can.onmousemove = null;
     // can.onmousedown = null;
@@ -10,7 +12,7 @@ function resetListeners(can) {
 
 function switchMode(type) {
     let can = document.getElementById("inVis")
-
+    gSampleType = type
     if (type === "rect") {
         resetListeners(can)
 
@@ -49,23 +51,27 @@ function switchMode(type) {
 
         resetListeners(can)
 
-        can.onpointerdown = e => {
-            origin = {x: e.offsetX, y: e.offsetY};
+        can.onpointerdown = onMouseDown
+        can.onpointermove = onMouseMove
+        can.onpointerup = onMouseUp
 
-        };
+        /*        can.onpointerdown = e => {
+                    origin = {x: e.offsetX, y: e.offsetY};
 
-        can.onpointerup = e => {
+                };
 
-            const torigin = {...origin}
+                can.onpointerup = e => {
 
-            origin = null;
+                    const torigin = {...origin}
 
-            clear();
-            drawImage();
+                    origin = null;
 
-            addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
-        };
-        can.onpointermove = render;
+                    clear();
+                    drawImage();
+
+                    addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+                };
+                can.onpointermove = render;*/
 
     }
 
@@ -175,9 +181,19 @@ async function addRectSample(x, y, width, height) {
     let svg = d3.select("#sampleDisplay")
 
     fillSvg(sampleData)
-    showControls(svg, [tres.x -25, tres.y-25], tcan)
+    showControls(svg, [tres.x - 25, tres.y - 25], tcan)
 }
 
+
+function newAddGrabbedSample(points) {
+    let can = document.getElementById("inVis")
+
+
+    let ncan = grabCutFromSelection(can, points)
+
+    document.getElementById("paletteMarks").append(ncan)
+
+}
 
 async function addGrabSample(x, y, width, height) {
 
@@ -301,7 +317,12 @@ function onMouseDown(e) {
 
 function onMouseUp() {
     mouseDown = 0
-    addFreeSample(stroke)
+    if (gSampleType === "free") {
+        addFreeSample(stroke)
+    } else if (gSampleType === "grab") {
+        newAddGrabbedSample(stroke)
+    }
+
     stroke = []
     // drawImage()
 

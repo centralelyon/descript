@@ -1110,7 +1110,7 @@ function switchForce() {
     drawSvg()
 }
 
-function updateSvg() {
+async function updateSvg() {
     let svg = d3.select("#fakePreviewSvg")
     let data = chartDataset.data
 
@@ -1135,7 +1135,7 @@ function updateSvg() {
 }
 
 
-function tdrawRefactor() {
+async function tdrawRefactor() {
     let svg = d3.select("#fakePreviewSvg")
     svg.selectAll("*").remove();
     let data = chartDataset.data
@@ -1206,12 +1206,12 @@ function tdrawRefactor() {
         if (timages && !gridMod && useForce) {
 
             const simulation = d3.forceSimulation(data)
-                .force("collide", d3.forceCollide().radius(d => 18).strength(0.01))
-                .force("x", d3.forceX().strength(0.00025))
-                .force("y", d3.forceY().strength(0.00032))
+                .force("collide", d3.forceCollide().radius(d => 18).strength(0.000000001))
+                .force("x", d3.forceX().strength(0.0000025))
+                .force("y", d3.forceY().strength(0.0000032))
                 .on("tick", ticked)
 
-            let duration = 2000
+            let duration = 10
 
             let t = d3.timer(elapsed => {
                 let dt = elapsed / duration
