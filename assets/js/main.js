@@ -168,7 +168,7 @@ async function init() {
     // await loadDataset("assets/tempData/datasets/penguins.csv")
     // await loadDataset("assets/tempData/datasets/week26.csv")
     
-    chartDataset.data = fakeWeek26()
+    chartDataset.data = fakeWeek15()
     // drawSvg()
     // tdrawRefactor()
     fillSidePanel()

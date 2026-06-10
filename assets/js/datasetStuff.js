@@ -1,4 +1,39 @@
-let dataList = ["week26.csv", "pinguins.csv"]
+let dataList = ["week15.csv", "week26.csv", "pinguins.csv"]
+
+
+Array.prototype.sample = function(){
+    return this[Math.floor(Math.random()*this.length)];
+}
+
+
+
+function fakeWeek15() {
+
+    let dataProfile = {
+        "topics": ["work", "dear-data", "looks", "personality", "specific"],
+        "who": ["boyfriend", "stefanie", "friend", "acquaintance", "coworker","family","stranger"],
+        "medium": ["twitter", "email", "text", "real-life", "phone"],
+        "compliment": ["gave", "received"]
+    }
+
+    let n = 87
+
+    let tkeys = Object.keys(dataProfile)
+
+    const dataset = []
+
+    for (let i = 0; i < n; i++) {
+
+        let t = {}
+        for (let j = 0; j < tkeys.length; j++) {
+            t[tkeys[j]] = dataProfile[tkeys[j]].sample()
+
+        }
+        dataset.push(t)
+    }
+
+    return dataset
+}
 
 function fillSidePanel() {
 

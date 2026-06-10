@@ -11,7 +11,7 @@ function dragElement(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     elmnt.onmousedown = dragMouseDown;
-
+    let tsvg = document.getElementById("composition");
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -21,6 +21,8 @@ function dragElement(elmnt) {
         } else {
             dragMode = "canvas";
         }
+
+
 
 
         const rect = elmnt.getBoundingClientRect();
@@ -34,6 +36,7 @@ function dragElement(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+        tsvg.classList.add("dropArea")
     }
 
     function elementDrag(e) {
@@ -48,6 +51,7 @@ function dragElement(elmnt) {
         // set the element's new position:
         elmnt.style.position = "absolute";
 
+        document.body.style.cursor = "grabbing";
 
         elmnt.style.left =
             (e.pageX - offsetX) + "px";
@@ -55,8 +59,13 @@ function dragElement(elmnt) {
         elmnt.style.top =
             (e.pageY - offsetY + 50) + "px";
 
-        // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        if (e.target === tsvg) {
+            tsvg.classList.add("dragOver")
+            tsvg.classList.remove("dropArea")
+        } else {
+            tsvg.classList.remove("dragOver")
+            tsvg.classList.add("dropArea")
+        }
 
     }
 
@@ -68,6 +77,12 @@ function dragElement(elmnt) {
         document.onmouseup = null;
         document.onmousemove = null;
         dragging = false
+
+        document.body.style.cursor = "";
+
+
+        tsvg.classList.remove("dragOver")
+        tsvg.classList.remove("dropArea")
 
         if (dragMode === "canvas") {
             dropCanvas(e, elmnt)

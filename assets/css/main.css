@@ -1020,3 +1020,17 @@ p, h3, h4, h5, img {
     background-color: #FFF;
     border: solid 1px #424242;
 }
+
+
+.dragOver {
+    border: 3px dashed red !important;
+    background-color: rgba(50,50,50,0.6) !important;
+}
+
+
+.dropArea {
+    border: 3px dashed #000 !important;
+
+}
+
+

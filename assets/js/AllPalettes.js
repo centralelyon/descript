@@ -1,14 +1,16 @@
 let allPalettes = []
 
 let palSources = [
+
+    "week15_squares",
+    "week15_RightSymbol",
+    "week15_InnerCircle",
+    "week26_circle",
     "sudoku_time",
     "sudoku_level",
     "sudoku_hint",
     "sudoku_mistake",
-    "week26_circle",
-    "week15_squares",
-    "week15_RightSymbol",
-    "week15_InnerCircle",
+
 ]
 
 const prevW = 160
@@ -62,7 +64,7 @@ async function initAllPalette() {
         for (let j = n - 1; j > -1; j--) {
             let b64 = allMarks[MarkNames[j]].source
             if (allMarks[MarkNames[j]].source === undefined) {
-                b64 =  allMarks[MarkNames[j]].proto.canvas
+                b64 = allMarks[MarkNames[j]].proto.canvas
                 allMarks[MarkNames[j]].source = allMarks[MarkNames[j]].proto.canvas
             }
 
@@ -178,7 +180,7 @@ function openNav() {
 }
 
 
-function appendSingle(palette,name) {
+function appendSingle(palette, name) {
     const container = document.getElementById("AllPaletteCont");
 
 
@@ -188,7 +190,7 @@ function appendSingle(palette,name) {
 
     let tdiv = document.createElement("div");
     tdiv.className = "allPaletteRow";
-    tdiv.setAttribute("number", palSources.length-1)
+    tdiv.setAttribute("number", palSources.length - 1)
     tdiv.setAttribute("name", name)
 
     let canContainer = document.createElement("div");
