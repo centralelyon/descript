@@ -20,6 +20,71 @@ const subW = 30
 const subH = 30
 
 
+function addASelectedPalette(key) {
+
+    console.log(key);
+
+    const container = document.getElementById("selectedPaletteCont");
+    let col = collageColScale(key)
+    const palette = megaPalettes[key];
+
+    let tdiv = document.createElement("div");
+    tdiv.className = "selectedPaletteRow";
+    tdiv.setAttribute("name", key)
+
+
+    let canContainer = document.createElement("div");
+    tdiv.innerHTML = `<div class="platteColorBand" style="background-color: ${col}"></div> `;
+    canContainer.className = "selectedCanPreview";
+
+    let leftSide = document.createElement("div");
+
+    leftSide.className = "leftSideSelected";
+
+
+    leftSide.innerHTML = `<p  style="font-weight: 600;text-decoration: underline #424242 "><img style="width: 12px" src="assets/images/buttons/del.png" >  ${key}</p> `
+
+
+    leftSide.appendChild(canContainer);
+
+    makeMarksPreview(palette.encodings.range.marks, canContainer)
+
+    tdiv.appendChild(leftSide);
+
+
+    let propertyContainer = document.createElement("div");
+    propertyContainer.className = "propertyContainer";
+
+
+    let options = "<option value='none'>none</option>";
+
+    let columns = Object.keys(chartDataset.data[0])
+
+    for (let i = 0; i < columns.length; i++) {
+        options += "<option value='" + columns[i] + "'>" + columns[i] + "</option>";
+    }
+    propertyContainer.innerHTML = `<div><div style="display: flex;margin-left: -47px;margin-top: 22px;"><p  style="font-weight: 500 ">Shape:</p><select style="width: 70px">${options}</select></div><div><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
+
+
+    tdiv.appendChild(propertyContainer);
+    container.appendChild(tdiv);
+
+}
+
+function setAddNewMenu() {
+    let tdiv = document.createElement("div");
+    tdiv.className = "allPaletteRow";
+
+    tdiv.innerHTML = `<div style="display: flex;cursor: pointer;align-items:stretch;margin-top: 3px;height: 42px" onclick="switchPalette()">
+                       <img src="assets/images/buttons/plus.png" style="width:25px;height:25px;margin-top:7px;margin-right: 20px;margin-left: 25px"> 
+                       <h5> new..</h5>
+                        </div>
+                        `
+
+    return tdiv
+}
+
+
 async function initAllPalette() {
 
 
@@ -32,6 +97,8 @@ async function initAllPalette() {
     const container = document.getElementById("AllPaletteCont");
 
     container.innerHTML = "";
+
+    container.appendChild(setAddNewMenu());
 
     for (let i = 0; i < allPalettes.length; i++) {
         let tdiv = document.createElement("div");
@@ -227,7 +294,75 @@ function appendSingle(palette, name) {
 
         canContainer.appendChild(tcan);
 
-        allPalettes.push(palette)
+
     }
+    allPalettes.push(palette)
+}
+
+function makeMarksPreview(marks, container) {
+    let MarkNames = Object.keys(marks)
+    let n = MarkNames.length;
+    let offx = 14
+    let offy = 3
+
+
+    // console.log(MarkNames);
+    for (let j = 0; j < n; j++) {
+
+        let tcan = cloneCanvas(marks[MarkNames[j]].proto.canvas)
+        tcan.style.width = `${subW}px`
+        tcan.style.height = `${subH}px`
+        //
+        // tcan.style.left = `${offx + (j * offx)}px`
+        // tcan.style.top = `${(prevH - subH) - (j * offy)}px`
+
+
+        container.appendChild(tcan);
+
+
+    }
+}
+
+
+function addPaletteMarksCompo(key) {
+
+    const canWidth = 80
+    const canHeight = 80
+
+    let container = document.getElementById("MarksPaletteList");
+    let currMarksContainer = document.createElement("div");
+
+    let marks = megaPalettes[key].encodings.range.marks;
+
+    let first = marks[Object.keys(marks)[0]].proto.canvas;
+
+
+    let colorBrand = document.createElement("div");
+
+    colorBrand.className = "colorBrand";
+
+    colorBrand.style.backgroundColor = ""+collageColScale(key)
+
+    let proto = document.createElement("canvas");
+    proto.setAttribute("id", "proto-" + key)
+    proto.setAttribute("class", "protoCanvas")
+
+    proto.width = canWidth
+    proto.height = canHeight
+
+
+    proto.getContext("2d").drawImage(first, canWidth / 2 - first.width / 2, canHeight / 2 - first.height / 2)
+
+
+    currMarksContainer.appendChild(colorBrand);
+    currMarksContainer.appendChild(proto);
+
+
+    for (const [key, value] of Object.entries(marks)) {
+        console.log(value.proto.canvas);
+        currMarksContainer.appendChild(cloneCanvas(value.proto.canvas));
+    }
+
+    container.appendChild(currMarksContainer);
 
 }

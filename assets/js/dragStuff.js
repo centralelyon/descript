@@ -11,7 +11,7 @@ function dragElement(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     elmnt.onmousedown = dragMouseDown;
-    let tsvg = document.getElementById("composition");
+    let tsvg = document.getElementById("selectedPaletteCont");
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -195,11 +195,13 @@ function dropPalette(e, elmnt) {
         let tPalCont = document.getElementById("paletteCont")
         tPalCont.classList.remove("draggedover")
 
-    } else if (e.target.matches("#composition")) {
-
+    } else if (e.target.matches("#selectedPaletteCont")) {
 
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
+
+
+
 
         if (megaPalettes[name] !== undefined) {
             name += Object.keys(megaPalettes).length
@@ -215,8 +217,9 @@ function dropPalette(e, elmnt) {
 
         dataBinding[name] = ""
 
-
+        addASelectedPalette(name)
         addPaletteInfoToCollage(allPalettes[num], name)
+        addPaletteMarksCompo(name)
 
 
         megaGlyph[name] = {

@@ -88,7 +88,6 @@ body {
 }
 
 
-
 #catData {
     width: 30%;
     margin-left: 2%;
@@ -499,7 +498,7 @@ table th {
 }
 
 #palettePlusMark {
-filter: invert(1);
+    filter: invert(1);
 }
 
 .waypointTitle {
@@ -564,10 +563,11 @@ filter: invert(1);
     margin-left: 6px;
 }
 
-#AllPaletteCont canvas {
+#AllPaletteCont canvas, #selectedPaletteCont canvas {
     border: 1px solid #555;
     border-radius: 4px;
     background: #F1F1F1;
+    /*position: absolute;;*/
 }
 
 /*#chartSettings*/
@@ -808,8 +808,8 @@ li .fakeGrammarRow {
     width: 240px;
     border-radius: 5px;
     cursor: grab;
-    margin-left:42px ;
-    background-color:#fff;
+    margin-left: 42px;
+    background-color: #fff;
 
 }
 
@@ -932,7 +932,7 @@ p, h3, h4, h5, img {
     z-index: 99;
 }
 
-#sampleDisplay image{
+#sampleDisplay image {
     pointer-events: all;
 
 }
@@ -958,18 +958,19 @@ p, h3, h4, h5, img {
 
 #composition path:hover {
 
-    stroke-width: 6px ;
+    stroke-width: 6px;
     cursor: pointer;
 
 }
 
 #composition circle:hover {
 
-    r: 9px ;
+    r: 9px;
     cursor: grab;
 
 
 }
+
 .dataRow {
     display: flex;
     justify-content: center;
@@ -977,8 +978,8 @@ p, h3, h4, h5, img {
 }
 
 .dataRow:hover {
-  border: solid 1px #424242;
-    cursor:grab;
+    border: solid 1px #424242;
+    cursor: grab;
 }
 
 .dataColumn {
@@ -994,7 +995,7 @@ p, h3, h4, h5, img {
 
 }
 
-.markAnchorSvg circle{
+.markAnchorSvg circle {
     pointer-events: all;
     cursor: grab;
 }
@@ -1024,7 +1025,7 @@ p, h3, h4, h5, img {
 
 .dragOver {
     border: 3px dashed red !important;
-    background-color: rgba(50,50,50,0.6) !important;
+    background-color: rgba(50, 50, 50, 0.6) !important;
 }
 
 
@@ -1034,3 +1035,63 @@ p, h3, h4, h5, img {
 }
 
 
+.selectedPaletteRow {
+    display: flex;
+    padding: 4px;
+    border: solid 1px #555;
+    width: 92%;
+    border-radius: 5px;
+    cursor: grab;
+    margin-left: 12px;
+    background-color: #fff;
+    margin-bottom: 3px;
+
+}
+
+.selectedCanPreview {
+
+    border-radius: 1px;
+    border-right: solid 1px #424242;
+    width: 140px;
+    min-height: 75px;
+    /*margin-top: -13px;*/
+    position: relative;
+}
+
+.leftSideSelected p {
+    width: 200px;
+    margin-bottom: 5px;
+}
+
+.leftSideSelected {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.platteColorBand {
+
+    width: 9px;
+    margin-left: -10px;
+    margin-right: 9px;
+    border-radius: 5px;
+    height: 130px;
+}
+
+#MarksPaletteList {
+
+
+}
+
+.protoCanvas {
+    border-radius: 4px;
+    border: solid 1px #424242;
+}
+
+.colorBrand {
+    width: 80px;
+    height: 9px;
+    border-radius: 3px;
+    margin-bottom: -2px;
+    z-index: 9;
+}
