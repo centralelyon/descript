@@ -1112,7 +1112,7 @@ p, h3, h4, h5, img {
     position: absolute;
     left: 45%;
     width: 50%;
-    overflow-y: hidden;
+    /*overflow-y: hidden;*/
     background: #424242;
     border: solid 1px #424242;
     padding: 7px;
@@ -1145,4 +1145,5 @@ p, h3, h4, h5, img {
     padding-top: 0;
     /*padding-left: 15px;*/
     text-align: center;
+    cursor: grab;
 }

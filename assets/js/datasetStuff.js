@@ -91,7 +91,7 @@ function fillTable() {
 
         th.innerHTML = tkeys[i]
         // row.innerHTML += `<th>${tkeys[i]}</th>`
-            dragElement2(th=)
+            dragElement2(th)
 
         row.appendChild(th)
 
