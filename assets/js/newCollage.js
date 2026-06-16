@@ -182,7 +182,7 @@ function addPaletteInfoToCollage(palette, name) {
 
             } else {
 
-                displayPalette(name)
+                // displayPalette(name)
 
             }
         })
@@ -413,6 +413,7 @@ function setAnchorOnAllMarks(name, x, y, from, nb,related) {
     if (selectedPalette === name) {
         d3.selectAll(`.markAnchorSvg circle[num="${nb}"]`).attr("fill",collageColScale(related)).transition().duration(60).attr("cx", x).attr("cy", y)
     }
+
 }
 
 

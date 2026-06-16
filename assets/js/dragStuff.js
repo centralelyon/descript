@@ -216,10 +216,11 @@ function dropPalette(e, elmnt) {
         megaPalettes[name] = allPalettes[num]
 
         dataBinding[name] = ""
-
-        addASelectedPalette(name)
         addPaletteInfoToCollage(allPalettes[num], name)
+        addASelectedPalette(name)
+
         addPaletteMarksCompo(name)
+        updateDotsAndSvgs()
 
 
         megaGlyph[name] = {
@@ -236,7 +237,7 @@ function dropPalette(e, elmnt) {
         megaGlyph[name].color = makeColorScale(name, "")
         // makeMarkTree()
 
-        displayPalette(name)
+        // displayPalette(name)
 
         if (tflag) {
             tdrawRefactor()
@@ -397,6 +398,8 @@ function dragged(event, d) {
         // setAnchorOnAllMarks(tname, tx, ty, +id)
 
         setAnchorOnAllMarks(tname, tx, ty, +id,nb,related)
+        updateDotsAndSvgs()
+
 
 
     }
@@ -416,6 +419,8 @@ function dragElement3(elmnt) {
 
     let placeholder = document.createElement("div");
     placeholder.classList.add("placeholder");
+
+    let key = elmnt.getAttribute("key");
 
     function dragMouseDown(e) {
         e = e || window.event;
@@ -458,8 +463,8 @@ function dragElement3(elmnt) {
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 
 
-        let container = document.getElementById("paletteMarks")
-        let tt = getInsertionPoint(container, (e.pageX))
+        let container = document.getElementById("list-"+key)
+        let tt = getInsertionPoint(container, (e.pageY))
 
         if (tt === placeholder.nextSibling) {
             return;
@@ -529,7 +534,7 @@ function dragElement3(elmnt) {
 
         return items.find(item => {
             const rect = item.getBoundingClientRect();
-            return mouseX < rect.left + rect.width / 2;
+            return mouseX < rect.top + rect.height / 2;
         });
     }
 

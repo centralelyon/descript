@@ -331,38 +331,92 @@ function addPaletteMarksCompo(key) {
 
     let container = document.getElementById("MarksPaletteList");
     let currMarksContainer = document.createElement("div");
+    currMarksContainer.className = "paletteMarksList";
+    currMarksContainer.id = "list-" + key
+
 
     let marks = megaPalettes[key].encodings.range.marks;
 
-    let first = marks[Object.keys(marks)[0]].proto.canvas;
+    // let first = marks[Object.keys(marks)[0]].proto.canvas;
+
+    // let firstCont = document.createElement("div");
 
 
     let colorBrand = document.createElement("div");
 
     colorBrand.className = "colorBrand";
 
-    colorBrand.style.backgroundColor = ""+collageColScale(key)
+    colorBrand.style.backgroundColor = "" + collageColScale(key)
 
-    let proto = document.createElement("canvas");
-    proto.setAttribute("id", "proto-" + key)
-    proto.setAttribute("class", "protoCanvas")
-
-    proto.width = canWidth
-    proto.height = canHeight
+    // firstCont.appendChild(colorBrand)
+    // firstCont.appendChild(first)
 
 
-    proto.getContext("2d").drawImage(first, canWidth / 2 - first.width / 2, canHeight / 2 - first.height / 2)
+    // let proto = document.createElement("canvas");
+    // proto.setAttribute("id", "proto-" + key)
+    // proto.setAttribute("class", "protoCanvas")
+    //
+    // proto.width = canWidth
+    // proto.height = canHeight
+    //
+    //
+    // proto.getContext("2d").drawImage(first, canWidth / 2 - first.width / 2, canHeight / 2 - first.height / 2)
 
 
     currMarksContainer.appendChild(colorBrand);
-    currMarksContainer.appendChild(proto);
+    // currMarksContainer.appendChild(proto);
+
+    makeRangeMark(key, currMarksContainer, megaPalettes[key], "")
 
 
-    for (const [key, value] of Object.entries(marks)) {
-        console.log(value.proto.canvas);
-        currMarksContainer.appendChild(cloneCanvas(value.proto.canvas));
-    }
+    /*    for (const [key, value] of Object.entries(marks)) {
+            let tdiv = document.createElement("div");
+            tdiv.className = "paletteMarksCanvasHolder"
+            tdiv.appendChild(cloneCanvas(value.proto.canvas));
+            currMarksContainer.appendChild(tdiv);
+        }*/
 
     container.appendChild(currMarksContainer);
 
+}
+
+
+function updateDotsAndSvgs() {
+
+    for (const [id, palette] of Object.entries(megaPalettes)) {
+
+
+        for (const [name, mark] of Object.entries(palette.encodings.range.marks)) {
+
+            let tcan =  document.getElementById(`canvas_${id}_${name}`)
+            let trect = tcan.getBoundingClientRect()
+
+            let tsvg = d3.select(`#svg-${id}-${name}`)
+
+            tsvg.attr("viewBox", `0 0 ${trect.width} ${trect.height}`)
+                .attr("width", trect.width)
+                .attr("height", trect.height)
+
+
+            if (mark.proto.anchors) {
+                tsvg.selectAll("circle").remove();
+                for (const [id, coords] of Object.entries(mark.proto.anchors)) {
+                    tsvg.append("circle")
+                        .attr("cx", trect.width * coords.rx)
+                        .attr("cy", trect.height * coords.ry)
+                        .attr("num", id)
+                        .attr("fill", collageColScale(coords.relatedTo))
+                        .style("stroke", "1px")
+                        .attr("palette", id)
+                        .attr("name", name)
+                        .attr("r", "5")
+                        .call(d3.drag()
+                            .on("start", nodeDragst)
+                            .on("drag", nodeDragged)
+                            .on("end", nodeDragend))
+                }
+
+            }
+        }
+    }
 }

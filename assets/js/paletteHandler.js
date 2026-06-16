@@ -1406,7 +1406,7 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
     const marks = value.encodings.range.marks
 
     for (const [name, value] of Object.entries(marks)) {
-        let tmark = makeSingleMark(key, name, "range", value.proto.canvas)
+        let tmark = makeSingleMark(key, name, "range", cloneCanvas(value.proto.canvas))
         tdiv.appendChild(tmark)
         let tcan = tmark.lastChild;
         let trect = tcan.getBoundingClientRect()
@@ -1418,7 +1418,7 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
         tsvg = d3.select(tsvg)
 
         tsvg
-            .attr("id", "svg" + key)
+            .attr("id", "svg-" + key+ "-"+name)
             .attr("class", "markAnchorSvg")
             .attr("viewBox", `0 0 ${trect.width} ${trect.height}`)
             .attr("width", trect.width)
@@ -1451,6 +1451,7 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
     moreCan.innerHTML = ` <img  id="palettePlusMark" src="assets/images/buttons/plus.png" class="buttonImg" 
  style=";margin-top: 41px;width: 25px; margin-left: 5px;cursor: pointer" onclick="addACan(this,'${key}')">`
     tdiv.appendChild(moreCan)
+
 }
 
 
@@ -1549,13 +1550,13 @@ function makeSingleMark(key, label, type, can = undefined) {
         */
 
         tdiv_mark.innerHTML = `${mess}
-            <canvas id='${"canvas_" + key}' style='width: 60px;height: 60px'></canvas>`
+            <canvas id='canvas_${key}_${label}' style='width: 60px;height: 60px'></canvas>`
     } else {
         tdiv_mark.innerHTML = mess
         tdiv_mark.appendChild(can)
 
 
-        can.id = `${"canvas_" + key}`
+        can.id = `${"canvas_" + key}_${label}`
 
     }
     tdiv_mark.onclick = function (e) {
