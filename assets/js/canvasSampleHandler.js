@@ -2,12 +2,8 @@ let gSampleType = "rect"
 
 let saveAllowed = false;
 let currSampleList = {}
-let zoom = 1;
 
-// World coordinate of canvas origin
-let x0 = 0;
-let y0 = 0;
-
+let sampling = false
 
 function resetListeners(can) {
     // can.onmousemove = null;
@@ -22,95 +18,95 @@ function resetListeners(can) {
 function switchMode(type) {
     let can = document.getElementById("inVis")
     gSampleType = type
-    if (!allowedPan) {
 
-        if (type === "rect") {
-            resetListeners(can)
 
-            can.onpointerdown = e => {
-                origin = {x: e.offsetX, y: e.offsetY};
+    if (type === "rect") {
+        resetListeners(can)
 
-            };
+        can.onpointerdown = e => {
+            if (isDragging) return
+            origin = {x: e.offsetX, y: e.offsetY};
+            sampling = true
 
-            can.onpointerup = e => {
+        };
 
-                const torigin = {...origin}
+        can.onpointerup = e => {
+            if (isDragging) return
+            const torigin = {...origin}
 
-                origin = null;
+            origin = null;
+            sampling = false
+            clear();
+            drawImage();
 
-                clear();
-                drawImage();
+            addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+        };
+        can.onpointermove = render;
+    } else if (type === "free") {
 
-                addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
-            };
-            can.onpointermove = render;
-        } else if (type === "free") {
+        resetListeners(can)
 
-            resetListeners(can)
+        /*
+                can.onmousedown = onMouseDown
+                can.onmousemove = onMouseMove
+                can.onmouseup = onMouseUp
+        */
 
-            /*
-                    can.onmousedown = onMouseDown
-                    can.onmousemove = onMouseMove
-                    can.onmouseup = onMouseUp
-            */
+        can.onpointerdown = onMouseDown
+        can.onpointermove = onMouseMove
+        can.onpointerup = onMouseUp
 
-            can.onpointerdown = onMouseDown
-            can.onpointermove = onMouseMove
-            can.onpointerup = onMouseUp
+    } else if (type === "grab") {
 
-        } else if (type === "grab") {
+        resetListeners(can)
 
-            resetListeners(can)
+        can.onpointerdown = onMouseDown
+        can.onpointermove = onMouseMove
+        can.onpointerup = onMouseUp
 
-            can.onpointerdown = onMouseDown
-            can.onpointermove = onMouseMove
-            can.onpointerup = onMouseUp
+        /*        can.onpointerdown = e => {
+                    origin = {x: e.offsetX, y: e.offsetY};
 
-            /*        can.onpointerdown = e => {
-                        origin = {x: e.offsetX, y: e.offsetY};
+                };
 
-                    };
+                can.onpointerup = e => {
 
-                    can.onpointerup = e => {
+                    const torigin = {...origin}
 
-                        const torigin = {...origin}
+                    origin = null;
 
-                        origin = null;
+                    clear();
+                    drawImage();
 
-                        clear();
-                        drawImage();
-
-                        addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
-                    };
-                    can.onpointermove = render;*/
-
-        }
+                    addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+                };
+                can.onpointermove = render;*/
 
     }
+
+
 }
 
 
 //----------------- Rect stuff
 
 const drawImage = () => {
-    let can = document.getElementById("inVis")
-    let cont = can.getContext('2d');
+    if (!isDragging) {
+        let can = document.getElementById("inVis")
+        let cont = can.getContext('2d');
 
 
-    cont.setTransform(
-        zoom, 0,
-        0, zoom,
-        -x0 * zoom,
-        -y0 * zoom
-    );
+        cont.setTransform(1, 0, 0, 1, 0, 0);
+        cont.clearRect(0, 0, can.width, can.height);
 
-    cont.clearRect(
-        x0, y0,
-        can.width / zoom,
-        can.height / zoom
-    );
-
-    cont.drawImage(currImg, 0, 0, ...viewDim);
+        cont.setTransform(
+            zoom, 0,
+            0, zoom,
+            -x0 * zoom,
+            -y0 * zoom
+        );
+        cont.drawImage(currImg, 0, 0,viewDim[0], viewDim[1]);
+    }
 }
 
 const drawSelection = (e) => {
@@ -119,6 +115,8 @@ const drawSelection = (e) => {
 
     cont.strokeStyle = "#000";
     cont.beginPath();
+
+    cont.setTransform(1, 0, 0, 1, 0, 0);
     cont.rect(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
     cont.stroke();
 };
@@ -136,10 +134,12 @@ const clear = () => {
 
 const render = (e) => {
 
-    if (origin) {
+    if (origin && !isDragging && sampling) {
         clear();
         drawImage();
         drawSelection(e);
+
+
     }
 }
 

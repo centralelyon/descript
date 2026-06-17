@@ -885,3 +885,19 @@ function fakeWeek26() {
 
     return res
 }
+
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Shift" && !isDragging) {
+        let tcan = document.getElementById("inVis")
+        tcan.style.cursor = "grab";
+        sampling = false
+    }
+});
+
+window.addEventListener("keyup", (e) => {
+    if (e.key === "Shift") {
+        let tcan = document.getElementById("inVis")
+        tcan.style.cursor = "default";
+        // sampling = true
+    }
+});
