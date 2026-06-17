@@ -14,7 +14,7 @@ let palSources = [
 ]
 
 const prevW = 160
-const prevH = 60
+const prevH = 40
 
 const subW = 30
 const subH = 30
@@ -42,7 +42,7 @@ function addASelectedPalette(key) {
     leftSide.className = "leftSideSelected";
 
 
-    leftSide.innerHTML = `<p  style="font-weight: 600;text-decoration: underline #424242 "><img style="width: 12px" src="assets/images/buttons/del.png" >  ${key}</p> `
+    leftSide.innerHTML = `<p  style="font-weight: 600;text-decoration: underline #424242 "><img onclick="delPalette('${key}')" class="delSelectedPal" style="" src="assets/images/buttons/del.png" >  ${key}</p> `
 
 
     leftSide.appendChild(canContainer);
@@ -63,7 +63,7 @@ function addASelectedPalette(key) {
     for (let i = 0; i < columns.length; i++) {
         options += "<option value='" + columns[i] + "'>" + columns[i] + "</option>";
     }
-    propertyContainer.innerHTML = `<div><div style="display: flex;margin-left: -47px;margin-top: 22px;"><p  style="font-weight: 500 ">Shape:</p><select style="width: 70px">${options}</select></div><div><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
+    propertyContainer.innerHTML = `<div><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;margin-left: -47px;margin-top: 22px;"><p  style="font-weight: 500 ">Mark:</p><select class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
 
 
     tdiv.appendChild(propertyContainer);
@@ -83,6 +83,7 @@ function setAddNewMenu() {
 
     return tdiv
 }
+
 
 
 async function initAllPalette() {
@@ -208,7 +209,7 @@ let placeHolderBool = true
 
 
 function openNav() {
-    let container = document.getElementById("sidebar")
+    let container = document.getElementById("dataPopupReduced")
     let containerImg = document.getElementById("sideArrow")
 
 
@@ -217,14 +218,19 @@ function openNav() {
     let img = document.getElementById("sideImg");
 
     if (flipSide) {
-        img.style.transform = "scaleX(-1)";
-        container.style.width = `${containerWidth}px`
+        img.style.transform = "rotate(90deg)";
+        container.style.height = `${800}px`
+
+        let tcont = container.getElementsByTagName('div')[0]
+
+        tcont.style.height = `${800}px`
+        tcont.style.overflowY = `auto`
 
         // containerImg.style.right = `${sideOffset}px`
 
-        container.style.border = "solid 1px #333"
-        container.style.height = `${80.5}vh`
-        container.style.top = `${6}%`
+        // container.style.border = "solid 1px #333"
+        // container.style.height = `${80.5}vh`
+        // container.style.top = `${6}%`
 
         document.querySelectorAll(".sideContent").forEach(el => {
             el.style.display = "inline-block";
@@ -232,11 +238,17 @@ function openNav() {
     } else {
 
         img.style.transform = "";
-        container.style.width = `${offsetWidth}px`
-        containerImg.style.right = "-22px";
+        container.style.height = `${30}px`
 
-        container.style.height = `${35}vh`
-        container.style.top = `${30}%`
+
+        let tcont = container.getElementsByTagName('div')[0]
+        tcont.style.overflowY = `hidden`
+
+        tcont.style.height = `${30}px`
+        // containerImg.style.right = "-22px";
+
+        // container.style.height = `${35}vh`
+        // container.style.top = `${30}%`
 
         document.querySelectorAll(".sideContent").forEach(el => {
             el.style.display = "none";
@@ -253,7 +265,6 @@ function appendSingle(palette, name) {
 
     palSources.push(name)
 
-    console.log(palette);
 
     let tdiv = document.createElement("div");
     tdiv.className = "allPaletteRow";
@@ -265,15 +276,19 @@ function appendSingle(palette, name) {
     canContainer.className = "canPreview";
 
     tdiv.appendChild(canContainer);
-    container.appendChild(tdiv);
+    console.log(container.getElementsByTagName('div')[2]);
+    container.insertBefore(tdiv, container.firstChild.nextSibling);
+
+    // container.appendChild(tdiv);
 
     dragElement(tdiv)
     let allMarks = palette.encodings.range.marks;
-
+    console.log(palette);
+    console.log(allMarks);
     let MarkNames = Object.keys(allMarks)
     let n = MarkNames.length;
     let offx = 14
-    let offy = 3
+    let offy = 1
 
     if (offx * n + subW > prevW || offy * n + subH > prevH) {
         offx = (prevW - subW) / n
@@ -400,11 +415,11 @@ function updateDotsAndSvgs() {
 
             if (mark.proto.anchors) {
                 tsvg.selectAll("circle").remove();
-                for (const [id, coords] of Object.entries(mark.proto.anchors)) {
+                for (const [anchor, coords] of Object.entries(mark.proto.anchors)) {
                     tsvg.append("circle")
                         .attr("cx", trect.width * coords.rx)
                         .attr("cy", trect.height * coords.ry)
-                        .attr("num", id)
+                        .attr("num", anchor)
                         .attr("fill", collageColScale(coords.relatedTo))
                         .style("stroke", "1px")
                         .attr("palette", id)

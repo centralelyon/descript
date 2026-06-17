@@ -90,6 +90,7 @@ function fillTable() {
         let th = document.createElement("th")
 
         th.innerHTML = tkeys[i]
+        th.setAttribute("num", i)
         // row.innerHTML += `<th>${tkeys[i]}</th>`
             dragElement2(th)
 

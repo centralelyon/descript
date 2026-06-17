@@ -409,6 +409,15 @@ canvas {
     transform-origin: center;
 }
 
+#paletteCont{
+    border-radius: 5px;
+    padding: 20px;
+    border: solid #333 thin;
+    width: 65.2%;
+    margin-top: 5px;
+    background-color: #fff;
+}
+
 
 #paletteContainer {
     padding: 20px;
@@ -862,20 +871,24 @@ p, h3, h4, h5, img {
     cursor: pointer;
     height: 20px;
     margin-top: 7px;
-    margin-left: -10px;
+    margin-left: 5px;
     transition: 1.15s;
+    transform: rotate(-90deg);
+    filter: invert(1);
 
 }
 
 #sideArrow {
     position: absolute;
-    top: 50%;
+    /*top: 50%;*/
+    top: calc(97% - 12px);
     width: 32px;
-    height: 35px;
+    height: 30px;
     background-color: inherit;
-    left: -12px;
+    left: 50%;
     border-radius: 5px;
-    transition: .5s;
+    transition: 1s;
+    z-index: 99;
 }
 
 
@@ -1080,6 +1093,8 @@ p, h3, h4, h5, img {
 
 #MarksPaletteList {
     display: flex;
+    overflow-x: auto;
+    justify-content: center;
 }
 
 .protoCanvas {
@@ -1096,7 +1111,7 @@ p, h3, h4, h5, img {
 }
 
 .paletteMarksList {
-    display: flex;
+    /*display: flex;*/
     flex-direction: column;
 }
 
@@ -1108,7 +1123,7 @@ p, h3, h4, h5, img {
 }
 
 
-.dataPopupReduced {
+#dataPopupReduced {
     position: absolute;
     left: 45%;
     width: 50%;
@@ -1122,6 +1137,14 @@ p, h3, h4, h5, img {
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     height: 29px;
+}
+
+#newDataTable td {
+    text-align: center;
+}
+
+#newDataTable tr {
+    background: #fff;
 }
 
 #newDataTable {
@@ -1146,4 +1169,33 @@ p, h3, h4, h5, img {
     /*padding-left: 15px;*/
     text-align: center;
     cursor: grab;
+}
+
+
+#newDataTable th:hover {
+    border: dashed 3px #F1F1F1 !important;
+    /*background: #fff;*/
+    /*color: #424242;*/
+}
+
+.delSelectedPal {
+    width: 12px;
+    cursor: pointer
+}
+
+#marksHolder {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#marksHolder canvas {
+    border: 1px solid #424242;
+    border-radius: 4px;
+    margin-right: 5px;
+    height: 90%;
+}
+
+.btnDisabled {
+    cursor: not-allowed !important;
+    opacity: 0.6;
 }

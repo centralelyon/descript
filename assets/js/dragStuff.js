@@ -12,6 +12,7 @@ function dragElement(elmnt) {
 
     elmnt.onmousedown = dragMouseDown;
     let tsvg = document.getElementById("selectedPaletteCont");
+
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -21,8 +22,6 @@ function dragElement(elmnt) {
         } else {
             dragMode = "canvas";
         }
-
-
 
 
         const rect = elmnt.getBoundingClientRect();
@@ -59,7 +58,7 @@ function dragElement(elmnt) {
         elmnt.style.top =
             (e.pageY - offsetY + 50) + "px";
 
-        if (e.target === tsvg) {
+        if (e.target === tsvg || e.target.matches(".leftSideSelected") || e.target.matches(".selectedCanPreview") || e.target.matches(".propertyContainer")) {
             tsvg.classList.add("dragOver")
             tsvg.classList.remove("dropArea")
         } else {
@@ -117,6 +116,7 @@ function dragElement2(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+        d3.selectAll(".dataSelectContainer").style("border", "2px dashed #424242")
     }
 
     function elementDrag(e) {
@@ -142,6 +142,15 @@ function dragElement2(elmnt) {
         // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 
+
+        if (e.target.matches(".dataSelectContainer")) {
+            d3.select(e.target).style("border", "2px dashed red")
+
+        } else if (e.target.parentNode.matches(".dataSelectContainer")) {
+            d3.select(e.target.parentNode).style("border", "2px dashed red")
+        } else {
+            d3.select(".dataSelectContainer").style("border", "2px dashed #424242")
+        }
     }
 
     function closeDragElement(e) {
@@ -153,21 +162,41 @@ function dragElement2(elmnt) {
         document.onmousemove = null;
         dragging = false
 
+        d3.selectAll(".dataSelectContainer").style("border", "none")
+        let id = ""
 
-        if (e.target.matches(".collageElement")) {
-            let id = e.target.getAttribute("id").split("collage-")[1]
+        let telm
 
-            console.log(id);
-            console.log(selectedDataColumn);
+        if (e.target.matches(".dataSelectContainer")) {
+            id = e.target.getAttribute("key")
+            telm = e.target
 
-            megaGlyph[id].dataColumn = selectedDataColumn
+        } else if (e.target.parentElement.matches(".dataSelectContainer")) {
+            id = e.target.parentElement.getAttribute("key")
+            telm = e.target.parentElement
+        }
 
-            dataBinding[id] = selectedDataColumn
+        if (id !== "") {
+
+            let tsel = d3.select(telm).select("select")
+
+            tsel.selectAll("option").attr("selected", "false")
+
+            tsel =tsel.node()
+
+            let n = +elmnt.getAttribute("num")
+
+            console.log(n);
+
+            tsel.getElementsByTagName('option')[n+1].selected = true;
+            console.log("nani?!");
+            megaGlyph[id].dataColumn =elmnt.innerHTML
+
+            dataBinding[id] = elmnt.innerHTML
 
             updateSvg()
-
-
         }
+
 
         selectedDataColumn = ""
 
@@ -195,12 +224,10 @@ function dropPalette(e, elmnt) {
         let tPalCont = document.getElementById("paletteCont")
         tPalCont.classList.remove("draggedover")
 
-    } else if (e.target.matches("#selectedPaletteCont")) {
+    } else if (e.target.matches("#selectedPaletteCont") || e.target.matches(".selectedPaletteRow") || e.target.matches(".leftSideSelected") || e.target.matches(".selectedCanPreview") || e.target.matches(".propertyContainer")) {
 
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
-
-
 
 
         if (megaPalettes[name] !== undefined) {
@@ -393,13 +420,10 @@ function dragged(event, d) {
         let nb = elem.attr("nAnchor")
 
 
-
-
         // setAnchorOnAllMarks(tname, tx, ty, +id)
 
-        setAnchorOnAllMarks(tname, tx, ty, +id,nb,related)
+        setAnchorOnAllMarks(tname, tx, ty, +id, nb, related)
         updateDotsAndSvgs()
-
 
 
     }
@@ -463,7 +487,7 @@ function dragElement3(elmnt) {
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 
 
-        let container = document.getElementById("list-"+key)
+        let container = document.getElementById("list-" + key)
         let tt = getInsertionPoint(container, (e.pageY))
 
         if (tt === placeholder.nextSibling) {

@@ -10,6 +10,8 @@ function loadImg(src) {
 
         let cont = can.getContext('2d');
 
+        enableZoomPan(can,im)
+
         // let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
 
         let trect = document.getElementById("inVisHolder").getBoundingClientRect()
@@ -27,7 +29,7 @@ function loadImg(src) {
 
         // fillSvg(sampleData)
         megaPalette2 = {}
-         addAPalette()
+         // addAPalette()
 
     };
 

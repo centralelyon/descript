@@ -264,16 +264,25 @@ function hidePalette() {
 }
 
 
-function delPalette() {
-    console.log(selectedPalette)
-    delete megaPalettes[selectedPalette]
-    delete megaGlyph[selectedPalette]
-    delete dataBinding[selectedPalette]
-    d3.select("#collage-" + selectedPalette).remove()
-    d3.selectAll(`#composition circle[name="${selectedPalette}"]`).remove()
-    d3.select(`#composition path[name="${selectedPalette}"]`).remove()
-    updateSvg()
-    hidePalette()
+function delPalette(key) {
+
+    delete megaPalettes[key]
+    delete megaGlyph[key]
+    delete dataBinding[key]
+    d3.select("#collage-" + key).remove()
+    d3.selectAll(`#composition circle[name="${key}"]`).remove()
+    d3.select(`#composition path[name="${key}"]`).remove()
+
+
+    if(Object.keys(megaPalettes).length > 0){
+        updateSvg()
+    } else {
+        d3.select("#fakePreviewSvg").selectAll("image").remove()
+    }
+
+    // hidePalette()
+    d3.select(`.selectedPaletteRow[name='${key}']`).remove()
+    d3.select(`#list-${key}`).remove()
 }
 
 

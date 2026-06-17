@@ -1,5 +1,14 @@
 let gSampleType = "rect"
 
+let saveAllowed = false;
+let currSampleList = {}
+let zoom = 1;
+
+// World coordinate of canvas origin
+let x0 = 0;
+let y0 = 0;
+
+
 function resetListeners(can) {
     // can.onmousemove = null;
     // can.onmousedown = null;
@@ -13,69 +22,71 @@ function resetListeners(can) {
 function switchMode(type) {
     let can = document.getElementById("inVis")
     gSampleType = type
-    if (type === "rect") {
-        resetListeners(can)
+    if (!allowedPan) {
 
-        can.onpointerdown = e => {
-            origin = {x: e.offsetX, y: e.offsetY};
+        if (type === "rect") {
+            resetListeners(can)
 
-        };
+            can.onpointerdown = e => {
+                origin = {x: e.offsetX, y: e.offsetY};
 
-        can.onpointerup = e => {
+            };
 
-            const torigin = {...origin}
+            can.onpointerup = e => {
 
-            origin = null;
+                const torigin = {...origin}
 
-            clear();
-            drawImage();
+                origin = null;
 
-            addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
-        };
-        can.onpointermove = render;
-    } else if (type === "free") {
+                clear();
+                drawImage();
 
-        resetListeners(can)
+                addRectSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+            };
+            can.onpointermove = render;
+        } else if (type === "free") {
 
-        /*
-                can.onmousedown = onMouseDown
-                can.onmousemove = onMouseMove
-                can.onmouseup = onMouseUp
-        */
+            resetListeners(can)
 
-        can.onpointerdown = onMouseDown
-        can.onpointermove = onMouseMove
-        can.onpointerup = onMouseUp
+            /*
+                    can.onmousedown = onMouseDown
+                    can.onmousemove = onMouseMove
+                    can.onmouseup = onMouseUp
+            */
 
-    } else if (type === "grab") {
+            can.onpointerdown = onMouseDown
+            can.onpointermove = onMouseMove
+            can.onpointerup = onMouseUp
 
-        resetListeners(can)
+        } else if (type === "grab") {
 
-        can.onpointerdown = onMouseDown
-        can.onpointermove = onMouseMove
-        can.onpointerup = onMouseUp
+            resetListeners(can)
 
-        /*        can.onpointerdown = e => {
-                    origin = {x: e.offsetX, y: e.offsetY};
+            can.onpointerdown = onMouseDown
+            can.onpointermove = onMouseMove
+            can.onpointerup = onMouseUp
 
-                };
+            /*        can.onpointerdown = e => {
+                        origin = {x: e.offsetX, y: e.offsetY};
 
-                can.onpointerup = e => {
+                    };
 
-                    const torigin = {...origin}
+                    can.onpointerup = e => {
 
-                    origin = null;
+                        const torigin = {...origin}
 
-                    clear();
-                    drawImage();
+                        origin = null;
 
-                    addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
-                };
-                can.onpointermove = render;*/
+                        clear();
+                        drawImage();
+
+                        addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+                    };
+                    can.onpointermove = render;*/
+
+        }
 
     }
-
-
 }
 
 
@@ -84,6 +95,20 @@ function switchMode(type) {
 const drawImage = () => {
     let can = document.getElementById("inVis")
     let cont = can.getContext('2d');
+
+
+    cont.setTransform(
+        zoom, 0,
+        0, zoom,
+        -x0 * zoom,
+        -y0 * zoom
+    );
+
+    cont.clearRect(
+        x0, y0,
+        can.width / zoom,
+        can.height / zoom
+    );
 
     cont.drawImage(currImg, 0, 0, ...viewDim);
 }
@@ -137,11 +162,11 @@ async function addRectSample(x, y, width, height) {
     tcan.width = coords[2]
     tcan.height = coords[3]
 
-    tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
+    // tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
 
     let tcat = {}
 
-    tcat[selectedCategory] = categories[selectedCategory]
+    // tcat[selectedCategory] = categories[selectedCategory]
 
     let tres = {
         x: coords[0],
@@ -155,14 +180,24 @@ async function addRectSample(x, y, width, height) {
         ry: coords[1] / ty,
         rWidth: coords[2] / tx,
         rHeight: coords[3] / ty,
-        categories: tcat,
+        // categories: tcat,
         data: {}
     }
 
     let dp = tres
 
+    let n = Object.keys(currSampleList).length
+    currSampleList[`mark${n}`] = tres
 
-    sampleData.push(tres)
+    let container = document.getElementById("marksHolder")
+
+    let tdiv = document.createElement("div");
+    tdiv.style.position = "relative";
+    tdiv.innerHTML = `<img onclick="removeMark('mark${n}',this)" src="assets/images/buttons/del.png" style="width: 12px;cursor: pointer;position: absolute;top: 3px;left: 3px"> `
+    tdiv.appendChild(tcan);
+    container.appendChild(tdiv)
+
+    // sampleData.push(tres)
     /*
         let marks = document.getElementById("marks")
 
@@ -178,10 +213,10 @@ async function addRectSample(x, y, width, height) {
         dp.width,
         dp.height);
 
-    let svg = d3.select("#sampleDisplay")
+    // let svg = d3.select("#sampleDisplay")
 
-    fillSvg(sampleData)
-    showControls(svg, [tres.x - 25, tres.y - 25], tcan)
+    // fillSvg(sampleData)
+    // showControls(svg, [tres.x - 25, tres.y - 25], tcan)
 }
 
 
@@ -469,4 +504,67 @@ function tempTest() {
             0,
             tw,
             th*/
+}
+
+
+function removeMark(id, e) {
+
+    e.parentElement.remove()
+    delete currSampleList[id]
+}
+
+function updateName(e) {
+
+    let t = e.value
+    let btn = document.getElementById("exportPalette")
+
+    if (t === "") {
+        btn.classList.add("btnDisabled")
+        saveAllowed = false
+    } else {
+        btn.classList.remove("btnDisabled")
+        saveAllowed = true
+    }
+
+}
+
+function movePalette2Available() {
+
+
+    let name = document.getElementById("newPaletteName").value
+
+    if (saveAllowed && name !== "") {
+
+        if (megaPalettes[name] === undefined) {
+
+        } else {
+            name += '_' + Object.keys(megaPalettes).length
+        }
+
+
+        let marks = {}
+        let i = 0
+
+        for (const [_, val] of Object.entries(currSampleList)) {
+            console.log(val.canvas.width, val.canvas.height);
+            marks["mark" + i] = {
+                proto: {canvas: val.canvas}
+            }
+            i++
+        }
+
+
+        let tpal = {
+            displayType: "range",
+            encodings: {
+                range: {
+                    marks
+                }
+            }
+        }
+
+        appendSingle(tpal, name)
+        switchPalette()
+
+    }
 }
