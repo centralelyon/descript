@@ -2,8 +2,8 @@ let dataBinding = {}
 
 
 let chartAxis = {
-    x: "flipper_length_mm",
-    y: "body_mass_g"
+    x: "none",
+    y: "none"
 }
 
 const defaultMinColor = "#a50026"
@@ -12,8 +12,8 @@ const defaultMaxColor = "#313695"
 let useForce = true
 let gridMod = false
 
-const datasetList = ["pinguin"]
 
+let layout = "force"
 let megaGlyph = {}
 
 let debugGlyph = {
@@ -70,6 +70,7 @@ async function loadDataset(url) {
         data.splice(338, 1)
     }
     chartDataset.data = data
+    fillAxis()
 }
 
 
@@ -1098,6 +1099,28 @@ function getKeyByValue(object, value) {
 }
 
 
+function switchLayout(elem, type) {
+
+    d3.select(".selectedLayout").attr("class", "")
+
+
+    elem.classList.add("selectedLayout")
+
+
+    if (type === "force") {
+        layout = type
+    } else if (type === "grid") {
+        layout = type
+    } else if (type === "scatterplot") {
+        layout = type
+
+    }
+
+
+    tdrawRefactor()
+
+}
+
 function switchGrid() {
 
     gridMod = !gridMod;
@@ -1135,18 +1158,111 @@ async function updateSvg() {
 }
 
 
+function drawGrid(svg, data, encodings, order, tmarks) {
+    let xCumul = 5
+    let yCumul = 5
+
+    let size = svg.node().getBoundingClientRect()
+
+    let width = size.width
+    let height = size.height
+
+    for (let i = 0; i < data.length; i++) {
+
+        let d = data[i]
+
+        let can = makeCollageFromData(encodings, order, tmarks, d)
+
+
+        let tw = can.width
+        let th = can.height
+
+        svg.append("image")
+            .attr("xlink:href", can.toDataURL("image/png"))
+            .attr("x", xCumul)
+            .attr("y", yCumul)
+            .attr("width", tw)
+            .attr("height", th)
+
+        xCumul += tw
+        if (xCumul + tw > width) {
+            yCumul += th
+            xCumul = 5
+        }
+
+    }
+
+}
+
+function drawScatter(svg, data, encodings, order, tmarks) {
+    let [xScale, yScale] = getScales(svg, data)
+
+    svg.selectAll("dots")
+        .data(data)
+        .enter()
+        .append("image")
+        .attr("xlink:href", d =>
+            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+        .attr("x", d => {
+            return xScale(d[chartAxis.x])
+        })
+        .attr("y", d => {
+            return yScale(d[chartAxis.y]);
+        })
+}
+
+function drawForce(svg, data, encodings, order, tmarks) {
+
+    let size = svg.node().getBoundingClientRect()
+
+    let timages = svg.selectAll("dots")
+        .data(data)
+        .enter()
+        .append("image")
+        .attr("xlink:href", d =>
+            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+        .attr("x", (d, i) => {
+            return (size.width/2)
+        })
+        .attr("y", (d, i) => {
+            return (size.height/2);
+        })
+
+    const simulation = d3.forceSimulation(data)
+        .force("center", d3.forceCenter(size.width / 2, size.height / 2))
+        .force("collide", d3.forceCollide(d => 12))
+        .on("tick", ticked)
+
+    // const simulation = d3.forceSimulation(data)
+    //     .force("collide", d3.forceCollide().radius(d => 18).strength(0.000000001))
+    //     .force("x", d3.forceX().strength(0.0000025))
+    //     .force("y", d3.forceY().strength(0.0000032))
+    //     .on("tick", ticked)
+
+
+    l
+
+
+    function ticked() {
+
+        timages
+            .attr("x", d => clampVal(d.x, 0, size.width))
+            .attr("y", d => clampVal(d.y, 0, size.height))
+    }
+
+
+}
+
 async function tdrawRefactor() {
     let svg = d3.select("#fakePreviewSvg")
     svg.selectAll("*").remove();
     let data = chartDataset.data
 
-    let [xScale, yScale] = getScales(svg, data)
-
     let encodings = Object.keys(dataBinding)
 
     let tmarks = makeMarks(encodings, data)
     let order = getOrder(encodings)
-    let size = svg.node().getBoundingClientRect()
+
 
     let timages
     //TODO: here use makeColorScale(data, palette) and make dicts for each palette
@@ -1155,6 +1271,18 @@ async function tdrawRefactor() {
         for (let i = 0; i < encodings.length; i++) {
             allColScales[encodings[i]] = {}
         }*/
+
+
+    if (layout === "grid") {
+        drawGrid(svg, data, encodings, order, tmarks)
+    } else if (layout === "scatterplot") {
+        drawScatter(svg, data, encodings, order, tmarks)
+    } else if (layout === "force") {
+        drawForce(svg, data, encodings, order, tmarks)
+    }
+
+
+/*
     if (gridMod) {
 
         let xCumul = 5
@@ -1227,7 +1355,7 @@ async function tdrawRefactor() {
                     .attr("y", d => clampVal(d.y, 0, size.height))
             }//function ticked
         }
-    }
+    }*/
 }
 
 
@@ -1249,4 +1377,11 @@ function getScales(svg, data) {
 
 
     return [xScale, yScale]
+}
+
+
+function switchSettings() {
+
+
+    let container = document.getElementById('settingsSandbox')
 }

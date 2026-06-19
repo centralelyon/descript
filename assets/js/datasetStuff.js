@@ -1,17 +1,59 @@
 let dataList = ["week15.csv", "week26.csv", "pinguins.csv"]
 
 
-Array.prototype.sample = function(){
-    return this[Math.floor(Math.random()*this.length)];
+Array.prototype.sample = function () {
+    return this[Math.floor(Math.random() * this.length)];
 }
 
 
+function updateAxis(elem) {
+
+    let val = elem.value
+    let axis = elem.getAttribute("id").split("-")[0]
+
+    chartAxis[axis] = val
+
+    tdrawRefactor()
+}
+
+function fillAxis() {
+
+    let options = `<option value="none">none</option>`;
+
+    let tkeys = Object.keys(chartDataset.data[0]);
+
+    for (let i = 0; i < tkeys.length; i++) {
+
+
+        options += `<option value="${tkeys[i]}">${tkeys[i]}</option>`;
+    }
+
+
+    const x = document.getElementById("x-axis");
+    x.innerHTML = options;
+    const y = document.getElementById("y-axis");
+    y.innerHTML = options;
+
+}
+
+async function updateDataset() {
+    let dataset = document.getElementById("availableData").value
+    console.log(dataset);
+    if (dataset !== "week15.csv") {
+        await loadDataset("assets/tempData/datasets/penguins.csv")
+    } else {
+        fakeWeek15()
+    }
+
+    fillAxis()
+    fillTable()
+}
 
 function fakeWeek15() {
 
     let dataProfile = {
         "topics": ["work", "dear-data", "looks", "personality", "specific"],
-        "who": ["boyfriend", "stefanie", "friend", "acquaintance", "coworker","family","stranger"],
+        "who": ["boyfriend", "stefanie", "friend", "acquaintance", "coworker", "family", "stranger"],
         "medium": ["twitter", "email", "text", "real-life", "phone"],
         "compliment": ["gave", "received"]
     }
@@ -83,16 +125,32 @@ function fillSidePanel() {
 
 function fillTable() {
     let table = document.getElementById("newDataTable")
+    table.innerHTML = ""
     let tkeys = Object.keys(chartDataset.data[0])
     let row = document.createElement("tr")
+
+
     for (let i = 0; i < tkeys.length; i++) {
+
+
+        let cont = isCont(chartDataset.data, tkeys[i])
+        let mess = ""
+        if (!cont) {
+            let set = new Set(chartDataset.data.map(d => d[tkeys[i]]));
+            mess += `(${Array.from(set).length})`
+        } else {
+            let trange = d3.extent(chartDataset.data.map(d => d[tkeys[i]]))
+
+            mess += `[${trange[0]} - ${trange[1]}]`
+        }
 
         let th = document.createElement("th")
 
-        th.innerHTML = tkeys[i]
+        th.innerHTML = ` ${tkeys[i]}  ${mess}`
         th.setAttribute("num", i)
+        th.setAttribute("key",tkeys[i] )
         // row.innerHTML += `<th>${tkeys[i]}</th>`
-            dragElement2(th)
+        dragElement2(th)
 
         row.appendChild(th)
 

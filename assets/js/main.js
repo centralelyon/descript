@@ -173,6 +173,7 @@ async function init() {
     // tdrawRefactor()
     fillSidePanel()
     fillTable()
+    fillAxis()
     collageColScale = d3.scaleOrdinal(d3.schemeAccent)
     // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
@@ -180,6 +181,8 @@ async function init() {
 
 
     document.getElementById("glyphTree").addEventListener("click", cancelCollapse)
+
+    document.getElementById("availableData").addEventListener("change", updateDataset)
 
 }
 

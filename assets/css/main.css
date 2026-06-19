@@ -593,7 +593,7 @@ table th {
     width: 100%;
     border: solid #555 1px;
     border-radius: 14px;
-    height: 102%;
+    height: 72%;
 }
 
 .fakeGrammarRow {
@@ -817,7 +817,7 @@ li .fakeGrammarRow {
     width: 240px;
     border-radius: 5px;
     cursor: grab;
-    margin-left: 42px;
+    margin-left: 5px;
     background-color: #fff;
 
 }
@@ -1052,10 +1052,10 @@ p, h3, h4, h5, img {
     display: flex;
     padding: 4px;
     border: solid 1px #555;
-    width: 92%;
+    width: 97%;
     border-radius: 5px;
     cursor: grab;
-    margin-left: 12px;
+    margin-left: 0;
     background-color: #fff;
     margin-bottom: 3px;
 
@@ -1088,7 +1088,7 @@ p, h3, h4, h5, img {
     margin-left: -10px;
     margin-right: 9px;
     border-radius: 5px;
-    height: 130px;
+    /*height: 130px;*/
 }
 
 #MarksPaletteList {
@@ -1125,8 +1125,8 @@ p, h3, h4, h5, img {
 
 #dataPopupReduced {
     position: absolute;
-    left: 45%;
-    width: 50%;
+    left: 35%;
+    /*width: 50%;*/
     /*overflow-y: hidden;*/
     background: #424242;
     border: solid 1px #424242;
@@ -1150,6 +1150,9 @@ p, h3, h4, h5, img {
 #newDataTable {
     /*z-index: 99;*/
     background: #424242 !important;
+    border-radius: 15px;
+    border: solid 1px #424242;
+
 }
 
 #newDataTable th:last-of-type {
@@ -1198,4 +1201,27 @@ p, h3, h4, h5, img {
 .btnDisabled {
     cursor: not-allowed !important;
     opacity: 0.6;
+}
+
+#layoutList {
+    display: flex;
+    border: solid 1px #424242;
+    border-radius: 7px;
+    padding: 7px;
+}
+
+#layoutList div {
+    border-right: 1px solid #424242;
+    cursor: pointer;
+    padding: 4px;
+}
+
+#layoutList div:last-child {
+    border-right: none;
+}
+
+.selectedLayout {
+
+    color: #fff;
+    background-color: #424242;
 }

@@ -48,7 +48,7 @@
 <body style="background-color: #f1f1f1;color:#424242">
 
 <div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 50px;background-color: #424242">
-    <h3 style="display: inline;font-weight:700;margin-left:10px;color: #eeeeee">Descript</h3>
+    <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee">Descript</h3>
 
     <div style="justify-content: center;width: 80vw;margin-left: 60px;margin-top: 5px;display: flex" id="navButtonList">
 
@@ -69,31 +69,31 @@
          src="assets/images/logo/logo.svg">
 </div>
 
-<div id="dataPopupReduced">
-    <div style="width: 100%;height: 30px;overflow: hidden;transition: 1s">
+<!--<div id="dataPopupReduced">
+    <div style="width: 100%;height: 30px;overflow: hidden;transition: .45s">
         <table id="newDataTable" style="height: 250px;display: table;width: 100%">
-            <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
+            &lt;!&ndash;                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>&ndash;&gt;
         </table>
     </div>
     <div id="sideArrow" onclick="openNav()" class="openbtn" style=" ">
         <img id="sideImg" src="assets/images/buttons/side.png">
     </div>
-</div>
+</div>-->
 
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container"
      style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 20px" id="">
-    <div style="width: 350px;display: flex;flex-direction:column; border-right: solid 1px #424242; height: 93vh  "
+    <div style="width: 275px;display: flex;flex-direction:column; border-right: solid 1px #424242; height: 93vh  "
          id="sideSettings">
 
         <div style="border-bottom: solid 1px #424242;margin-right: 23px;flex: 3">
-            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 69px;margin-top: -11px;margin-bottom: 11px">
+            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px;margin-top: -11px;margin-bottom: 11px">
                 Selected
                 Palettes</p>
             <div id="selectedPaletteCont"
-                 style="min-height: 150px;height:89%;max-height: 50vh;overflow-y: scroll;padding-right:8px;padding-left:8px; ">
+                 style="min-height: 150px;;width:260px;height:89%;max-height: 50vh;overflow-y: scroll;padding-right:8px;padding-left:5px; ">
 
 
             </div>
@@ -101,7 +101,7 @@
 
         <div style="border-bottom: solid 1px #424242;flex: 2">
             <div style="" class="">
-                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 69px"> Available
+                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px"> Available
                     Palettes</p>
                 <div id="AllPaletteCont">
 
@@ -228,7 +228,8 @@
                 <div id="inVisHolder"
                      style="width: calc(100% - 350px);position: relative;background-color:#fff;max-height: 80vh;">
                     <div style=";position:absolute;">
-                    <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer" onclick="switchPalette()">
+                        <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer"
+                             onclick="switchPalette()">
                     </div>
                     <canvas id="inVis"
                             style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;"></canvas>
@@ -269,13 +270,16 @@
             <div style=";overflow-y: auto;height: 161px" id="paletteCont">
                 <div style="display: flex">
                     <div>
-                        <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png"  class="btnDisabled" style="width: 20px;cursor: pointer" id="exportPalette"/>
+                        <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
+                             style="width: 20px;cursor: pointer" id="exportPalette"/>
                     </div>
-                    <p style="font-weight: 600;"> Name: </p><input oninput="updateName(this)" type="text" id="newPaletteName"
+                    <p style="font-weight: 600;"> Name: </p><input oninput="updateName(this)" type="text"
+                                                                   id="newPaletteName"
                                                                    placeholder="Type a name here...">
 
                 </div>
-                <div id="marksHolder" style="display: flex;height: 100px;border: solid 1px #424242;border-radius: 5px;padding: 5px">
+                <div id="marksHolder"
+                     style="display: flex;height: 100px;border: solid 1px #424242;border-radius: 5px;padding: 5px">
 
                 </div>
             </div>
@@ -312,7 +316,40 @@
                     <button  onclick="switchGrid()"> Grid Layout</button>
 
                 </div>-->
+
+        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()"><img
+                src="assets/images/buttons/cogs.png" style="width: 20px"/>
+            <div id="settingsSandbox">
+                <div id="layoutList">
+                    <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
+                    <div onclick="switchLayout(this, 'grid')">Grid</div>
+                    <div onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
+                </div>
+                <div id="optionsSandbox" style="display: flex;">
+                    <div>
+                        <p style="margin-bottom: 2px">x-axis</p>
+                        <select onchange="updateAxis(this)" id="x-axis">
+                            <option value="none">none</option>
+                        </select>
+
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 2px">y-axis</p>
+                        <select onchange="updateAxis(this)" id="y-axis">
+                            <option value="none">none</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
+        <div style="width: 100%;overflow-y: auto;height: 300px">
+            <table id="newDataTable" style="height: 250px;display: table;width: 100%">
+                <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
+            </table>
+        </div>
+
 
         <!--        <div id="datasetContainer"-->
         <!--             style="width: 98%; padding: 20px;display: flex;justify-content: space-around;flex-direction: column;">-->

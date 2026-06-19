@@ -189,11 +189,11 @@ function dragElement2(elmnt) {
             console.log(n);
 
             tsel.getElementsByTagName('option')[n+1].selected = true;
-            console.log("nani?!");
-            megaGlyph[id].dataColumn =elmnt.innerHTML
 
-            dataBinding[id] = elmnt.innerHTML
+            let key = elmnt.getAttribute("key");
+            megaGlyph[id].dataColumn =key
 
+            dataBinding[id] = key
             updateSvg()
         }
 

@@ -45,9 +45,9 @@ function addASelectedPalette(key) {
     leftSide.innerHTML = `<p  style="font-weight: 600;text-decoration: underline #424242 "><img onclick="delPalette('${key}')" class="delSelectedPal" style="" src="assets/images/buttons/del.png" >  ${key}</p> `
 
 
-    leftSide.appendChild(canContainer);
+    // leftSide.appendChild(canContainer);
 
-    makeMarksPreview(palette.encodings.range.marks, canContainer)
+    // makeMarksPreview(palette.encodings.range.marks, canContainer)
 
     tdiv.appendChild(leftSide);
 
@@ -63,10 +63,10 @@ function addASelectedPalette(key) {
     for (let i = 0; i < columns.length; i++) {
         options += "<option value='" + columns[i] + "'>" + columns[i] + "</option>";
     }
-    propertyContainer.innerHTML = `<div><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;margin-left: -47px;margin-top: 22px;"><p  style="font-weight: 500 ">Mark:</p><select class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
+    propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select onchange="" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block"><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
 
 
-    tdiv.appendChild(propertyContainer);
+    leftSide.appendChild(propertyContainer);
     container.appendChild(tdiv);
 
 }
