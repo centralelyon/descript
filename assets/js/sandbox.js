@@ -1369,6 +1369,20 @@ function getScales(svg, data) {
     let xScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.x])), [margin, size.width - margin])
     let yScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.y])), [size.height - margin, margin])
 
+    if (!isCont(data,chartAxis.x)){
+        xScale = d3.scaleBand()
+            .domain(data.map(d => d[chartAxis.x]))
+            .range([margin, size.width - margin])
+            .padding(0.1);
+    }
+
+    if (!isCont(data,chartAxis.y)){
+        yScale = d3.scaleBand()
+            .domain(data.map(d => d[chartAxis.y]))
+            .range([margin, size.height - margin])
+            .padding(0.1);
+    }
+
 
     for (let i = 0; i < data.length; i++) {
         data[i].x = size.width / 2
