@@ -830,7 +830,7 @@ function savePalette() {
 
     // fillPalette()
 
- updateSvg()
+    updateSvg()
 }
 
 
@@ -1401,13 +1401,39 @@ function setMarkEvent(key, type) {
 
 }
 
+
+function updateMarksBindingDisplay(palette) {
+
+    let cont = document.getElementById('bind-'+palette)
+    cont.innerHTML = ""
+
+    if (dataBinding[palette]) {
+        makeBindingDisplay(cont, palette, dataBinding[palette])
+    }
+
+
+}
+
 function makeRangeMark(key, tdiv, value, typesDisplay) {
 
     const marks = value.encodings.range.marks
 
+
+    let dataBindinCont = document.createElement("div")
+    dataBindinCont.id = "bind-" + key
+
+    dataBindinCont.className = "dataBindingContainer"
+
+    if (dataBinding[key]) {
+        makeBindingDisplay(dataBindinCont, key, dataBinding[key])
+    }
+
+    tdiv.appendChild(dataBindinCont)
+
     for (const [name, value] of Object.entries(marks)) {
         let tmark = makeSingleMark(key, name, "range", cloneCanvas(value.proto.canvas))
         tdiv.appendChild(tmark)
+        // makeBindingDisplay(key, dataBinding[key])
         let tcan = tmark.lastChild;
         let trect = tcan.getBoundingClientRect()
 
@@ -1417,8 +1443,10 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
         dragElement3(tmark)
         tsvg = d3.select(tsvg)
 
+
+
         tsvg
-            .attr("id", "svg-" + key+ "-"+name)
+            .attr("id", "svg-" + key + "-" + name)
             .attr("class", "markAnchorSvg")
             .attr("viewBox", `0 0 ${trect.width} ${trect.height}`)
             .attr("width", trect.width)
@@ -1448,8 +1476,9 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
 
     let moreCan = document.createElement("div")
 
+    moreCan.className = "moreCan"
     moreCan.innerHTML = ` <img  id="palettePlusMark" src="assets/images/buttons/plus.png" class="buttonImg" 
- style=";margin-top: 41px;width: 25px; margin-left: 5px;cursor: pointer" onclick="addACan(this,'${key}')">`
+ style=";margin-top: 28%;margin-left: 28%;width: 25px; cursor: pointer" onclick="addACan(this,'${key}')">`
     tdiv.appendChild(moreCan)
 
 }
@@ -1475,12 +1504,10 @@ function nodeDragged(event) {
     let num = elem.attr("num")
 
 
-
     megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].x = x
     megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].y = y
     megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].rx = x / htmlSvg.getAttribute("width")
     megaPalettes[pal].encodings.range.marks[mark].proto.anchors[num].ry = y / htmlSvg.getAttribute("height")
-
 
 
 }
@@ -1527,20 +1554,50 @@ function getMarkRange(key) {
 }
 
 
+function makeBindingDisplay(container, palette, dataColumn) {
+    if (!isCont(chartDataset.data, dataColumn)) {
+        let set = new Set(chartDataset.data.map(d => d[dataColumn]));
+        let uniques = Array.from(set)
+
+        let nMarks = Object.keys(megaPalettes[palette].encodings.range.marks).length
+
+        for (let i = 0; i < uniques.length; i++) {
+
+            let nameDiv = document.createElement("div")
+
+            nameDiv.setAttribute("class", "dataBindingLabel")
+            nameDiv.setAttribute("data", uniques[i])
+            nameDiv.innerHTML = uniques[i]
+
+            if (i > nMarks-1) {
+                nameDiv.style.color=   "#EF5350"
+                nameDiv.style.fontWeight="600"
+            }
+
+            container.appendChild(nameDiv)
+
+        }
+
+    }
+
+    return container
+
+}
+
 function makeSingleMark(key, label, type, can = undefined) {
     const tdiv_mark = document.createElement("div")
-    tdiv_mark.id = "mark_" + key
+    tdiv_mark.id = "mark_" + key + "_" + label
     tdiv_mark.className = "paletteMark"
     tdiv_mark.setAttribute("key", key)
     tdiv_mark.setAttribute("type", type)
     tdiv_mark.setAttribute("number", "" + label)
 
 
-    let mess = `<input type='text' value='${label}' class='paletteMarkName'>`
+    // let mess = `<input type='text' value='${label}' class='paletteMarkName'>`
 
-    if (type === "morph") {
-        mess = `<p class='primitiveLabel'>${label}</p>`
-    }
+    // if (type === "morph") {
+    //     mess = `<p class='primitiveLabel'>${label}</p>`
+    // }
     if (can === undefined) {
         /*
                 can = document.createElement("canvas")
@@ -1549,10 +1606,9 @@ function makeSingleMark(key, label, type, can = undefined) {
                 can.height = 60
         */
 
-        tdiv_mark.innerHTML = `${mess}
-            <canvas id='canvas_${key}_${label}' style='width: 60px;height: 60px'></canvas>`
+        tdiv_mark.innerHTML = `            <canvas id='canvas_${key}_${label}' style='width: 60px;height: 60px'></canvas>`
     } else {
-        tdiv_mark.innerHTML = mess
+        // tdiv_mark.innerHTML = mess
         tdiv_mark.appendChild(can)
 
 

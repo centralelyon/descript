@@ -37,8 +37,10 @@ function fillAxis() {
 }
 
 async function updateDataset() {
+
+    cleanSlate()
     let dataset = document.getElementById("availableData").value
-    console.log(dataset);
+
     if (dataset !== "week15.csv") {
         await loadDataset("assets/tempData/datasets/penguins.csv")
     } else {

@@ -195,6 +195,7 @@ function dragElement2(elmnt) {
 
             dataBinding[id] = key
             updateSvg()
+            updateMarksBindingDisplay(id)
         }
 
 

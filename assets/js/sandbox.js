@@ -1215,6 +1215,18 @@ function drawForce(svg, data, encodings, order, tmarks) {
 
     let size = svg.node().getBoundingClientRect()
 
+    let xScale, yScale
+
+    let xAx = document.getElementById("x-axis").value
+    let yAx = document.getElementById("y-axis").value
+
+
+    if (xAx !== "none" || yAx !== "none") {
+        [xScale, yScale] = getScales(svg, data)
+        console.log("set axis");
+    }
+
+
     let timages = svg.selectAll("dots")
         .data(data)
         .enter()
@@ -1222,16 +1234,38 @@ function drawForce(svg, data, encodings, order, tmarks) {
         .attr("xlink:href", d =>
             makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
         .attr("x", (d, i) => {
-            return (size.width/2)
+            return (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) + i)
         })
         .attr("y", (d, i) => {
-            return (size.height/2);
+            return (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2) + i)
         })
 
-    const simulation = d3.forceSimulation(data)
+    let simulation = d3.forceSimulation(data)
         .force("center", d3.forceCenter(size.width / 2, size.height / 2))
-        .force("collide", d3.forceCollide(d => 12))
+        .force("collide", d3.forceCollide(d => 18))
         .on("tick", ticked)
+
+
+    if (xScale !== undefined && yScale !== undefined) {
+        simulation = d3.forceSimulation(data)
+            .force("x", d3.forceX(d => xScale(d[xAx])).strength(0.3))
+            .force("y", d3.forceY(d => yScale(d[yAx])).strength(0.3))
+            .force("collide", d3.forceCollide(d => 18))
+            .on("tick", ticked)
+    } else if (xScale !== undefined && yScale === undefined) {
+        simulation = d3.forceSimulation(data)
+            .force("x", d3.forceX(d => xScale(d[xAx])).strength(0.3))
+            .force("y", d3.forceY(d => size.height / 2).strength(0.3))
+            .force("collide", d3.forceCollide(d => 18))
+            .on("tick", ticked)
+    } else if (xScale === undefined && yScale !== undefined) {
+        simulation = d3.forceSimulation(data)
+            .force("x", d3.forceX(d => size.width / 2).strength(0.3))
+            .force("y", d3.forceY(d => yScale(d[yAx])).strength(0.3))
+            .force("collide", d3.forceCollide(d => 18))
+            .on("tick", ticked)
+    }
+
 
     // const simulation = d3.forceSimulation(data)
     //     .force("collide", d3.forceCollide().radius(d => 18).strength(0.000000001))
@@ -1240,14 +1274,14 @@ function drawForce(svg, data, encodings, order, tmarks) {
     //     .on("tick", ticked)
 
 
-    l
+
 
 
     function ticked() {
 
         timages
-            .attr("x", d => clampVal(d.x, 0, size.width))
-            .attr("y", d => clampVal(d.y, 0, size.height))
+        .attr("x", d => clampVal(d.x, 0, size.width))
+        .attr("y", d => clampVal(d.y, 0, size.height))
     }
 
 
@@ -1282,80 +1316,80 @@ async function tdrawRefactor() {
     }
 
 
-/*
-    if (gridMod) {
+    /*
+        if (gridMod) {
 
-        let xCumul = 5
-        let yCumul = 5
+            let xCumul = 5
+            let yCumul = 5
 
-        let width = 700
+            let width = 700
 
-        for (let i = 0; i < data.length; i++) {
+            for (let i = 0; i < data.length; i++) {
 
-            let d = data[i]
+                let d = data[i]
 
-            let can = makeCollageFromData(encodings, order, tmarks, d)
+                let can = makeCollageFromData(encodings, order, tmarks, d)
 
 
-            let tw = can.width
-            let th = can.height
+                let tw = can.width
+                let th = can.height
 
-            timages = svg.append("image")
-                .attr("xlink:href", can.toDataURL("image/png"))
-                .attr("x", xCumul)
-                .attr("y", yCumul)
-                .attr("width", tw)
-                .attr("height", th)
+                timages = svg.append("image")
+                    .attr("xlink:href", can.toDataURL("image/png"))
+                    .attr("x", xCumul)
+                    .attr("y", yCumul)
+                    .attr("width", tw)
+                    .attr("height", th)
 
-            xCumul += tw
-            if (xCumul + tw > width) {
-                yCumul += th
-                xCumul = 5
+                xCumul += tw
+                if (xCumul + tw > width) {
+                    yCumul += th
+                    xCumul = 5
+                }
+
             }
-
-        }
-    } else {
+        } else {
 
 
-        timages = svg.selectAll("dots")
-            .data(data)
-            .enter()
-            .append("image")
-            .attr("xlink:href", d =>
-                makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
-            .attr("x", d => {
-                return xScale(d[chartAxis.x])
-            })
-            .attr("y", d => {
-                return yScale(d[chartAxis.y]);
-            })
+            timages = svg.selectAll("dots")
+                .data(data)
+                .enter()
+                .append("image")
+                .attr("xlink:href", d =>
+                    makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+                .attr("x", d => {
+                    return xScale(d[chartAxis.x])
+                })
+                .attr("y", d => {
+                    return yScale(d[chartAxis.y]);
+                })
 
 
-        if (timages && !gridMod && useForce) {
+            if (timages && !gridMod && useForce) {
 
-            const simulation = d3.forceSimulation(data)
-                .force("collide", d3.forceCollide().radius(d => 18).strength(0.000000001))
-                .force("x", d3.forceX().strength(0.0000025))
-                .force("y", d3.forceY().strength(0.0000032))
-                .on("tick", ticked)
+                const simulation = d3.forceSimulation(data)
+                    .force("collide", d3.forceCollide().radius(d => 18).strength(0.000000001))
+                    .force("x", d3.forceX().strength(0.0000025))
+                    .force("y", d3.forceY().strength(0.0000032))
+                    .on("tick", ticked)
 
-            let duration = 10
+                let duration = 10
 
-            let t = d3.timer(elapsed => {
-                let dt = elapsed / duration
-                simulation.force("collide").strength(dt)
-                if (dt >= 1.0) t.stop()
-            })//timer
+                let t = d3.timer(elapsed => {
+                    let dt = elapsed / duration
+                    simulation.force("collide").strength(dt)
+                    if (dt >= 1.0) t.stop()
+                })//timer
 
 
-            function ticked() {
+                function ticked() {
 
-                timages
-                    .attr("x", d => clampVal(d.x, 0, size.width))
-                    .attr("y", d => clampVal(d.y, 0, size.height))
-            }//function ticked
-        }
-    }*/
+                    timages
+                        .attr("x", d => clampVal(d.x, 0, size.width))
+                        .attr("y", d => clampVal(d.y, 0, size.height))
+                }//function ticked
+            }
+        }*/
 }
 
 
@@ -1369,14 +1403,14 @@ function getScales(svg, data) {
     let xScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.x])), [margin, size.width - margin])
     let yScale = d3.scaleLinear(d3.extent(data.map(d => d[chartAxis.y])), [size.height - margin, margin])
 
-    if (!isCont(data,chartAxis.x)){
+    if (!isCont(data, chartAxis.x)) {
         xScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.x]))
             .range([margin, size.width - margin])
             .padding(0.1);
     }
 
-    if (!isCont(data,chartAxis.y)){
+    if (!isCont(data, chartAxis.y)) {
         yScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.y]))
             .range([margin, size.height - margin])

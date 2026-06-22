@@ -317,8 +317,8 @@
 
                 </div>-->
 
-        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()"><img
-                src="assets/images/buttons/cogs.png" style="width: 20px"/>
+<!--        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()">
+            <img                src="assets/images/buttons/cogs.png" style="width: 20px"/>
             <div id="settingsSandbox">
                 <div id="layoutList">
                     <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
@@ -336,6 +336,36 @@
                     <div>
                         <p style="margin-bottom: 2px">y-axis</p>
                         <select onchange="updateAxis(this)" id="y-axis">
+                            <option value="none">none</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        -->
+
+                <div style="display: flex;position:absolute;right: 5px;margin-top:-31px" onclick="switchSettings()">
+
+            <div style="display: flex;height: 50px" id="settingsSandbox">
+                <div style="font-weight: 600"> Layout:</div>
+                <div  style="margin-left: 5px;margin-right: 5px" id="layoutList">
+                    <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
+                    <div onclick="switchLayout(this, 'grid')">Grid</div>
+                    <div onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
+                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>
+                </div>
+                <div id="optionsSandbox" style="display: flex;margin-top: -16px">
+                    <div>
+                        <p style="margin-bottom: -2px">x-axis</p>
+                        <select style="height: 25px;padding: unset" onchange="updateAxis(this)" id="x-axis">
+                            <option value="none">none</option>
+                        </select>
+
+                    </div>
+                    <div>
+                        <p style="margin-bottom: -2px">y-axis</p>
+                        <select style="height: 25px;padding: unset" onchange="updateAxis(this)" id="y-axis">
                             <option value="none">none</option>
                         </select>
                     </div>

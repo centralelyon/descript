@@ -1003,7 +1003,7 @@ p, h3, h4, h5, img {
 .markAnchorSvg {
     /*background-color: rgba(255,10,10,0.7);*/
     position: absolute;
-    top: 18px;
+    /*top: 18px;*/
     pointer-events: none;
 
 }
@@ -1113,6 +1113,7 @@ p, h3, h4, h5, img {
 .paletteMarksList {
     /*display: flex;*/
     flex-direction: column;
+    margin-left: 15px;
 }
 
 .paletteMarksCanvasHolder canvas {
@@ -1207,13 +1208,15 @@ p, h3, h4, h5, img {
     display: flex;
     border: solid 1px #424242;
     border-radius: 7px;
-    padding: 7px;
+    /*padding: 7px;*/
+    height: 30px;
 }
 
 #layoutList div {
     border-right: 1px solid #424242;
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
+    line-height: 12px;
 }
 
 #layoutList div:last-child {
@@ -1224,4 +1227,29 @@ p, h3, h4, h5, img {
 
     color: #fff;
     background-color: #424242;
+}
+
+.dataBindingLabel {
+    width: 50px;
+    height: 60px;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: -9px;
+    line-height: 15px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.dataBindingContainer {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    margin-top: -2px;
+}
+
+.moreCan {
+    width: 60px;
+    height: 60px;
 }

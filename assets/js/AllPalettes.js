@@ -20,6 +20,33 @@ const subW = 30
 const subH = 30
 
 
+function cleanSlate() {
+
+
+    megaPalettes = {}
+    megaGlyph = {}
+    dataBinding = {}
+
+    document.getElementById("selectedPaletteCont").innerHTML = ''
+    document.getElementById("MarksPaletteList").innerHTML = ''
+
+    d3.select("#composition").selectAll("*").remove()
+    d3.select("#fakePreviewSvg").selectAll("*").remove()
+
+}
+
+function updateSelectBind(id) {
+
+
+    let elem = document.getElementById("shape-" + id)
+    let key = elem.value
+    megaGlyph[id].dataColumn = key
+
+    dataBinding[id] = key
+    updateSvg()
+    updateMarksBindingDisplay(id)
+}
+
 function addASelectedPalette(key) {
 
     console.log(key);
@@ -63,7 +90,7 @@ function addASelectedPalette(key) {
     for (let i = 0; i < columns.length; i++) {
         options += "<option value='" + columns[i] + "'>" + columns[i] + "</option>";
     }
-    propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select onchange="" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block"><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
+    propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block"><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
 
 
     leftSide.appendChild(propertyContainer);
@@ -83,7 +110,6 @@ function setAddNewMenu() {
 
     return tdiv
 }
-
 
 
 async function initAllPalette() {
@@ -403,7 +429,7 @@ function updateDotsAndSvgs() {
 
         for (const [name, mark] of Object.entries(palette.encodings.range.marks)) {
 
-            let tcan =  document.getElementById(`canvas_${id}_${name}`)
+            let tcan = document.getElementById(`canvas_${id}_${name}`)
             let trect = tcan.getBoundingClientRect()
 
             let tsvg = d3.select(`#svg-${id}-${name}`)
