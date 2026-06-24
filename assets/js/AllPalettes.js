@@ -19,6 +19,7 @@ const prevH = 40
 const subW = 30
 const subH = 30
 
+let tempKey, tempNum
 
 function cleanSlate() {
 
@@ -141,6 +142,7 @@ async function initAllPalette() {
         container.appendChild(tdiv);
 
         dragElement(tdiv)
+        bindingMouseOver(tdiv)
         let allMarks = allPalettes[i].encodings.range.marks;
 
         let MarkNames = Object.keys(allMarks)
@@ -280,10 +282,46 @@ function openNav() {
             el.style.display = "none";
         })
     }
+}
+
+
+function bindingMouseOver(elem) {
+
+
+    elem.addEventListener("mouseover", displayOrigin)
+    elem.addEventListener("mouseout", hideOrigin)
+
+
+    function displayOrigin(e) {
+
+
+        let tempKey = elem.getAttribute("name")
+        let tempNum = +elem.getAttribute("number");
+        if (tempNum) {
+            if (allPalettes[tempNum].originImg) {
+                displaySample()
+
+                let tcan = document.getElementById("inVis")
+                resetView(tcan, allPalettes[tempNum].originImg)
+
+
+                displayAllMarksInSvg(allPalettes[tempNum].sampling)
+            } else {
+                hideSample()
+            }
+
+
+        }
+    }
+
+    function hideOrigin() {
+        tempKey = undefined
+        tempNum = undefined
+        hideSample()
+    }
 
 
 }
-
 
 function appendSingle(palette, name) {
     const container = document.getElementById("AllPaletteCont");
@@ -308,9 +346,9 @@ function appendSingle(palette, name) {
     // container.appendChild(tdiv);
 
     dragElement(tdiv)
+    bindingMouseOver(tdiv)
     let allMarks = palette.encodings.range.marks;
-    console.log(palette);
-    console.log(allMarks);
+
     let MarkNames = Object.keys(allMarks)
     let n = MarkNames.length;
     let offx = 14
@@ -389,19 +427,10 @@ function addPaletteMarksCompo(key) {
 
     colorBrand.style.backgroundColor = "" + collageColScale(key)
 
-    // firstCont.appendChild(colorBrand)
-    // firstCont.appendChild(first)
 
+    let sizeDiv = document.createElement("div");
 
-    // let proto = document.createElement("canvas");
-    // proto.setAttribute("id", "proto-" + key)
-    // proto.setAttribute("class", "protoCanvas")
-    //
-    // proto.width = canWidth
-    // proto.height = canHeight
-    //
-    //
-    // proto.getContext("2d").drawImage(first, canWidth / 2 - first.width / 2, canHeight / 2 - first.height / 2)
+    s
 
 
     currMarksContainer.appendChild(colorBrand);
@@ -460,4 +489,48 @@ function updateDotsAndSvgs() {
             }
         }
     }
+}
+
+
+function savePal(palette, key) {
+
+    let res = {}
+    for (const [key, value] of Object.entries(palette)) {
+        if (typeof value === "object" && key !== "originImg" && key !== "sampling") {
+            const tval = {...value}
+            res[key] = tval
+        }
+
+    }
+
+    res.originImg = imageToBase64(palette.originImg)
+
+    const marks = {}
+    for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
+        marks[key] = {
+            ...value,
+            proto: {
+                ...value.proto
+            }
+        };
+
+        marks[key].proto.canvas = cloneCanvas(palette.encodings.range.marks[key].proto.canvas).toDataURL("image/png")
+
+        if (palette.encodings.range.marks[key].source) {
+
+            marks[key].source = cloneCanvas(palette.encodings.range.marks[key].source).toDataURL("image/png")
+        }
+    }
+
+    let sample = {}
+    for (const [key, value] of Object.entries(palette.sampling)) {
+        sample[key] = {...value}
+
+        sample[key].canvas = cloneCanvas(palette.sampling[key].canvas).toDataURL("image/png")
+    }
+
+    res.sampling = sample
+
+    download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
+
 }

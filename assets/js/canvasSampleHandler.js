@@ -5,6 +5,9 @@ let currSampleList = {}
 
 let sampling = false
 
+let currSampleEdited;
+
+
 function resetListeners(can) {
     // can.onmousemove = null;
     // can.onmousedown = null;
@@ -105,7 +108,7 @@ const drawImage = () => {
             -x0 * zoom,
             -y0 * zoom
         );
-        cont.drawImage(currImg, 0, 0,viewDim[0], viewDim[1]);
+        cont.drawImage(currImg, 0, 0, viewDim[0], viewDim[1]);
     }
 }
 
@@ -147,7 +150,7 @@ async function addRectSample(x, y, width, height) {
 
 
     let coords = curateCoordinates(x, y, width, height);
-
+    coords = screenRectToWorld(coords)
 
     let can = document.getElementById("inVis")
     let trec = can.getBoundingClientRect()
@@ -196,6 +199,9 @@ async function addRectSample(x, y, width, height) {
     tdiv.innerHTML = `<img onclick="removeMark('mark${n}',this)" src="assets/images/buttons/del.png" style="width: 12px;cursor: pointer;position: absolute;top: 3px;left: 3px"> `
     tdiv.appendChild(tcan);
     container.appendChild(tdiv)
+
+
+    tdiv.onclick = editSample
 
     // sampleData.push(tres)
     /*
@@ -541,7 +547,6 @@ function movePalette2Available() {
             name += '_' + Object.keys(megaPalettes).length
         }
 
-
         let marks = {}
         let i = 0
 
@@ -553,9 +558,10 @@ function movePalette2Available() {
             i++
         }
 
-
         let tpal = {
             displayType: "range",
+            originImg: currImg.cloneNode(true),
+            sampling: currSampleList,
             encodings: {
                 range: {
                     marks
@@ -564,7 +570,115 @@ function movePalette2Available() {
         }
 
         appendSingle(tpal, name)
+        currSampleList = {}
+        document.getElementById("marksHolder").innerHTML = ""
+        document.getElementById("newPaletteName").value = ""
         switchPalette()
+        savePal(tpal,name)
+
 
     }
+}
+
+
+function editSample(e) {
+    let el = e.target
+
+    let proto
+    if (el.matches("canvas")) {
+        proto = el
+    } else {
+        proto = el.querySelector('canvas');
+    }
+
+    currSampleEdited = proto
+    document.getElementById("paletteContainer").style.display = "block";
+    primRot = undefined
+
+
+    let trange = document.getElementById("strokewidth")
+    trange.onchange = function (e) {
+
+        const val = parseInt(document.getElementById("strokewidth").value);
+        stWidth = val
+    }
+
+    document.getElementById('strokecolor').onchange = function () {
+
+        stColor = this.value
+    }
+
+
+    paletteResetZoom()
+
+    let can = document.getElementById("paletteEdit")
+    let cont = can.getContext("2d")
+
+    let trec = can.getBoundingClientRect()
+
+    can.width = trec.width;
+    can.height = trec.height;
+
+    let w = trec.width
+    let h = trec.height
+
+
+    // corners[1][0] - corners[0][0]
+    let tw = proto.width
+    let th = proto.height
+
+
+    cont.clearRect(0, 0, 900, 900)
+    cont.drawImage(proto,
+        0,
+        0,
+        proto.width,
+        proto.height,
+        can.width / 2 - tw / 2,
+        can.height / 2 - th / 2,
+        tw,
+        th
+    );
+
+
+    can.onpointerdown = onMouseDownPalette
+    can.onpointermove = onMouseMovePalette
+    can.onpointerup = onMouseUpPalette
+    can.onclick = onClickPalette
+
+
+    let control = document.getElementById('editControl')
+
+    control.onclick = function (e) {
+
+        let el = e.target
+
+        if (el.matches('img')) {
+            el = el.parentNode
+            if (el.classList.contains('selectablePallete')) {
+                document.getElementById("selectedButton2").removeAttribute("id")
+                el.setAttribute("id", "selectedButton2")
+            }
+        }
+
+    }
+    // can.onwheel = paletteZoom
+
+    document.getElementById("paletteEditRotate").oninput = function (e) {
+        primRot = +this.value
+        paletteRotate(primRot)
+    }
+    paletteTempCan = document.createElement("canvas");
+    paletteTempCan.width = can.width;
+    paletteTempCan.height = can.height;
+
+    let tcon = paletteTempCan.getContext('2d')
+
+    tcon.drawImage(can, 0, 0)
+
+    can.addEventListener("mousewheel", paletteZoom, false);
+    can.addEventListener("DOMMouseScroll", paletteZoom, false);
+    // can.addEventListener("mousewheel", zoom, false);
+    // can.addEventListener("DOMMouseScroll", zoom, false);
+
 }

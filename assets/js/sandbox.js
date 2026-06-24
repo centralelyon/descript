@@ -1,6 +1,7 @@
 let dataBinding = {}
 
 
+let showAxis = false
 let chartAxis = {
     x: "none",
     y: "none"
@@ -666,7 +667,7 @@ function makePaletteMenu(palettes, name = undefined) {
         delete megaGlyph[prev];
 
         makeMarkTree()
-        drawSvg()
+        // drawSvg()
     }
 
     return select;
@@ -1081,7 +1082,7 @@ function updateDatabinding(elem) {
         }
     }
 
-    drawSvg()
+    // drawSvg()
 }
 
 async function loadCsv(url) {
@@ -1134,6 +1135,11 @@ function switchForce() {
 }
 
 async function updateSvg() {
+
+
+    if (layout === "force") {
+        tdrawRefactor()
+    }else {
     let svg = d3.select("#fakePreviewSvg")
     let data = chartDataset.data
 
@@ -1147,7 +1153,9 @@ async function updateSvg() {
 
     svg.selectAll("image")
         .attr("xlink:href", d =>
-            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png")).transition().duration(120)
+            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+
+    }
     /*        .attr("x", d => {
                 return xScale(d[chartAxis.x])
             })
@@ -1155,6 +1163,29 @@ async function updateSvg() {
                 return yScale(d[chartAxis.y]);
             })*/
 
+}
+
+function drawAxis(svg, data, xScale, yScale) {
+
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    let size = svg.node().getBoundingClientRect()
+    let width = size.width
+    let height = size.height
+
+    let marginH = width * 0.1;
+    let marginV = height * 0.1;
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height - marginV})`)
+        .call(xAxis);
+
+// Draw y-axis
+    svg.append("g")
+        .attr("transform", `translate(${marginH},0)`)
+        .call(yAxis);
 }
 
 
@@ -1209,6 +1240,9 @@ function drawScatter(svg, data, encodings, order, tmarks) {
         .attr("y", d => {
             return yScale(d[chartAxis.y]);
         })
+
+
+    drawAxis(svg, data, xScale, yScale)
 }
 
 function drawForce(svg, data, encodings, order, tmarks) {
@@ -1274,14 +1308,11 @@ function drawForce(svg, data, encodings, order, tmarks) {
     //     .on("tick", ticked)
 
 
-
-
-
     function ticked() {
 
         timages
-        .attr("x", d => clampVal(d.x, 0, size.width))
-        .attr("y", d => clampVal(d.y, 0, size.height))
+            .attr("x", d => clampVal(d.x, 0, size.width))
+            .attr("y", d => clampVal(d.y, 0, size.height))
     }
 
 

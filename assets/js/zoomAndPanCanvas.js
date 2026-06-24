@@ -3,24 +3,35 @@ let x0 = 0;
 let y0 = 0;
 let isDragging = false;
 
-function enableZoomPan(canvas, image) {
+function resetView(canvas,image) {
+    zoom = 1;
+    x0 = 0;
+    y0 = 0;
+    redraw(canvas,image);
+}
+
+function redraw(canvas,image) {
+
     const ctx = canvas.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.setTransform(
+        zoom, 0,
+        0, zoom,
+        -x0 * zoom,
+        -y0 * zoom
+    );
+    ctx.drawImage(image, 0, 0,viewDim[0], viewDim[1]);
+}
+
+function enableZoomPan(canvas, image) {
+    // const ctx = canvas.getContext("2d");
 
     let lastX = 0;
     let lastY = 0;
 
-    function redraw() {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.setTransform(
-            zoom, 0,
-            0, zoom,
-            -x0 * zoom,
-            -y0 * zoom
-        );
-        ctx.drawImage(image, 0, 0,viewDim[0], viewDim[1]);
-    }
 
     canvas.addEventListener("wheel", (e) => {
         e.preventDefault();
@@ -42,7 +53,7 @@ function enableZoomPan(canvas, image) {
         x0 = wx - sx / zoom;
         y0 = wy - sy / zoom;
 
-        redraw();
+        redraw(canvas,image);
     });
 
     canvas.addEventListener("mousedown", (e) => {
@@ -66,7 +77,7 @@ function enableZoomPan(canvas, image) {
         lastX = e.clientX;
         lastY = e.clientY;
 
-        redraw();
+        redraw(canvas,image);
     });
 
     window.addEventListener("mouseup", () => {
@@ -77,4 +88,16 @@ function enableZoomPan(canvas, image) {
     });
 
     // redraw();
+}
+
+
+function screenRectToWorld(rect) {
+    const [x, y, width, height] = rect;
+
+    return [
+        x0 + x / zoom,
+        y0 + y / zoom,
+        width / zoom,
+        height / zoom
+    ];
 }

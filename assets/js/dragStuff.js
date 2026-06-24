@@ -182,18 +182,17 @@ function dragElement2(elmnt) {
 
             tsel.selectAll("option").attr("selected", "false")
 
-            tsel =tsel.node()
+            tsel = tsel.node()
 
             let n = +elmnt.getAttribute("num")
 
-            console.log(n);
-
-            tsel.getElementsByTagName('option')[n+1].selected = true;
+            tsel.getElementsByTagName('option')[n + 1].selected = true;
 
             let key = elmnt.getAttribute("key");
-            megaGlyph[id].dataColumn =key
+            megaGlyph[id].dataColumn = key
 
             dataBinding[id] = key
+
             updateSvg()
             updateMarksBindingDisplay(id)
         }
@@ -375,7 +374,7 @@ function dragstarted(event, d) {
 function dragged(event, d) {
     let elem = d3.select(this)
 
-
+    console.log(elem.attr("name"));
     let type = elem.attr("type")
     let name = elem.attr("name")
     let svg = d3.select("#composition")
@@ -403,6 +402,10 @@ function dragged(event, d) {
 
         let from = svg.select(`circle[name='${name}'][type='from']`)
         let to = svg.select(`circle[name='${name}'][type='to']`)
+
+        console.log(from);
+        console.log("----------");
+        console.log(to);
 
         let link = svg.select(`path[name='${name}']`)
 
@@ -479,7 +482,7 @@ function dragElement3(elmnt) {
         let tcords = elmnt.parentElement.getBoundingClientRect();
 
         elmnt.style.left =
-            ((e.pageX - offsetX) - tcords.x) + "px";
+            ((e.pageX - offsetX)) + "px";
 
         elmnt.style.top =
             ((e.pageY - offsetY + 50) - 50) + "px";
@@ -490,11 +493,11 @@ function dragElement3(elmnt) {
 
         let container = document.getElementById("list-" + key)
         let tt = getInsertionPoint(container, (e.pageY))
+        // tt === placeholder.nextSibling ||
 
-        if (tt === placeholder.nextSibling) {
+        if (tt === container.firstChild) {
             return;
         }
-
         if (tt) {
             container.insertBefore(placeholder, tt);
         } else {
@@ -517,7 +520,7 @@ function dragElement3(elmnt) {
             let curNb = elmnt.getAttribute("number")
 
 
-            let id = elmnt.getAttribute("id").split("mark_")[1]
+            let id = elmnt.getAttribute("id").split("mark_")[1].split("_mark")[0]
             let tkeys = Object.keys(megaPalettes[id].encodings.range.marks)
             let nb = tkeys[tkeys.length - 1]
 
@@ -549,18 +552,28 @@ function dragElement3(elmnt) {
             updateSvg()
         }
     }
+}
 
 
-    function getInsertionPoint(container, mouseX) {
-        const items = [...container.children].filter(
-            el => !el.classList.contains("dragging") &&
-                !el.classList.contains("placeholder")
-        );
+function getInsertionPoint(container, mouseY) {
+    const items = [...container.children].filter(
+        el =>
+            !el.classList.contains("dragging") &&
+            !el.classList.contains("placeholder")
+    );
 
-        return items.find(item => {
-            const rect = item.getBoundingClientRect();
-            return mouseX < rect.top + rect.height / 2;
-        });
+    let closest = null;
+    let closestOffset = Number.NEGATIVE_INFINITY;
+
+    for (const item of items) {
+        const rect = item.getBoundingClientRect();
+        const offset = mouseY - (rect.top + rect.height / 2);
+
+        if (offset < 0 && offset > closestOffset) {
+            closestOffset = offset;
+            closest = item;
+        }
     }
 
+    return closest;
 }

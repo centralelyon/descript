@@ -164,3 +164,14 @@ async function tempRemoveProtoCan() {
     download(JSON.stringify(t), "full.json", "text/json");
 
 }
+
+function imageToBase64(img, type = 'image/png') {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    return canvas.toDataURL(type);
+}

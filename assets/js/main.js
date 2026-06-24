@@ -167,7 +167,7 @@ async function init() {
 
     // await loadDataset("assets/tempData/datasets/penguins.csv")
     // await loadDataset("assets/tempData/datasets/week26.csv")
-    
+
     chartDataset.data = fakeWeek15()
     // drawSvg()
     // tdrawRefactor()
@@ -409,15 +409,29 @@ onkeydown = function (e) {
     }
 
     if (keymap[46]) {
+        // d3.selectAll("circle[num='0']").remove()
+        if(selectedAnchor !== undefined) {
 
-        for (let i = 0; i < seldots.length; i++) {
+            selectedAnchor.path.remove()
+            selectedAnchor.circles.remove()
+            console.log(selectedAnchor.n);
+            d3.selectAll(`circle[palette="${selectedAnchor.from}"][num="${selectedAnchor.n}"]`).remove()
+            d3.selectAll(`circle[palette="${selectedAnchor.to}"][num="${selectedAnchor.n}"]`).remove()
+            purgeAnchor(selectedAnchor.from,selectedAnchor.to, selectedAnchor.n)
+
+            selectedAnchor = undefined
+
+
+        }
+
+/*        for (let i = 0; i < seldots.length; i++) {
 
             let id = sampleData.indexOf(seldots[i])
             sampleData.splice(id, 1)
         }
         updateChart(curr_mod, seldots)
         seldots = undefined;
-        over_on = true
+        over_on = true*/
 
 
     }
@@ -850,20 +864,45 @@ async function fillAllPalette() {
 
 }
 
-function switchPalette() {
 
-    palSwitch = !palSwitch
+function displaySample() {
     let canContainer = document.getElementById("canvasContainer");
     let svgContainer = document.getElementById("fakePreviewSvg");
 
-    if (palSwitch) {
-        canContainer.style.display = "block"
-        svgContainer.style.display = "none"
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    canContainer.style.display = "block"
+    svgContainer.style.display = "none"
+    tableContainer.style.display = "none"
+    settingsContainer.style.display = "none"
+}
 
+
+function hideSample() {
+
+    let canContainer = document.getElementById("canvasContainer");
+    let svgContainer = document.getElementById("fakePreviewSvg");
+
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+
+    canContainer.style.display = "none"
+    svgContainer.style.display = "block"
+    tableContainer.style.display = "block"
+    settingsContainer.style.display = "flex"
+}
+
+
+function switchPalette() {
+
+    palSwitch = !palSwitch
+
+
+    if (palSwitch) {
+        displaySample()
 
     } else {
-        canContainer.style.display = "none"
-        svgContainer.style.display = "block"
+        hideSample()
     }
 
 }

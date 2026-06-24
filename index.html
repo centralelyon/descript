@@ -84,8 +84,8 @@
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container"
-     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 20px" id="">
-    <div style="width: 275px;display: flex;flex-direction:column; border-right: solid 1px #424242; height: 93vh  "
+     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 8px" id="">
+    <div style="width: 275px;display: flex;flex-direction:column; border-right: solid 1px #424242; height: 94.5vh  "
          id="sideSettings">
 
         <div style="border-bottom: solid 1px #424242;margin-right: 23px;flex: 3">
@@ -116,7 +116,7 @@
         <div>
             <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">
                 Composition</p>
-            <div class="buttonImg" style="position: absolute;width: 15px" id="anchorBtn">
+            <div class="buttonImg" style="position: absolute;width: 15px;margin-left: 10px" id="anchorBtn">
                 <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
             </div>
             <svg id="composition" width="320" height="320"
@@ -345,7 +345,7 @@
         </div>
         -->
 
-                <div style="display: flex;position:absolute;right: 5px;margin-top:-31px" onclick="switchSettings()">
+                <div id="settingsContainer" style="display: flex;position:absolute;right: 5px;margin-top:-31px" onclick="switchSettings()">
 
             <div style="display: flex;height: 50px" id="settingsSandbox">
                 <div style="font-weight: 600"> Layout:</div>
@@ -373,8 +373,9 @@
 
             </div>
         </div>
+
         <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
-        <div style="width: 100%;overflow-y: auto;height: 300px">
+        <div id="newTableContainer" style="width: 100%;overflow-y: auto;height: 200px">
             <table id="newDataTable" style="height: 250px;display: table;width: 100%">
                 <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
             </table>

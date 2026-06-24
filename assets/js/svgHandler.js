@@ -35,6 +35,43 @@ function fillSampleBar(marks) {
 }
 
 
+function displayAllMarksInSvg(samples) {
+
+    let tkeys = Object.keys(samples)
+
+    let svg = d3.select("#sampleDisplay")
+
+    if (tkeys.length > 0) {
+        svg.style("background-color", "rgba(75,75,75,0.5)")
+        svg.style("display", "block")
+    } else {
+        svg.style("display", "none")
+    }
+
+    const rect = svg.node().getBoundingClientRect()
+
+    const w = rect.width
+    const h = rect.height
+    bounds = [w, h]
+
+    svg.selectAll("image").remove();
+    svg.selectAll(".LassoControls").remove();
+    for (const [key, value] of Object.entries(samples)) {
+
+        console.log(value);
+
+        svg.append("svg:image")
+            .attr("class", "sample")
+            .attr("xlink:href", value.canvas.toDataURL())
+            .attr('num', (d, i) => i)
+            .attr("x", value.rx * w)
+            .attr("y", value.ry * h)
+            .attr("width", value.rWidth * w)
+            .attr("height", value.rHeight * h)
+    }
+
+}
+
 function fillSvg(marks) {
     // fillSampleBar(marks)
 
@@ -70,7 +107,7 @@ function fillSvg(marks) {
         .on("click", (e, d) => {
 
             d3.selectAll("image").style("opacity", 1)
-            showControls(svg, [d.rx * w, d.ry * h], e.target)
+            // showControls(svg, [d.rx * w, d.ry * h], e.target)
 
             // loadModal(sampleData.find((d) => d === el.__data__))
         })
@@ -874,6 +911,10 @@ function imgDragEnd(event) {
     }
 }
 
+function showAllSamples(samples) {
+
+}
+
 
 function showControls(svg, coords, elem) {
 
@@ -903,13 +944,11 @@ function showControls(svg, coords, elem) {
         .attr("id", "mergeSvg")
         .attr("class", "svgButton")
         .style("clip-path", `circle(${rad}px)`)
-        .on("click", function(e) {
+        .on("click", function (e) {
 
-        let tplus = document.getElementById("palettePlusMark")
+            let tplus = document.getElementById("palettePlusMark")
 
             addACan(tplus, newSelectedPalette, elem)
-
-
 
 
         })

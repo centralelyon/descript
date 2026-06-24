@@ -268,8 +268,9 @@ function fillPalette(reset = false) {
 
     let trange = document.getElementById("strokewidth")
 
-    trange.onchange = function (e) {
 
+    trange.onchange = function (e) {
+        console.log("dsdsadas");
         const val = parseInt(document.getElementById("strokewidth").value);
         stWidth = val
         console.log("dsdsadas");
@@ -299,6 +300,20 @@ function editPalette(e) {
         key = el.getAttribute("id").split("_")[1]
 
     }
+
+    let trange = document.getElementById("strokewidth")
+    trange.onchange = function (e) {
+        console.log("dsdsadas");
+        const val = parseInt(document.getElementById("strokewidth").value);
+        stWidth = val
+        console.log("dsdsadas");
+    }
+
+    document.getElementById('strokecolor').onchange = function () {
+
+        stColor = this.value
+    }
+
 
     selectedPalette = [key, num, type]
 
@@ -764,8 +779,13 @@ function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scale
 
 function savePalette() {
     const corn = getMinimalBoundingBox(paletteTempCan)
-    console.log(corn);
+
     let resCan
+
+    if (palSwitch) {
+        resCan = currSampleEdited
+    } else {
+
     if (selectedPalette[2] === "mark") {
         if (selectedPalette[1]) {
             resCan = megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.canvas
@@ -777,12 +797,15 @@ function savePalette() {
     } else if (selectedPalette[2] === "cat") {
         resCan = palette_cat[selectedPalette[0]].proto.canvas
     }
+    }
 
-    resCan.width = corn.width
-    resCan.height = corn.height
+    // resCan.width = corn.width
+    // resCan.height = corn.height
 
     const resCont = resCan.getContext('2d')
 
+
+    resCont.clearRect(0, 0, 999, 999)
     resCont.save()
     resCont.translate(resCan.width / 2, resCan.width / 2);
     resCont.rotate(toRad(primRot));
@@ -805,7 +828,7 @@ function savePalette() {
     )
     resCont.restore();
 
-    if (selectedPalette[2] === "mark") {
+    if (selectedPalette[2] === "mark" && !palSwitch) {
         if (selectedPalette[1]) {
 
             // marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
@@ -816,15 +839,6 @@ function savePalette() {
         }
 
 
-    } else if (selectedPalette[2] === "cat") {
-        palette_cat[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
-        let tcan = document.getElementById("canvas_" + selectedPalette[0])
-        let tcont = tcan.getContext('2d')
-        let size = fixRatio2([palette_cat[selectedPalette[0]].proto.canvas.width, palette_cat[selectedPalette[0]].proto.canvas.height], [60, 60])
-
-        tcan.width = size[0]
-        tcan.height = size[1]
-        tcont.drawImage(palette_cat[selectedPalette[0]].proto.canvas, 0, 0, size[0], size[1])
     }
     document.getElementById("paletteContainer").style.display = "none";
 
@@ -1404,7 +1418,7 @@ function setMarkEvent(key, type) {
 
 function updateMarksBindingDisplay(palette) {
 
-    let cont = document.getElementById('bind-'+palette)
+    let cont = document.getElementById('bind-' + palette)
     cont.innerHTML = ""
 
     if (dataBinding[palette]) {
@@ -1431,7 +1445,7 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
     tdiv.appendChild(dataBindinCont)
 
     for (const [name, value] of Object.entries(marks)) {
-        let tmark = makeSingleMark(key, name, "range", cloneCanvas(value.proto.canvas))
+        let tmark = makeSingleMark(key, name, "range", value.proto.canvas)
         tdiv.appendChild(tmark)
         // makeBindingDisplay(key, dataBinding[key])
         let tcan = tmark.lastChild;
@@ -1442,7 +1456,6 @@ function makeRangeMark(key, tdiv, value, typesDisplay) {
 
         dragElement3(tmark)
         tsvg = d3.select(tsvg)
-
 
 
         tsvg
@@ -1537,6 +1550,8 @@ function addACan(elem, key, img = undefined) {
 
     let tmark = makeSingleMark(key, name, "range", tcan)
     elem.parentElement.parentElement.insertBefore(tmark, elem.parentElement)
+    dragElement3(tmark)
+
 }
 
 function getMarkRange(key) {
@@ -1569,9 +1584,9 @@ function makeBindingDisplay(container, palette, dataColumn) {
             nameDiv.setAttribute("data", uniques[i])
             nameDiv.innerHTML = uniques[i]
 
-            if (i > nMarks-1) {
-                nameDiv.style.color=   "#EF5350"
-                nameDiv.style.fontWeight="600"
+            if (i > nMarks - 1) {
+                nameDiv.style.color = "#EF5350"
+                nameDiv.style.fontWeight = "600"
             }
 
             container.appendChild(nameDiv)
@@ -1666,3 +1681,22 @@ function savePalette2(key) {
 
     download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
 }
+
+function purgeAnchor(from, to, n) {
+    megaPalettes[to].apply = ""
+    megaPalettes[from].linkto = ""
+
+    for (const [key, value] of Object.entries(megaPalettes[from].encodings.range.marks)) {
+
+        delete value.proto.anchors[n]
+    }
+
+    for (const [key, value] of Object.entries(megaPalettes[to].encodings.range.marks)) {
+
+        delete value.proto.anchors[n]
+    }
+
+    updateSvg()
+
+}
+
