@@ -786,17 +786,17 @@ function savePalette() {
         resCan = currSampleEdited
     } else {
 
-    if (selectedPalette[2] === "mark") {
-        if (selectedPalette[1]) {
-            resCan = megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.canvas
-            // resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
-        } else {
-            resCan = marks[selectedPalette[0]].proto.canvas
-        }
+        if (selectedPalette[2] === "mark") {
+            if (selectedPalette[1]) {
+                resCan = megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.canvas
+                // resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
+            } else {
+                resCan = marks[selectedPalette[0]].proto.canvas
+            }
 
-    } else if (selectedPalette[2] === "cat") {
-        resCan = palette_cat[selectedPalette[0]].proto.canvas
-    }
+        } else if (selectedPalette[2] === "cat") {
+            resCan = palette_cat[selectedPalette[0]].proto.canvas
+        }
     }
 
     // resCan.width = corn.width
@@ -1700,3 +1700,73 @@ function purgeAnchor(from, to, n) {
 
 }
 
+function changeScale(palette, type) {
+    const step = 0.1
+
+
+    if (type === "-") {
+        megaPalettes[palette].scale -= step
+    } else if (type === "+") {
+        megaPalettes[palette].scale += step
+    }
+
+
+    updateSvg()
+}
+
+
+function appendEncoding(palette) {
+
+
+}
+
+function makeEncodingSelect(key) {
+
+
+    let select = document.createElement("select")
+    select.className = "paletteEncodingSelect"
+    select.id = `${key}_encodingSelect`
+    select.innerHTML = ` <option value="new">*new*</option>  <option value="color">color</option>` + `<option value="size">size</option>` + `<option value="orientation">orientation</option>`
+
+    select.onchange = function () {
+        if (select.value !== "new") {
+            let tdiv = document.createElement("div")
+
+            tdiv.className = "dataSelectContainer"
+            tdiv.setAttribute("key", key)
+            tdiv.setAttribute("val", select.value)
+            tdiv.setAttribute("type", select.value)
+
+            let options = makeColumnsSelect()
+            tdiv.innerHTML = `<img  onclick="delEncoding('${key}', '${select.value}')" class="delEncoding" src="assets/images/buttons/del.png"><p>${select.value}:</p> <select palette="${key}" encoding="${select.value}" onchange="updateSelectEncoding('${key}', '${select.value}')" class="dataSelect">${options}</select> `
+            select.parentElement.parentElement.insertBefore(tdiv, select.parentElement)
+            removeOptionByValue(select, select.value)
+        }
+    }
+    return select
+}
+
+function removeOptionByValue(select, value) {
+    const option = select.querySelector(`option[value="${value}"]`);
+    if (option) {
+        option.remove();
+    }
+}
+
+
+function delEncoding(key, val) {
+    let select = document.getElementById(`${key}_encodingSelect`)
+
+    select.innerHTML += `<option value="${val}">${val}</option>`
+
+    let div =document.querySelector(`div[key="${key}"][val="${val}"]`)
+
+    if (val ==="color") {
+        megaGlyph[key].color.dataColumn = ""
+    }
+
+
+    div.remove()
+
+    updateSvg()
+}

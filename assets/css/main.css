@@ -409,7 +409,7 @@ canvas {
     transform-origin: center;
 }
 
-#paletteCont{
+#paletteCont {
     border-radius: 5px;
     padding: 20px;
     border: solid #333 thin;
@@ -1252,4 +1252,59 @@ p, h3, h4, h5, img {
 .moreCan {
     width: 60px;
     height: 60px;
+}
+
+.sizeDiv {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sizeDiv div {
+    height: 24px;
+}
+
+.sizeControl {
+    font-size: 22pt;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+
+.sizeControl:hover {
+    cursor: pointer;
+    font-size: 25pt;
+}
+
+.propertyLabel {
+
+}
+
+.dataSelectContainer {
+    display: flex;
+    width: 123px;
+    height: 33px;
+}
+
+.dataSelectContainer p {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.dataSelect {
+    width: 70px;
+    height: 30px;
+    padding: 0 8px;
+}
+
+.selectHold {
+    display: flex;
+}
+
+.delEncoding {
+    margin-top: 8px;
+    margin-left: -5px;
+    margin-right: 3px;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
 }

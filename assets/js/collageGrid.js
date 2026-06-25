@@ -234,9 +234,9 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
             }
 
 
-            let sc = 1
-            if (ref.encodings.range.scale) {
-                sc = ref.encodings.range.scale
+            let sc = ref.scale
+            if (megaGlyph[order[j]].size.dataColumn !== "" && megaGlyph[order[j]].size.dataColumn !== "none") {
+                sc *= megaGlyph[order[j]].size.scale(row[megaGlyph[order[j]].size.dataColumn])
             }
 
             let sourceW = mark.proto.canvas.width * sc

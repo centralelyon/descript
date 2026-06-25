@@ -162,8 +162,12 @@ async function addRectSample(x, y, width, height) {
     let tcont = tcan.getContext('2d');
 
 
-    tcan.width = coords[2]
-    tcan.height = coords[3]
+    let canW = 80
+    let canH = 80
+
+
+    tcan.width = Math.min(coords[2], canW)
+    tcan.height = Math.min(coords[3], canH)
 
     // tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
 
@@ -216,8 +220,8 @@ async function addRectSample(x, y, width, height) {
         Math.round(dp.rHeight * currImg.height),
         0,
         0,
-        dp.width,
-        dp.height);
+        tcan.width,
+        tcan.height);
 
     // let svg = d3.select("#sampleDisplay")
 
@@ -574,7 +578,7 @@ function movePalette2Available() {
         document.getElementById("marksHolder").innerHTML = ""
         document.getElementById("newPaletteName").value = ""
         switchPalette()
-        savePal(tpal,name)
+        savePal(tpal, name)
 
 
     }

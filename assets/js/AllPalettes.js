@@ -27,6 +27,16 @@ function cleanSlate() {
     megaPalettes = {}
     megaGlyph = {}
     dataBinding = {}
+    dataEncoding = {}
+    viewDim = []
+    sampleData = []
+     options_type = {}
+     displayedMarks = {}
+    drawnMarks = {}
+    collageColScale = d3.scaleOrdinal(d3.schemeAccent)
+
+     anchoringRef = ""
+     nAnchor = 0
 
     document.getElementById("selectedPaletteCont").innerHTML = ''
     document.getElementById("MarksPaletteList").innerHTML = ''
@@ -83,7 +93,24 @@ function addASelectedPalette(key) {
     let propertyContainer = document.createElement("div");
     propertyContainer.className = "propertyContainer";
 
+    let options = makeColumnsSelect()
 
+    // propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block" onclick="appendEncoding('${key}')"><img  style="width: 15px;cursor: pointer;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
+    propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style=""><p  style=" ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="">${options}</select></div></div>`;
+
+    let sel = makeEncodingSelect(key)
+    let selectHold = document.createElement("div");
+    selectHold.className = "selectHold";
+    selectHold.innerHTML = `<div>Encoding: </div> `
+    selectHold.appendChild(sel)
+    propertyContainer.appendChild(selectHold)
+    leftSide.appendChild(propertyContainer);
+    container.appendChild(tdiv);
+
+}
+
+
+function makeColumnsSelect() {
     let options = "<option value='none'>none</option>";
 
     let columns = Object.keys(chartDataset.data[0])
@@ -91,12 +118,8 @@ function addASelectedPalette(key) {
     for (let i = 0; i < columns.length; i++) {
         options += "<option value='" + columns[i] + "'>" + columns[i] + "</option>";
     }
-    propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block"><img style="width: 15px;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
 
-
-    leftSide.appendChild(propertyContainer);
-    container.appendChild(tdiv);
-
+    return options;
 }
 
 function setAddNewMenu() {
@@ -430,9 +453,12 @@ function addPaletteMarksCompo(key) {
 
     let sizeDiv = document.createElement("div");
 
-    s
+    sizeDiv.className = "sizeDiv";
+
+    sizeDiv.innerHTML = `<div class="sizeControl" onclick="changeScale('${key}','-')">-</div><div>size</div><div class="sizeControl" onclick="changeScale('${key}','+')">+</div>`;
 
 
+    currMarksContainer.appendChild(sizeDiv)
     currMarksContainer.appendChild(colorBrand);
     // currMarksContainer.appendChild(proto);
 

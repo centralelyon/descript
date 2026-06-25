@@ -164,19 +164,23 @@ function dragElement2(elmnt) {
 
         d3.selectAll(".dataSelectContainer").style("border", "none")
         let id = ""
-
+        let type = ""
         let telm
 
         if (e.target.matches(".dataSelectContainer")) {
             id = e.target.getAttribute("key")
+            type = e.target.getAttribute("type")
             telm = e.target
 
         } else if (e.target.parentElement.matches(".dataSelectContainer")) {
             id = e.target.parentElement.getAttribute("key")
             telm = e.target.parentElement
+            type = e.target.parentElement.getAttribute("type")
         }
-
+        console.log(e.target.parentElement);
+        console.log(e.target);
         if (id !== "") {
+
 
             let tsel = d3.select(telm).select("select")
 
@@ -189,21 +193,96 @@ function dragElement2(elmnt) {
             tsel.getElementsByTagName('option')[n + 1].selected = true;
 
             let key = elmnt.getAttribute("key");
-            megaGlyph[id].dataColumn = key
+            console.log(type);
+            if (type === "shape") {
+                megaGlyph[id].dataColumn = key
 
-            dataBinding[id] = key
+                dataBinding[id] = key
+                updateMarksBindingDisplay(id)
+            } else if (type === "color") {
+                megaGlyph[id].color.dataColumn = key
+
+                megaGlyph[id]['color'] = makeColorScale(id, key)
+
+            } else if (type === "size") {
+                megaGlyph[id]["size"] = makeSizeScale(id, key)
+            } else if (type === "orientation") {
+                megaGlyph[id]["orientation"] = makeOrrScale(id, key)
+            }
 
             updateSvg()
-            updateMarksBindingDisplay(id)
+
         }
 
-
         selectedDataColumn = ""
-
-
     }
 }
 
+
+function makeSizeScale(id, key) {
+    let data = chartDataset.data
+
+    let scale
+
+    if (isCont(data, key)) {
+        scale = d3.scaleLinear(d3.extent(data.map(d => d[key])), [0.6, 1.5])
+    } else {
+        let uniques = [...new Set(data.map(d => d[key]))];
+
+        scale = d3.scalePoint()
+            .domain(uniques)
+            .range([0.6, 1.5]);
+    }
+
+    return {
+        dataColumn: key,
+        scale: scale
+    }
+}
+
+function updateSelectEncoding(palette, key) {
+    console.log("dadsadas");
+    let sel =document.querySelector(`.dataSelect[palette="${palette}"][encoding="${key}"]`)
+
+    let val = sel.value
+
+    console.log(val);
+    if (key === "color") {
+        megaGlyph[palette].color.dataColumn = key
+
+        megaGlyph[palette]['color'] = makeColorScale(palette, val)
+
+    } else if (key === "size") {
+        megaGlyph[palette]["size"] = makeSizeScale(palette, val)
+    } else if (key === "orientation") {
+        megaGlyph[palette]["orientation"] = makeOrrScale(palette, val)
+    }
+
+    updateSvg()
+
+
+}
+
+function makeOrrScale(id, key) {
+    let data = chartDataset.data
+
+    let scale
+
+    if (isCont(data, key)) {
+        scale = d3.scaleLinear(d3.extent(data.map(d => d[key])), [0, 360])
+    } else {
+        let uniques = [...new Set(data.map(d => d[key]))];
+
+        scale = d3.scalePoint()
+            .domain(uniques)
+            .range([0, 360]);
+    }
+
+    return {
+        dataColumn: key,
+        scale: scale
+    }
+}
 
 function dropPalette(e, elmnt) {
 
@@ -218,6 +297,7 @@ function dropPalette(e, elmnt) {
             name += Object.keys(megaPalettes[name]).length
         }
         megaPalettes[name] = tpal
+
 
         fillPalette()
 
@@ -240,7 +320,12 @@ function dropPalette(e, elmnt) {
             tflag = true
         }
 
+        // megaPalettes[name] = {...allPalettes[num]}
         megaPalettes[name] = allPalettes[num]
+
+        if (megaPalettes[name].scale === undefined) {
+            megaPalettes[name].scale = 1
+        }
 
         dataBinding[name] = ""
         addPaletteInfoToCollage(allPalettes[num], name)
@@ -495,7 +580,7 @@ function dragElement3(elmnt) {
         let tt = getInsertionPoint(container, (e.pageY))
         // tt === placeholder.nextSibling ||
 
-        if (tt === container.firstChild) {
+        if (tt.matches(".colorBrand") || tt.matches(".sizeDiv")) {
             return;
         }
         if (tt) {
