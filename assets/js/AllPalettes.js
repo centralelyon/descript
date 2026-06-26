@@ -52,10 +52,17 @@ function updateSelectBind(id) {
     let elem = document.getElementById("shape-" + id)
     let key = elem.value
     megaGlyph[id].dataColumn = key
-
     dataBinding[id] = key
+
+    let th = document.querySelector(`th[key="${key}"]`)
+
+    if(th) {
+        th.innerHTML = `<div style="display: table-cell;background-color: ${collageColScale(id)};margin-left: calc(50% - 38px);" class="colorBrand"></div>${th.innerText}`
+    }
+
     updateSvg()
     updateMarksBindingDisplay(id)
+
 }
 
 function addASelectedPalette(key) {

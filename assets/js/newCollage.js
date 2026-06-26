@@ -92,7 +92,7 @@ function addPaletteInfoToCollage(palette, name) {
                     let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
 
                     let offx = e.offsetX - imCord.x
-                    let offy = e.offsetY - imCord.yd
+                    let offy = e.offsetY - imCord.y
                     svg.append("circle")
                         .attr("cx", drawnMarks[name].x + offx)
                         .attr("cy", drawnMarks[name].y + offy)
@@ -108,8 +108,7 @@ function addPaletteInfoToCollage(palette, name) {
                             .on("end", dragended))
 
                     tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
-                    megaPalettes[name].linkto = name
-                    setAnchorOnAllMarks(name, offx, offy, nAnchor, "")
+
                 } else {
                     if (anchoringRef !== name) {
 
@@ -123,22 +122,6 @@ function addPaletteInfoToCollage(palette, name) {
                         let fromCr = d3.select(`circle[from="${tFrom.name}"][nAnchor="${nAnchor}"]`)
 
 
-                        svg.append("circle")
-                            .attr("cx", drawnMarks[name].x + offx)
-                            .attr("cy", drawnMarks[name].y + offy)
-                            .attr("r", 5)
-                            .attr("type", "to")
-                            .attr("from", tFrom.name)
-                            .attr("to", tTo.name)
-                            .attr("name", name)
-                            .attr("nAnchor", nAnchor)
-                            .attr("fill", collageColScale(tFrom.name))
-                            .call(d3.drag()
-                                .on("start", dragstarted)
-                                .on("drag", dragged)
-                                .on("end", dragended)).raise()
-
-                        //TODO: Add a link
                         tTo = {
                             x: drawnMarks[name].x + offx,
                             y: drawnMarks[name].y + offy,
@@ -147,32 +130,69 @@ function addPaletteInfoToCollage(palette, name) {
                             name: name
                         }
 
-                        fromCr.attr("name", tTo.name).attr("to", tTo.name).attr("fill", collageColScale(tTo.name)).raise()
+
+                        let tpath = d3.selectAll(`path[from="${tTo.name}"][to="${tFrom.name}"]`)
+                        let tpath2 = d3.selectAll(`path[from="${tFrom.name}"][to="${tTo.name}"]`)
 
 
-                        const cx = (tFrom.x + tTo.x) / 2;
-                        const curve = 2;
+                        if (tpath.size() === 0 && tpath2.size() === 0) {
+
+                            svg.append("circle")
+                                .attr("cx", drawnMarks[name].x + offx)
+                                .attr("cy", drawnMarks[name].y + offy)
+                                .attr("r", 5)
+                                .attr("type", "to")
+                                .attr("from", tFrom.name)
+                                .attr("to", name)
+                                .attr("name", name)
+                                .attr("nAnchor", nAnchor)
+                                .attr("fill", collageColScale(tFrom.name))
+                                .call(d3.drag()
+                                    .on("start", dragstarted)
+                                    .on("drag", dragged)
+                                    .on("end", dragended)).raise()
 
 
-                        svg.append("path")
-                            // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
-                            .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
-                            .attr("marker-mid", "url(#arrow)")
-                            .attr("stroke-width", 3)
-                            .style("stroke", "#424242")
-                            .attr("fill", "none")
-                            .attr("name", tTo.name)
+                            fromCr.attr("name", tTo.name).attr("to", tTo.name).attr("fill", collageColScale(tTo.name)).raise()
 
 
-                        // .attr("stroke", drawnMarks[name].x)
+                            const cx = (tFrom.x + tTo.x) / 2;
+                            const curve = 2;
 
-                        megaPalettes[name].apply = tFrom.name
-                        megaPalettes[name].linkTo = nAnchor
-                        setAnchorOnAllMarks(name, offx, offy, nAnchor, tFrom.name)
-                        // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
-                        nAnchor++
-                        anchoring = false
-                        anchoringRef = ""
+
+                            svg.append("path")
+                                // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+                                .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                                .attr("marker-mid", "url(#arrow)")
+                                .attr("stroke-width", 3)
+                                .style("stroke", "#424242")
+                                .attr("fill", "none")
+                                .attr("name", name)
+                                .attr("nAnchor", nAnchor)
+                                .attr("from", tFrom.name)
+                                .attr("to", tTo.name)
+                                .on("click", selAnchorPath)
+
+
+                            // .attr("stroke", drawnMarks[name].x)
+
+
+                            setAnchorOnAllMarks(tFrom.name, offx, offy, nAnchor, "")
+
+                            megaPalettes[name].apply = tFrom.name
+                            megaPalettes[name].linkTo = nAnchor
+                            setAnchorOnAllMarks(name, offx, offy, nAnchor, tFrom.name)
+                            // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
+                            nAnchor++
+                            anchoring = false
+                            anchoringRef = ""
+
+                        } else {
+                            //     TODO: DELETE from
+                            fromCr.remove()
+                            anchoring = false
+                            anchoringRef = ""
+                        }
 
                     } else {
                         let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}

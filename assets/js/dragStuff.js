@@ -177,10 +177,10 @@ function dragElement2(elmnt) {
             telm = e.target.parentElement
             type = e.target.parentElement.getAttribute("type")
         }
-        console.log(e.target.parentElement);
-        console.log(e.target);
+
         if (id !== "") {
 
+            elmnt.innerHTML =  `<div style="display: table-cell;background-color: ${collageColScale(id)};margin-left: calc(50% - 38px);" class="colorBrand"></div>${elmnt.innerText}`
 
             let tsel = d3.select(telm).select("select")
 
@@ -481,6 +481,10 @@ function dragged(event, d) {
     let tx = event.x - mark.attr("x")
     let ty = event.y - mark.attr("y")
 
+    console.log(tx,event.x,mark.attr("x"));
+    console.log(ty,event.y,mark.attr("y"));
+    // console.log(ty);
+
     if ((tx > 0 && tx < 60) && (ty > 0 && ty < 60)) {
         elem.attr("cx", event.x).attr("cy", event.y);
 
@@ -488,9 +492,9 @@ function dragged(event, d) {
         let from = svg.select(`circle[name='${name}'][type='from']`)
         let to = svg.select(`circle[name='${name}'][type='to']`)
 
-        console.log(from);
+    /*    console.log(from);
         console.log("----------");
-        console.log(to);
+        console.log(to);*/
 
         let link = svg.select(`path[name='${name}']`)
 

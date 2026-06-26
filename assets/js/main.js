@@ -410,28 +410,28 @@ onkeydown = function (e) {
 
     if (keymap[46]) {
         // d3.selectAll("circle[num='0']").remove()
-        if(selectedAnchor !== undefined) {
+        if (selectedAnchor !== undefined) {
 
             selectedAnchor.path.remove()
             selectedAnchor.circles.remove()
             console.log(selectedAnchor.n);
             d3.selectAll(`circle[palette="${selectedAnchor.from}"][num="${selectedAnchor.n}"]`).remove()
             d3.selectAll(`circle[palette="${selectedAnchor.to}"][num="${selectedAnchor.n}"]`).remove()
-            purgeAnchor(selectedAnchor.from,selectedAnchor.to, selectedAnchor.n)
+            purgeAnchor(selectedAnchor.from, selectedAnchor.to, selectedAnchor.n)
 
             selectedAnchor = undefined
 
 
         }
 
-/*        for (let i = 0; i < seldots.length; i++) {
+        /*        for (let i = 0; i < seldots.length; i++) {
 
-            let id = sampleData.indexOf(seldots[i])
-            sampleData.splice(id, 1)
-        }
-        updateChart(curr_mod, seldots)
-        seldots = undefined;
-        over_on = true*/
+                    let id = sampleData.indexOf(seldots[i])
+                    sampleData.splice(id, 1)
+                }
+                updateChart(curr_mod, seldots)
+                seldots = undefined;
+                over_on = true*/
 
 
     }
@@ -943,3 +943,21 @@ window.addEventListener("keyup", (e) => {
         // sampling = true
     }
 });
+
+
+function dumpState() {
+
+
+
+    const state = {
+        megaPalettes: dumpObject(megaPalettes),
+        megaGlyph: dumpObject(megaGlyph),
+        dataBinding: dumpObject(dataBinding),
+        allPalettes: dumpObject(allPalettes),
+        chartDataset: dumpObject(chartDataset),
+    }
+
+
+    return dumpObject(state);
+
+}

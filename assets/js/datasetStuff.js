@@ -40,11 +40,15 @@ async function updateDataset() {
 
     cleanSlate()
     let dataset = document.getElementById("availableData").value
-
-    if (dataset !== "week15.csv") {
+    console.log(dataset);
+    chartDataset.name = dataset
+    if (dataset === "pinguins.csv") {
         await loadDataset("assets/tempData/datasets/penguins.csv")
-    } else {
-        fakeWeek15()
+    } else if (dataset === "week15.csv") {
+        chartDataset.data = fakeWeek15()
+    } else if (dataset === "week26.csv") {
+        chartDataset.data = fakeWeek26()
+
     }
 
     fillAxis()
@@ -150,7 +154,7 @@ function fillTable() {
 
         th.innerHTML = ` ${tkeys[i]}  ${mess}`
         th.setAttribute("num", i)
-        th.setAttribute("key",tkeys[i] )
+        th.setAttribute("key", tkeys[i])
         // row.innerHTML += `<th>${tkeys[i]}</th>`
         dragElement2(th)
 

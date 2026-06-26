@@ -151,7 +151,7 @@ function getFirstIndexOfMinValue(array) {
 async function tempRemoveProtoCan() {
 
     let t = await getData("assets/tempData/full.json")
-;
+    ;
     for (const [name, value] of Object.entries(t.marks)) {
         if (value.data?.anxiety?.proto) {
             delete value.data.anxiety.proto.canvas
@@ -174,4 +174,43 @@ function imageToBase64(img, type = 'image/png') {
     ctx.drawImage(img, 0, 0);
 
     return canvas.toDataURL(type);
+}
+
+
+function dumpObject(obj) {
+    return JSON.stringify(obj, (key, value) => {
+
+        if (value instanceof HTMLCanvasElement) {
+            return {
+                __type: "canvas",
+                data: value.toDataURL("image/png")
+            };
+        }
+
+        if (value instanceof HTMLImageElement) {
+            return {
+                __type: "image",
+                data: imageToBase64(value)
+            };
+        }
+
+        return value;
+    })
+
+}
+
+function revive(key, value) {
+    if (value?.__type === "canvas") {
+        const img = new Image(); // TODO change to canvas
+        img.src = value.data;
+        return img;
+    }
+
+    if (value?.__type === "image") {
+        const img = new Image();
+        img.src = value.data;
+        return img;
+    }
+
+    return value;
 }
