@@ -49,7 +49,11 @@
 
 <div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 50px;background-color: #424242">
     <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee">Descript</h3>
-
+    <div style="display: flex;font-weight: 700;margin-left:10px;color: #eeeeee"> Load an Example
+        <select id="stateSelector" style="color: #424242"></select>
+        <img onclick="loadState()" src="assets/images/buttons/export.png" style="transform: scaleX(-1);filter:invert(1);width: 25px;height: 26px;cursor: pointer">
+        <button style="color: #f1f1f1" onclick="dumpState()">save State</button>
+    </div>
     <div style="justify-content: center;width: 80vw;margin-left: 60px;margin-top: 5px;display: flex" id="navButtonList">
 
 

@@ -67,7 +67,6 @@ function updateSelectBind(id) {
 
 function addASelectedPalette(key) {
 
-    console.log(key);
 
     const container = document.getElementById("selectedPaletteCont");
     let col = collageColScale(key)

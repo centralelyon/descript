@@ -44,9 +44,12 @@ const fakePalettes = []
 let palSwitch = false
 
 
+const availableStates = ["none", "week26.json"]
+
 let collageColScale
 docReady(init)
 
+let curState = 'none'
 
 const dataRef = {
     // giorgia_36: "assets/images/tempLoad/full.json"
@@ -184,6 +187,15 @@ async function init() {
 
     document.getElementById("availableData").addEventListener("change", updateDataset)
 
+    let stateSel = document.getElementById("stateSelector");
+
+    for (let i = 0; i < availableStates.length; i++) {
+
+        stateSel.innerHTML = `<option value="${availableStates[i]}">${availableStates[i]}</option>`;
+    }
+
+
+    stateSel.onchange = loadState
 }
 
 
@@ -948,16 +960,130 @@ window.addEventListener("keyup", (e) => {
 function dumpState() {
 
 
+    /*    const state = {
+            megaPalettes: dumpObject(megaPalettes),
+            megaGlyph: dumpObject(megaGlyph),
+            dataBinding: dumpObject(dataBinding),
+            allPalettes: dumpObject(allPalettes),
+            chartDataset: dumpObject(chartDataset),
+        }*/
 
     const state = {
-        megaPalettes: dumpObject(megaPalettes),
-        megaGlyph: dumpObject(megaGlyph),
-        dataBinding: dumpObject(dataBinding),
-        allPalettes: dumpObject(allPalettes),
-        chartDataset: dumpObject(chartDataset),
+        megaPalettes: megaPalettes,
+        megaGlyph: megaGlyph,
+        dataBinding: dataBinding,
+        allPalettes: allPalettes,
+        chartDataset: chartDataset,
+        layout: layout,
     }
 
+    const date = new Date();
 
-    return dumpObject(state);
-
+    download(dumpObject(state), "state" + date.toLocaleString() + ".json", "text/json");
 }
+
+
+async function loadState() {
+    let tsel = document.getElementById("stateSelector");
+
+    let nState = tsel.value
+
+    if (nState !== curState) {
+        if (nState === '*new*') {
+            cleanSlate()
+        } else {
+            let state = await loadStateFromJson("assets/states/" + nState)
+            initState(state)
+        }
+    }
+}
+
+
+async function loadStateFromJson(source) {
+    let json;
+
+    if (source instanceof File) {
+        json = await source.text();
+    } else if (typeof source === "string") {
+        const response = await fetch(source);
+        if (!response.ok) {
+            throw new Error(`Failed to load state: ${response.statusText}`);
+        }
+        json = await response.text();
+    } else {
+        throw new Error("source must be a File or a URL string");
+    }
+
+    const pending = [];
+
+    const state = JSON.parse(json, (key, value) => {
+
+        if (value?.__type === "image") {
+            const img = new Image();
+
+            pending.push(new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            }));
+
+            img.src = value.data;
+            return img;
+        }
+
+        if (value?.__type === "canvas") {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const img = new Image();
+
+            pending.push(new Promise((resolve, reject) => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve();
+                };
+                img.onerror = reject;
+            }));
+
+            img.src = value.data;
+            return canvas;
+        }
+
+        return value;
+    });
+
+    await Promise.all(pending);
+
+    return state;
+}
+
+
+function initState(state) {
+    cleanSlate()
+
+    megaPalettes = state.megaPalettes
+    megaGlyph = state.megaGlyph
+    dataBinding = state.dataBinding
+    allPalettes = state.allPalettes
+    chartDataset = state.chartDataset
+    layout = (state.layout? state.layout: "force")
+
+    initAllPalette()
+    fillTable()
+    switchMode("rect")
+
+
+    for (const [key, value] of Object.entries(megaPalettes)) {
+        addASelectedPalette(key)
+        addPaletteInfoToCollage(value,key)
+        addPaletteMarksCompo(key)
+
+        // displayPalette(key)
+
+    }
+
+    updateDotsAndSvgs()
+    tdrawRefactor()
+}
+

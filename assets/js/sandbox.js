@@ -1139,21 +1139,21 @@ async function updateSvg() {
 
     if (layout === "force") {
         tdrawRefactor()
-    }else {
-    let svg = d3.select("#fakePreviewSvg")
-    let data = chartDataset.data
+    } else {
+        let svg = d3.select("#fakePreviewSvg")
+        let data = chartDataset.data
 
-    let encodings = Object.keys(dataBinding)
-    let [xScale, yScale] = getScales(svg, data)
+        let encodings = Object.keys(dataBinding)
+        let [xScale, yScale] = getScales(svg, data)
 
 
-    let tmarks = makeMarks(encodings, data)
+        let tmarks = makeMarks(encodings, data)
 
-    let order = getOrder(encodings)
+        let order = getOrder(encodings)
 
-    svg.selectAll("image")
-        .attr("xlink:href", d =>
-            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+        svg.selectAll("image")
+            .attr("xlink:href", d =>
+                makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
 
     }
     /*        .attr("x", d => {
@@ -1254,49 +1254,60 @@ function drawForce(svg, data, encodings, order, tmarks) {
     let xAx = document.getElementById("x-axis").value
     let yAx = document.getElementById("y-axis").value
 
+    const tdata = data.map(d => ({ ...d }));
 
     if (xAx !== "none" || yAx !== "none") {
-        [xScale, yScale] = getScales(svg, data)
-        console.log("set axis");
+        [xScale, yScale] = getScales(svg, tdata)
+
     }
 
 
+    tdata.forEach((d,i) => {
+        d.canvas = makeCollageFromData(encodings, order, tmarks, d);
+        d.radius = 0.5 * Math.sqrt(d.canvas.width * d.canvas.height);
+        d.x = (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) +20*Math.random());
+        d.y = (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2)+20*Math.random());
+    });
+
     let timages = svg.selectAll("dots")
-        .data(data)
+        .data(tdata)
         .enter()
         .append("image")
         .attr("xlink:href", d =>
-            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+            d.canvas.toDataURL("image/png"))
         .attr("x", (d, i) => {
-            return (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) + i)
+             return d.x
         })
         .attr("y", (d, i) => {
-            return (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2) + i)
+            return d.y
         })
 
-    let simulation = d3.forceSimulation(data)
+
+    let simulation = d3.forceSimulation(tdata)
         .force("center", d3.forceCenter(size.width / 2, size.height / 2))
-        .force("collide", d3.forceCollide(d => 18))
+        .force("collide", d3.forceCollide(d => {
+            return d.radius
+        }).strength(0.2))
         .on("tick", ticked)
 
 
     if (xScale !== undefined && yScale !== undefined) {
-        simulation = d3.forceSimulation(data)
+        simulation = d3.forceSimulation(tdata)
             .force("x", d3.forceX(d => xScale(d[xAx])).strength(0.3))
             .force("y", d3.forceY(d => yScale(d[yAx])).strength(0.3))
-            .force("collide", d3.forceCollide(d => 18))
+            .force("collide", d3.forceCollide(d =>  d.radius))
             .on("tick", ticked)
     } else if (xScale !== undefined && yScale === undefined) {
-        simulation = d3.forceSimulation(data)
+        simulation = d3.forceSimulation(tdata)
             .force("x", d3.forceX(d => xScale(d[xAx])).strength(0.3))
-            .force("y", d3.forceY(d => size.height / 2).strength(0.3))
-            .force("collide", d3.forceCollide(d => 18))
+            .force("y", d3.forceY(d => d.y).strength(0.3))
+            .force("collide", d3.forceCollide(d => d.radius))
             .on("tick", ticked)
     } else if (xScale === undefined && yScale !== undefined) {
-        simulation = d3.forceSimulation(data)
-            .force("x", d3.forceX(d => size.width / 2).strength(0.3))
+        simulation = d3.forceSimulation(tdata)
+            .force("x", d3.forceX(d => d.x).strength(0.3))
             .force("y", d3.forceY(d => yScale(d[yAx])).strength(0.3))
-            .force("collide", d3.forceCollide(d => 18))
+            .force("collide", d3.forceCollide(d => d.radius))
             .on("tick", ticked)
     }
 
