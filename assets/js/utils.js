@@ -214,3 +214,19 @@ function revive(key, value) {
 
     return value;
 }
+
+
+function setSelectValue(selectOrId, value) {
+    const select =
+        typeof selectOrId === "string"
+            ? document.getElementById(selectOrId)
+            : selectOrId;
+
+    if (!select) return false;
+
+    const exists = Array.from(select.options).some(opt => opt.value === value);
+    if (!exists) return false;
+    console.log(value);
+    select.value = value;
+    return true;
+}

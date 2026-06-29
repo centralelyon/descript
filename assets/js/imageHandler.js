@@ -9,26 +9,18 @@ function loadImg(src) {
         let can = document.getElementById("inVis")
 
         let cont = can.getContext('2d');
+        fitCanvas(can,im)
 
         enableZoomPan(can,im)
 
         // let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
 
-        let trect = document.getElementById("inVisHolder").getBoundingClientRect()
-
-        let t = Math.round((im.height * trect.width) / im.width)
-        viewDim = [trect.width, t]
-        can.width = viewDim[0]
-        can.style.width = viewDim[0] + 'px';
-        can.style.height = viewDim[1] + "px"
-        can.height = viewDim[1]
 
 
         // cont.drawImage(im, 0, 0, rate[0], rate[1])
         cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
 
         // fillSvg(sampleData)
-        megaPalette2 = {}
          // addAPalette()
 
     };
@@ -39,6 +31,17 @@ function loadImg(src) {
 }
 
 
+
+function fitCanvas(canvas,image) {
+    let trect = document.getElementById("inVisHolder").getBoundingClientRect()
+
+    let t = Math.round((image.height * trect.width) / image.width)
+    viewDim = [trect.width, t]
+    canvas.width = viewDim[0]
+    canvas.style.width = viewDim[0] + 'px';
+    canvas.style.height = viewDim[1] + "px"
+    canvas.height = viewDim[1]
+}
 function fixRatio2(im, sv) {
 
     //size based

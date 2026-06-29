@@ -7,10 +7,13 @@ function resetView(canvas,image) {
     zoom = 1;
     x0 = 0;
     y0 = 0;
+    fitCanvas(canvas,image);
     redraw(canvas,image);
 }
 
 function redraw(canvas,image) {
+
+
 
     const ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, 0, 0);

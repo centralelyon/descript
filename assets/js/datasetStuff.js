@@ -38,9 +38,9 @@ function fillAxis() {
 
 async function updateDataset() {
 
-    cleanSlate()
+    // cleanSlate()
     let dataset = document.getElementById("availableData").value
-    console.log(dataset);
+
     chartDataset.name = dataset
     if (dataset === "pinguins.csv") {
         await loadDataset("assets/tempData/datasets/penguins.csv")
@@ -53,6 +53,10 @@ async function updateDataset() {
 
     fillAxis()
     fillTable()
+    updateShapeOptions()
+
+    d3.selectAll(".dataBindingContainer").selectAll("*").remove()
+    tdrawRefactor()
 }
 
 function fakeWeek15() {

@@ -1,5 +1,6 @@
 let dataBinding = {}
 
+let drawLegend = true
 
 let showAxis = false
 let chartAxis = {
@@ -1165,7 +1166,7 @@ async function updateSvg() {
 
 }
 
-function drawAxis(svg, data, xScale, yScale) {
+function drawAxis(svg, data, xScale, yScale, marginH, marginV) {
 
 
     const xAxis = d3.axisBottom(xScale);
@@ -1175,8 +1176,6 @@ function drawAxis(svg, data, xScale, yScale) {
     let width = size.width
     let height = size.height
 
-    let marginH = width * 0.1;
-    let marginV = height * 0.1;
 
     svg.append("g")
         .attr("transform", `translate(0,${height - marginV})`)
@@ -1227,22 +1226,70 @@ function drawGrid(svg, data, encodings, order, tmarks) {
 
 function drawScatter(svg, data, encodings, order, tmarks) {
     let [xScale, yScale] = getScales(svg, data)
+    const tdata = data.map(d => ({...d}));
+    let size = svg.node().getBoundingClientRect()
+    let width = size.width
+    let height = size.height
+
+
+
+    if (drawLegend) {
+
+
+        let marginH = width * 0.07;
+        let marginV = height * 0.07;
+
+
+        xScale.range([marginH, width -marginH]);
+        yScale.range([height - marginV, marginV]);
+
+        drawAxis(svg, tdata, xScale, yScale, marginH, marginV)
+
+        console.log(xScale.domain());
+
+        /*        svg.append("circle")
+                    .attr("cx", xScale(xScale.domain()[0]))
+                    .attr("cy", height - marginV)
+                    .attr("r", 5)
+                    .attr("fill", "red");*/
+
+    }
+
+    function scaledX(d) {
+        return xScale.bandwidth
+            ? xScale(d[chartAxis.x]) + xScale.bandwidth() / 2
+            : xScale(d[chartAxis.x]);
+    }
+
+    function scaledY(d) {
+        return yScale.bandwidth
+            ? yScale(d[chartAxis.y]) + yScale.bandwidth() / 2
+            : yScale(d[chartAxis.y]);
+    }
+
+
+
+
+    tdata.forEach((d, i) => {
+        d.canvas = makeCollageFromData(encodings, order, tmarks, d);
+    });
 
     svg.selectAll("dots")
-        .data(data)
+        .data(tdata)
         .enter()
         .append("image")
         .attr("xlink:href", d =>
-            makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+            d.canvas.toDataURL("image/png"))
         .attr("x", d => {
-            return xScale(d[chartAxis.x])
+            return scaledX(d)
         })
         .attr("y", d => {
-            return yScale(d[chartAxis.y]);
+            return scaledY(d);
         })
 
 
-    drawAxis(svg, data, xScale, yScale)
+
+
 }
 
 function drawForce(svg, data, encodings, order, tmarks) {
@@ -1251,10 +1298,10 @@ function drawForce(svg, data, encodings, order, tmarks) {
 
     let xScale, yScale
 
-    let xAx = document.getElementById("x-axis").value
-    let yAx = document.getElementById("y-axis").value
+    let xAx = chartAxis.x
+    let yAx = chartAxis.y
 
-    const tdata = data.map(d => ({ ...d }));
+    const tdata = data.map(d => ({...d}));
 
     if (xAx !== "none" || yAx !== "none") {
         [xScale, yScale] = getScales(svg, tdata)
@@ -1262,11 +1309,11 @@ function drawForce(svg, data, encodings, order, tmarks) {
     }
 
 
-    tdata.forEach((d,i) => {
+    tdata.forEach((d, i) => {
         d.canvas = makeCollageFromData(encodings, order, tmarks, d);
         d.radius = 0.5 * Math.sqrt(d.canvas.width * d.canvas.height);
-        d.x = (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) +20*Math.random());
-        d.y = (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2)+20*Math.random());
+        d.x = (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) + 20 * Math.random());
+        d.y = (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2) + 20 * Math.random());
     });
 
     let timages = svg.selectAll("dots")
@@ -1276,7 +1323,7 @@ function drawForce(svg, data, encodings, order, tmarks) {
         .attr("xlink:href", d =>
             d.canvas.toDataURL("image/png"))
         .attr("x", (d, i) => {
-             return d.x
+            return d.x
         })
         .attr("y", (d, i) => {
             return d.y
@@ -1295,7 +1342,7 @@ function drawForce(svg, data, encodings, order, tmarks) {
         simulation = d3.forceSimulation(tdata)
             .force("x", d3.forceX(d => xScale(d[xAx])).strength(0.3))
             .force("y", d3.forceY(d => yScale(d[yAx])).strength(0.3))
-            .force("collide", d3.forceCollide(d =>  d.radius))
+            .force("collide", d3.forceCollide(d => d.radius))
             .on("tick", ticked)
     } else if (xScale !== undefined && yScale === undefined) {
         simulation = d3.forceSimulation(tdata)
@@ -1449,13 +1496,13 @@ function getScales(svg, data) {
         xScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.x]))
             .range([margin, size.width - margin])
-            .padding(0.1);
+            // .padding(0.1);
     }
 
     if (!isCont(data, chartAxis.y)) {
         yScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.y]))
-            .range([margin, size.height - margin])
+            .range([margin,size.height - margin])
             .padding(0.1);
     }
 

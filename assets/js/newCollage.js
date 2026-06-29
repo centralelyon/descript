@@ -226,77 +226,86 @@ function addPaletteInfoToCollage(palette, name) {
 
     let tkeys = Object.keys(drawnMarks)
 
-    if (tkeys.length > 1) {
-        console.log(tkeys[0]);
-        setAnchorOnAllMarks(name, drawnMarks[name].w * 0.5, drawnMarks[name].h * 0.5, nAnchor, 0, tkeys[0])
-        setAnchorOnAllMarks(tkeys[0], drawnMarks[tkeys[0]].w * 0.5, drawnMarks[tkeys[0]].h * 0.5, nAnchor, 0, name)
-        megaPalettes[tkeys[0]].linkto = tkeys[0]
+    //TODO: Here check if anchor already exist
 
-        tFrom = {
-            x: drawnMarks[tkeys[0]].x + drawnMarks[tkeys[0]].w * 0.5,
-            y: drawnMarks[tkeys[0]].y + drawnMarks[tkeys[0]].h * 0.5,
-            name: tkeys[0]
+/*    if (megaPalettes[tkeys[0]].apply !== undefined || megaPalettes[tkeys[0]].linkto !== undefined) {
+
+    } else if (megaPalettes[tkeys[1]].apply !== undefined || megaPalettes[tkeys[1]].linkto !== undefined) {
+
+    } else {*/
+
+        if (tkeys.length > 1) {
+            console.log(tkeys[0]);
+            setAnchorOnAllMarks(name, drawnMarks[name].w * 0.5, drawnMarks[name].h * 0.5, nAnchor, 0, tkeys[0])
+            setAnchorOnAllMarks(tkeys[0], drawnMarks[tkeys[0]].w * 0.5, drawnMarks[tkeys[0]].h * 0.5, nAnchor, 0, name)
+            megaPalettes[tkeys[0]].linkto = tkeys[0]
+
+            tFrom = {
+                x: drawnMarks[tkeys[0]].x + drawnMarks[tkeys[0]].w * 0.5,
+                y: drawnMarks[tkeys[0]].y + drawnMarks[tkeys[0]].h * 0.5,
+                name: tkeys[0]
+            }
+            tTo = {
+                x: drawnMarks[name].x + drawnMarks[name].w * 0.5,
+                y: drawnMarks[name].y + drawnMarks[name].h * 0.5,
+                name: name
+            }
+
+
+            svg.append("path")
+                // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+                .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                .attr("stroke-width", 3)
+                .style("stroke", "#424242")
+                .attr("fill", "none")
+                .attr("name", name)
+                .attr("nAnchor", nAnchor)
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .on("click", selAnchorPath)
+            // .attr("marker-mid", "url(#arrow)")
+            // .attr("stroke", drawnMarks[name].x)
+
+
+            svg.append("circle")
+                .attr("cx", tFrom.x)
+                .attr("cy", tFrom.y)
+                .attr("type", "from")
+                .style("fill", collageColScale(tTo.name))
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .attr("name", name)
+                .attr("nAnchor", nAnchor)
+                .attr("r", 5)
+
+                .attr("fill", drawnMarks[name].x)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+
+
+            svg.append("circle")
+                .attr("cx", tTo.x)
+                .attr("cy", tTo.y)
+                .attr("type", "to")
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .attr("name", name)
+                .style("fill", collageColScale(tFrom.name))
+                .attr("nAnchor", nAnchor)
+                .attr("r", 5)
+                .attr("fill", drawnMarks[name].x)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+
+            megaPalettes[name].apply = tFrom.name
+            megaPalettes[name].linkTo = nAnchor
+            nAnchor++
         }
-        tTo = {
-            x: drawnMarks[name].x + drawnMarks[name].w * 0.5,
-            y: drawnMarks[name].y + drawnMarks[name].h * 0.5,
-            name: name
-        }
-
-
-        svg.append("path")
-            // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
-            .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
-            .attr("stroke-width", 3)
-            .style("stroke", "#424242")
-            .attr("fill", "none")
-            .attr("name", name)
-            .attr("nAnchor", nAnchor)
-            .attr("from", tFrom.name)
-            .attr("to", tTo.name)
-            .on("click", selAnchorPath)
-        // .attr("marker-mid", "url(#arrow)")
-        // .attr("stroke", drawnMarks[name].x)
-
-
-        svg.append("circle")
-            .attr("cx", tFrom.x)
-            .attr("cy", tFrom.y)
-            .attr("type", "from")
-            .style("fill", collageColScale(tTo.name))
-            .attr("from", tFrom.name)
-            .attr("to", tTo.name)
-            .attr("name", name)
-            .attr("nAnchor", nAnchor)
-            .attr("r", 5)
-
-            .attr("fill", drawnMarks[name].x)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-
-
-        svg.append("circle")
-            .attr("cx", tTo.x)
-            .attr("cy", tTo.y)
-            .attr("type", "to")
-            .attr("from", tFrom.name)
-            .attr("to", tTo.name)
-            .attr("name", name)
-            .style("fill", collageColScale(tFrom.name))
-            .attr("nAnchor", nAnchor)
-            .attr("r", 5)
-            .attr("fill", drawnMarks[name].x)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-
-        megaPalettes[name].apply = tFrom.name
-        megaPalettes[name].linkTo = nAnchor
-        nAnchor++
-    }
+    // }
 }
 
 function hidePalette() {

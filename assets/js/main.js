@@ -44,7 +44,28 @@ const fakePalettes = []
 let palSwitch = false
 
 
-const availableStates = ["none", "week26.json"]
+const sampleImageList = [
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_26%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_04_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_05%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_15%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_38%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_41%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_42%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_44_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_45_whiteBack.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_47_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_47%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_49_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_49%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_51%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_52_Back.jpg",
+
+]
+
+
+const availableStates = ["*new*", "week26.json", "week15.json"]
 
 let collageColScale
 docReady(init)
@@ -108,6 +129,39 @@ function loadExamples(week = 0, author = "giorgia") {
     }
 }
 
+function makeFlatImage(uri, num) {
+    const container = document.getElementById('selFlat');
+    const el = document.createElement("div");
+    el.style.backgroundImage = "url('" + uri + "')";
+    el.setAttribute('value', num);
+    el.setAttribute('type', "url");
+
+    el.onclick = loadEx2
+    container.appendChild(el);
+}
+
+function LoadSampleImages() {
+    for (let j = 0; j < sampleImageList.length; j++) {
+        makeFlatImage(sampleImageList[j], j);
+    }
+}
+
+
+async function loadEx2() {
+
+    clearExamples()
+    this.classList.add("selectedIm");
+    const type = this.getAttribute("type")
+    purge()
+    if (type === "url") {
+        let i = this.getAttribute("value")
+
+        loadImg(sampleImageList[i])
+
+    }
+}
+
+
 async function loadEx() {
 
     clearExamples()
@@ -150,8 +204,10 @@ async function init() {
         author = (author === null ? "giorgia" : author)
     }
     let authorRef = author === "giorgia" ? 0 : 1;
-    loadExamples(week);
+    // loadExamples(week);
 
+
+    LoadSampleImages()
     /*
         if (dataRef[author + "_" + week]) {
             let json = await getData(dataRef[author + "_" + week])
@@ -186,12 +242,14 @@ async function init() {
     document.getElementById("glyphTree").addEventListener("click", cancelCollapse)
 
     document.getElementById("availableData").addEventListener("change", updateDataset)
+    document.getElementById("fileInputState").addEventListener("change", handleStateFile)
+
 
     let stateSel = document.getElementById("stateSelector");
 
     for (let i = 0; i < availableStates.length; i++) {
 
-        stateSel.innerHTML = `<option value="${availableStates[i]}">${availableStates[i]}</option>`;
+        stateSel.innerHTML += `<option value="${availableStates[i]}">${availableStates[i]}</option>`;
     }
 
 
@@ -911,6 +969,7 @@ function switchPalette() {
 
 
     if (palSwitch) {
+        d3.select("#sampleDisplay").style("display", "none").selectAll("image").remove();
         displaySample()
 
     } else {
@@ -974,7 +1033,11 @@ function dumpState() {
         dataBinding: dataBinding,
         allPalettes: allPalettes,
         chartDataset: chartDataset,
+        chartAxis: chartAxis,
         layout: layout,
+        nAnchor: nAnchor,
+        palSources: palSources
+
     }
 
     const date = new Date();
@@ -999,6 +1062,12 @@ async function loadState() {
 }
 
 
+async function handleStateFile() {
+    let tfile = document.getElementById("fileInputState").files[0];
+    let state = await loadStateFromJson(tfile)
+    initState(state)
+}
+
 async function loadStateFromJson(source) {
     let json;
 
@@ -1020,13 +1089,20 @@ async function loadStateFromJson(source) {
 
         if (value?.__type === "image") {
             const img = new Image();
-
-            pending.push(new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-            }));
-
             img.src = value.data;
+            const p = img.decode().catch(() => {
+            });
+            pending.push(p);
+
+            /*            pending.push(new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = reject;
+                            document.body.appendChild(img);
+                        }));*/
+
+
+            // img.decode()
+
             return img;
         }
 
@@ -1047,6 +1123,7 @@ async function loadStateFromJson(source) {
             }));
 
             img.src = value.data;
+
             return canvas;
         }
 
@@ -1062,28 +1139,52 @@ async function loadStateFromJson(source) {
 function initState(state) {
     cleanSlate()
 
+    console.log(state);
     megaPalettes = state.megaPalettes
     megaGlyph = state.megaGlyph
     dataBinding = state.dataBinding
     allPalettes = state.allPalettes
     chartDataset = state.chartDataset
-    layout = (state.layout? state.layout: "force")
+    chartAxis = state.chartAxis
+    layout = (state.layout ? state.layout : "force")
+    nAnchor = (state.nAnchor ? state.nAnchor : 0)
+    palSources = state.palSources
 
     initAllPalette()
     fillTable()
     switchMode("rect")
+    fillAxis()
 
 
     for (const [key, value] of Object.entries(megaPalettes)) {
         addASelectedPalette(key)
-        addPaletteInfoToCollage(value,key)
+        addPaletteInfoToCollage(value, key)
         addPaletteMarksCompo(key)
+
+
+        let tsel = document.getElementById("shape-" + key);
+
+        if (dataBinding[key] !== undefined || dataBinding[key] !== "") {
+            setSelectValue(tsel, dataBinding[key])
+        }
+
+
+        if (chartAxis.x !== undefined || chartAxis.x !== "") {
+            setSelectValue("x-axis", chartAxis.x)
+        }
+        if (chartAxis.y !== undefined || chartAxis.y !== "") {
+            setSelectValue("y-axis", chartAxis.y)
+        }
+
 
         // displayPalette(key)
 
     }
 
+    document.getElementById("layout-" + layout).click()
+
     updateDotsAndSvgs()
-    tdrawRefactor()
+
+
 }
 
