@@ -62,6 +62,82 @@ function setMarker() {
 }
 
 
+
+function drawAllCollageAnchor() {
+    let svg = d3.select("#composition")
+
+    let keys = Object.keys(megaPalettes)
+
+    for (const [key, value] of Object.entries(megaPalettes)) {
+            if (value.linkto) {
+                console.log(key);
+                console.log(value.linkto);
+                let name = key
+                tFrom = {
+                    x: drawnMarks[value.linkto].x + drawnMarks[value.linkto].w * 0.5,
+                    y: drawnMarks[value.linkto].y + drawnMarks[value.linkto].h * 0.5,
+                    name: value.linkto
+                }
+                tTo = {
+                    x: drawnMarks[key].x + drawnMarks[key].w * 0.5,
+                    y: drawnMarks[key].y + drawnMarks[key].h * 0.5,
+                    name: key
+                }
+
+                svg.append("path")
+                    // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+                    .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                    .attr("stroke-width", 3)
+                    .style("stroke", "#424242")
+                    .attr("fill", "none")
+                    .attr("name", name)
+                    .attr("nAnchor", nAnchor)
+                    .attr("from", tFrom.name)
+                    .attr("to", tTo.name)
+                    .on("click", selAnchorPath)
+                // .attr("marker-mid", "url(#arrow)")
+                // .attr("stroke", drawnMarks[name].x)
+
+
+                svg.append("circle")
+                    .attr("cx", tFrom.x)
+                    .attr("cy", tFrom.y)
+                    .attr("type", "from")
+                    .style("fill", collageColScale(tTo.name))
+                    .attr("from", tFrom.name)
+                    .attr("to", tTo.name)
+                    .attr("name", name)
+                    .attr("nAnchor", nAnchor)
+                    .attr("r", 5)
+
+                    .attr("fill", drawnMarks[name].x)
+                    .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended))
+
+
+                svg.append("circle")
+                    .attr("cx", tTo.x)
+                    .attr("cy", tTo.y)
+                    .attr("type", "to")
+                    .attr("from", tFrom.name)
+                    .attr("to", tTo.name)
+                    .attr("name", name)
+                    .style("fill", collageColScale(tFrom.name))
+                    .attr("nAnchor", nAnchor)
+                    .attr("r", 5)
+                    .attr("fill", drawnMarks[name].x)
+                    .call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended))
+
+            }
+    }
+
+}
+
 function addPaletteInfoToCollage(palette, name) {
 
     let svg = d3.select("#composition")
@@ -228,11 +304,33 @@ function addPaletteInfoToCollage(palette, name) {
 
     //TODO: Here check if anchor already exist
 
-/*    if (megaPalettes[tkeys[0]].apply !== undefined || megaPalettes[tkeys[0]].linkto !== undefined) {
 
-    } else if (megaPalettes[tkeys[1]].apply !== undefined || megaPalettes[tkeys[1]].linkto !== undefined) {
+    if (megaPalettes[name].apply || megaPalettes[name].linkTo || megaPalettes[name].linkto) {
 
-    } else {*/
+        if (megaPalettes[name].linkto) {
+            tFrom = {
+                x: drawnMarks[tkeys[0]].x + drawnMarks[tkeys[0]].w * 0.5,
+                y: drawnMarks[tkeys[0]].y + drawnMarks[tkeys[0]].h * 0.5,
+                name: tkeys[0]
+            }
+            tTo = {
+                x: drawnMarks[name].x + drawnMarks[name].w * 0.5,
+                y: drawnMarks[name].y + drawnMarks[name].h * 0.5,
+                name: name
+            }
+        }
+
+
+    } else {
+
+        console.log("here ????????????????//");
+        console.log(name);
+
+        /*    if (megaPalettes[tkeys[0]].apply !== undefined || megaPalettes[tkeys[0]].linkto !== undefined) {
+
+            } else if (megaPalettes[tkeys[1]].apply !== undefined || megaPalettes[tkeys[1]].linkto !== undefined) {
+
+            } else {*/
 
         if (tkeys.length > 1) {
             console.log(tkeys[0]);
@@ -305,6 +403,7 @@ function addPaletteInfoToCollage(palette, name) {
             megaPalettes[name].linkTo = nAnchor
             nAnchor++
         }
+    }
     // }
 }
 

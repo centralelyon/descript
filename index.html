@@ -47,8 +47,8 @@
 </head>
 <body style="background-color: #f1f1f1;color:#424242">
 
-<div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 50px;background-color: #424242">
-    <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee">Descript</h3>
+<div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 39px;background-color: #424242">
+    <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee;line-height: 29px">Descript</h3>
     <div style="display: flex;font-weight: 700;margin-left:140px;color: #eeeeee">
         <p style="margin-right: 9px">Load an Example...</p>
         <select id="stateSelector" style="color: #424242"></select>
@@ -57,7 +57,7 @@
         <input type="file" id="fileInputState" accept="application/json">
         <button style="color: #f1f1f1" onclick="dumpState()">   <img onclick="loadState()" src="assets/images/buttons/save.png" style="filter:invert(1);width: 15px;height: 15px;margin-right: 5px;cursor: pointer">save State</button>
     </div>
-    <div style="justify-content: left;margin-left: 30px;margin-top: 5px;display: flex" id="navButtonList">
+    <div style="justify-content: left;margin-left: 30px;display: flex" id="navButtonList">
 
 
         <h5 style="color:#fff;margin-right: 15px;margin-left:20px ">Dataset </h5>
@@ -352,7 +352,7 @@
         </div>
         -->
 
-                <div id="settingsContainer" style="display: flex;position:absolute;right: 5px;margin-top:-31px" onclick="switchSettings()">
+                <div id="settingsContainer" style="display: flex;position:absolute;right: 5px;margin-top:-38px" onclick="switchSettings()">
 
             <div style="display: flex;height: 50px" id="settingsSandbox">
                 <div style="font-weight: 600"> Layout:</div>
@@ -362,17 +362,17 @@
                     <div id="layout-scatterplot" onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
 <!--                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>-->
                 </div>
-                <div id="optionsSandbox" style="display: flex;margin-top: -16px">
+                <div id="optionsSandbox" style="display: flex;margin-top: -9px">
                     <div>
-                        <p style="margin-bottom: -2px">x-axis</p>
-                        <select style="height: 25px;padding: unset" onchange="updateAxis(this)" id="x-axis">
+                        <p style="margin-bottom: -5px">x-axis</p>
+                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)" id="x-axis">
                             <option value="none">none</option>
                         </select>
 
                     </div>
                     <div>
-                        <p style="margin-bottom: -2px">y-axis</p>
-                        <select style="height: 25px;padding: unset" onchange="updateAxis(this)" id="y-axis">
+                        <p style="margin-bottom: -5px">y-axis</p>
+                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)" id="y-axis">
                             <option value="none">none</option>
                         </select>
                     </div>

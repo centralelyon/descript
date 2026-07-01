@@ -187,54 +187,62 @@ async function loadEx() {
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
     // fillAllPalette()
-    let week = null
-    let author = null
-    let type = null
-    if (urlParams.has("week"))
-        week = urlParams.get("week").toLowerCase()
+    /*    let week = null
+        let author = null
+        let type = null*/
+    /*    if (urlParams.has("week"))
+            week = urlParams.get("week").toLowerCase()
 
-    if (urlParams.has("author"))
-        author = urlParams.get("author").toLowerCase()
-    if (urlParams.has("type"))
-        type = urlParams.get("type").toLowerCase()
+        if (urlParams.has("author"))
+            author = urlParams.get("author").toLowerCase()
+        if (urlParams.has("type"))
+            type = urlParams.get("type").toLowerCase()*/
 
-    type = (type === null ? "deardata" : type)
-    if (type === "deardata") {  //Default to lollipops
-        week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
-        author = (author === null ? "giorgia" : author)
-    }
-    let authorRef = author === "giorgia" ? 0 : 1;
+    // type = (type === null ? "deardata" : type)
+    // if (type === "deardata") {  //Default to lollipops
+    //     week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
+    //     author = (author === null ? "giorgia" : author)
+    // }
+    // let authorRef = author === "giorgia" ? 0 : 1;
     // loadExamples(week);
 
+    if (urlParams.has("state")) {
+        let name = urlParams.get("state");
 
-    LoadSampleImages()
-    /*
-        if (dataRef[author + "_" + week]) {
-            let json = await getData(dataRef[author + "_" + week])
-            importData(json);
-        } else {
-            let url = ""
-            if (type === "deardata") {
-                url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
+        let state = await loadStateFromJson("assets/states/" + name + ".json");
+        initState(state)
+    } else {
+
+        /*
+            if (dataRef[author + "_" + week]) {
+                let json = await getData(dataRef[author + "_" + week])
+                importData(json);
+            } else {
+                let url = ""
+                if (type === "deardata") {
+                    url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
+                }
+                loadImg(url)
             }
-            loadImg(url)
-        }
-    */
-    // loadImg("assets/images/hand/notice.png")
-    switchMode("rect")
-    initAllPalette()
+        */
+        // loadImg("assets/images/hand/notice.png")
+        switchMode("rect")
+        initAllPalette()
 
-    // await loadDataset("assets/tempData/datasets/penguins.csv")
-    // await loadDataset("assets/tempData/datasets/week26.csv")
+        // await loadDataset("assets/tempData/datasets/penguins.csv")
+        // await loadDataset("assets/tempData/datasets/week26.csv")
 
-    chartDataset.data = fakeWeek15()
-    // drawSvg()
-    // tdrawRefactor()
-    fillSidePanel()
-    fillTable()
-    fillAxis()
-    collageColScale = d3.scaleOrdinal(d3.schemeAccent)
-    // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
+        chartDataset.data = fakeWeek15()
+        // drawSvg()
+        // tdrawRefactor()
+        fillSidePanel()
+        fillTable()
+        fillAxis()
+        collageColScale = d3.scaleOrdinal(d3.schemeAccent)
+    }
+    LoadSampleImages()
+
+// document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("paletteLoader").addEventListener("change", importPalette);
 

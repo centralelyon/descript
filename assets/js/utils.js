@@ -226,7 +226,6 @@ function setSelectValue(selectOrId, value) {
 
     const exists = Array.from(select.options).some(opt => opt.value === value);
     if (!exists) return false;
-    console.log(value);
     select.value = value;
     return true;
 }
