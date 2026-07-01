@@ -45,17 +45,21 @@
 
 
 </head>
-<body style="background-color: #f1f1f1;color:#424242">
+<body style="background-color: #f1f1f1;color:#424242;overflow: hidden">
 
 <div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 39px;background-color: #424242">
     <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee;line-height: 29px">Descript</h3>
     <div style="display: flex;font-weight: 700;margin-left:140px;color: #eeeeee">
         <p style="margin-right: 9px">Load an Example...</p>
         <select id="stateSelector" style="color: #424242"></select>
-<!--        <img onclick="loadState()" src="assets/images/buttons/right.png" style="filter:invert(1);width: 25px;height: 26px;cursor: pointer">-->
+        <!--        <img onclick="loadState()" src="assets/images/buttons/right.png" style="filter:invert(1);width: 25px;height: 26px;cursor: pointer">-->
         <p style="margin-right: 9px;margin-left: 9px">...or upload one</p>
         <input type="file" id="fileInputState" accept="application/json">
-        <button style="color: #f1f1f1" onclick="dumpState()">   <img onclick="loadState()" src="assets/images/buttons/save.png" style="filter:invert(1);width: 15px;height: 15px;margin-right: 5px;cursor: pointer">save State</button>
+        <button style="color: #f1f1f1" onclick="dumpState()"><img onclick="loadState()"
+                                                                  src="assets/images/buttons/save.png"
+                                                                  style="filter:invert(1);width: 15px;height: 15px;margin-right: 5px;cursor: pointer">save
+            State
+        </button>
     </div>
     <div style="justify-content: left;margin-left: 30px;display: flex" id="navButtonList">
 
@@ -72,7 +76,7 @@
         <!--        &lt;!&ndash;        <button onclick="fakeSea()">Import SeaRequestCSV</button>&ndash;&gt;-->
     </div>
 
-    <img style="position: absolute;right: 5px;margin-right:5px;margin-top:5px  ;height: 40px"
+    <img style="position: absolute;right: 5px;margin-right:5px;margin-top:1px  ;height: 38px"
          src="assets/images/logo/logo.svg">
 </div>
 
@@ -91,22 +95,22 @@
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container"
-     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;max-height:92vh;padding-top: 8px" id="">
-    <div style="width: 275px;display: flex;flex-direction:column; border-right: solid 1px #424242; height: 94.5vh"
+     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;height: calc(99vh - 40px); min-height:900px;padding-top: 8px;overflow: hidden" id="">
+    <div style="width: 275px;display: flex;flex-direction:column; border-right: solid 1px #42424254; height: 94.5vh;"
          id="sideSettings">
 
-        <div style="border-bottom: solid 1px #424242;margin-right: 23px;flex: 3">
-            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px;margin-top: -11px;margin-bottom: 11px">
+        <div style="margin-right: 23px;flex: 3">
+<!--            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px;margin-top: -11px;margin-bottom: 11px">
                 Selected
-                Palettes</p>
+                Palettes</p>-->
             <div id="selectedPaletteCont"
-                 style="min-height: 150px;;width:260px;height:89%;max-height: 50vh;overflow-y: scroll;padding-right:8px;padding-left:5px; ">
+                 style="min-height: 150px;;width:230px;height:89%;max-height: 50vh;overflow-y: auto;padding-right:25px;overflow-x:hidden ; padding-top: 33px;padding-left:5px; ">
 
 
             </div>
         </div>
 
-        <div style="border-bottom: solid 1px #424242;flex: 2">
+        <div style="flex: 2">
             <div style="" class="">
                 <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px"> Available
                     Palettes</p>
@@ -119,10 +123,10 @@
 
     </div>
 
-    <div style="width: 350px;display: flex;flex-direction:column " id="compositionPanel">
-        <div>
-            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">
-                Composition</p>
+    <div style="width: 430px;margin-top: 33px;display: flex;flex-direction:column " id="compositionPanel">
+        <div style="text-align: center">
+            <!--            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">-->
+            <!--                Composition</p>-->
             <div class="buttonImg" style="position: absolute;width: 15px;margin-left: 10px" id="anchorBtn">
                 <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
             </div>
@@ -137,8 +141,8 @@
         </div>
     </div>
 
-    <div style="width: calc(100% - 350px);border-radius: 14px;margin-top: 33px">
-        <div style="display: none" id="paletteDetails">
+    <div style="width: calc(100% - 650px);border-radius: 14px;margin-top: 33px;position: relative">
+<!--        <div style="display: none" id="paletteDetails">
 
             <div style="position: absolute;width: 18px;height: 18px;right: 65px;top: 13px;cursor: pointer">
                 <img style="width: inherit;filter: invert(1)" onclick="newSavePalette()"
@@ -162,7 +166,7 @@
             <div id="paletteControls" style="width: 100%; display: flex">
             </div>
 
-        </div>
+        </div>-->
 
         <div>
             <div class="" style="display: none" id="paletteContainer">
@@ -233,7 +237,7 @@
 
             <div style="display: flex;">
                 <div id="inVisHolder"
-                     style="width: calc(100% - 350px);position: relative;background-color:#fff;max-height: 80vh;">
+                     style="width: calc(100% - 650px);position: relative;background-color:#fff;max-height: 80vh;">
                     <div style=";position:absolute;">
                         <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer"
                              onclick="switchPalette()">
@@ -324,55 +328,61 @@
 
                 </div>-->
 
-<!--        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()">
-            <img                src="assets/images/buttons/cogs.png" style="width: 20px"/>
-            <div id="settingsSandbox">
-                <div id="layoutList">
-                    <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
-                    <div onclick="switchLayout(this, 'grid')">Grid</div>
-                    <div onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
-                </div>
-                <div id="optionsSandbox" style="display: flex;">
-                    <div>
-                        <p style="margin-bottom: 2px">x-axis</p>
-                        <select onchange="updateAxis(this)" id="x-axis">
-                            <option value="none">none</option>
-                        </select>
+        <!--        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()">
+                    <img                src="assets/images/buttons/cogs.png" style="width: 20px"/>
+                    <div id="settingsSandbox">
+                        <div id="layoutList">
+                            <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
+                            <div onclick="switchLayout(this, 'grid')">Grid</div>
+                            <div onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
+                        </div>
+                        <div id="optionsSandbox" style="display: flex;">
+                            <div>
+                                <p style="margin-bottom: 2px">x-axis</p>
+                                <select onchange="updateAxis(this)" id="x-axis">
+                                    <option value="none">none</option>
+                                </select>
+
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 2px">y-axis</p>
+                                <select onchange="updateAxis(this)" id="y-axis">
+                                    <option value="none">none</option>
+                                </select>
+                            </div>
+                        </div>
 
                     </div>
-                    <div>
-                        <p style="margin-bottom: 2px">y-axis</p>
-                        <select onchange="updateAxis(this)" id="y-axis">
-                            <option value="none">none</option>
-                        </select>
-                    </div>
                 </div>
+                -->
 
-            </div>
-        </div>
-        -->
 
-                <div id="settingsContainer" style="display: flex;position:absolute;right: 5px;margin-top:-38px" onclick="switchSettings()">
+
+        <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
+        <div id="settingsContainer" style="display: flex;position:absolute;left: 5px;margin-top:-41px"
+             onclick="switchSettings()">
 
             <div style="display: flex;height: 50px" id="settingsSandbox">
                 <div style="font-weight: 600"> Layout:</div>
-                <div  style="margin-left: 5px;margin-right: 5px" id="layoutList">
+                <div style="margin-left: 5px;margin-right: 5px" id="layoutList">
                     <div id="layout-force" onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
                     <div id="layout-grid" onclick="switchLayout(this, 'grid')">Grid</div>
                     <div id="layout-scatterplot" onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
-<!--                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>-->
+                    <!--                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>-->
                 </div>
                 <div id="optionsSandbox" style="display: flex;margin-top: -9px">
                     <div>
                         <p style="margin-bottom: -5px">x-axis</p>
-                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)" id="x-axis">
+                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
+                                id="x-axis">
                             <option value="none">none</option>
                         </select>
 
                     </div>
                     <div>
                         <p style="margin-bottom: -5px">y-axis</p>
-                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)" id="y-axis">
+                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
+                                id="y-axis">
                             <option value="none">none</option>
                         </select>
                     </div>
@@ -380,9 +390,7 @@
 
             </div>
         </div>
-
-        <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
-        <div id="newTableContainer" style="width: 100%;overflow-y: auto;height: 200px">
+        <div id="newTableContainer" style="width: 97%;overflow-y: auto;height: 200px">
             <table id="newDataTable" style="height: 250px;display: table;width: 100%">
                 <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
             </table>

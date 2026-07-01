@@ -1135,10 +1135,10 @@ function switchForce() {
     drawSvg()
 }
 
-async function updateSvg() {
+async function updateSvg(changedEncoding = false) {
 
-
-    if (layout === "force") {
+    //
+    if (changedEncoding) {
         tdrawRefactor()
     } else {
         let svg = d3.select("#fakePreviewSvg")

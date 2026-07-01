@@ -1160,6 +1160,7 @@ function initState(state) {
 
     initAllPalette()
     fillTable()
+    fillSidePanel()
     switchMode("rect")
     fillAxis()
 
@@ -1188,6 +1189,8 @@ function initState(state) {
         // displayPalette(key)
 
     }
+
+    drawAllCollageAnchor()
 
     document.getElementById("layout-" + layout).click()
 

@@ -199,7 +199,7 @@ function dumpObject(obj) {
 
 }
 
-function revive(key, value) {
+function revive(value) {
     if (value?.__type === "canvas") {
         const img = new Image(); // TODO change to canvas
         img.src = value.data;
@@ -228,4 +228,85 @@ function setSelectValue(selectOrId, value) {
     if (!exists) return false;
     select.value = value;
     return true;
+}
+
+function deepClone(value, seen = new WeakMap()) {
+    // Primitives and functions
+    if (value === null || typeof value !== "object") {
+        return value;
+    }
+
+    // Handle circular references
+    if (seen.has(value)) {
+        return seen.get(value);
+    }
+
+    // Date
+    if (value instanceof Date) {
+        return new Date(value);
+    }
+
+    // RegExp
+    if (value instanceof RegExp) {
+        return new RegExp(value.source, value.flags);
+    }
+
+    // Image
+    if (value instanceof HTMLImageElement) {
+        const img = new Image();
+        img.src = value.src;
+        img.width = value.width;
+        img.height = value.height;
+        img.alt = value.alt;
+        return img;
+    }
+
+    // Canvas
+    if (value instanceof HTMLCanvasElement) {
+        const canvas = document.createElement("canvas");
+        canvas.width = value.width;
+        canvas.height = value.height;
+        canvas.getContext("2d").drawImage(value, 0, 0);
+        return canvas;
+    }
+
+    // Array
+    if (Array.isArray(value)) {
+        const arr = [];
+        seen.set(value, arr);
+        for (const item of value) {
+            arr.push(deepClone(item, seen));
+        }
+        return arr;
+    }
+
+    // Map
+    if (value instanceof Map) {
+        const map = new Map();
+        seen.set(value, map);
+        for (const [k, v] of value) {
+            map.set(deepClone(k, seen), deepClone(v, seen));
+        }
+        return map;
+    }
+
+    // Set
+    if (value instanceof Set) {
+        const set = new Set();
+        seen.set(value, set);
+        for (const item of value) {
+            set.add(deepClone(item, seen));
+        }
+        return set;
+    }
+
+    // Generic object
+    const clone = Object.create(Object.getPrototypeOf(value));
+    seen.set(value, clone);
+
+    for (const key of Reflect.ownKeys(value)) {
+        clone[key] = deepClone(value[key], seen);
+    }
+
+    return clone;
 }

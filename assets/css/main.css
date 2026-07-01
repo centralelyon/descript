@@ -590,7 +590,7 @@ table th {
 }
 
 #fakePreviewSvg {
-    width: 100%;
+    width: 97%;
     border: solid #555 1px;
     border-radius: 14px;
     height: 82%;
@@ -836,10 +836,13 @@ li .fakeGrammarRow {
 #AllPaletteCont {
     /*width: 180px;*/
     /*height: 406px;*/
-    overflow-y: scroll;
+    overflow-y: auto;
     /*border: 1px solid #555;*/
     border-radius: 4px;
     text-align: center;
+
+    height: 50vh;
+    width: 260px;
 }
 
 p, h3, h4, h5, img {
@@ -896,14 +899,7 @@ p, h3, h4, h5, img {
     display: none;
 }
 
-#AllPaletteCont {
-    overflow-y: scroll;
-    height: 50vh;
-    width: 260px;
-    /*-ms-overflow-style: none; !* Internet Explorer 10+ *!*/
-    /*scrollbar-width: none; !* Firefox, Safari 18.2+, Chromium 121+ *!*/
-    /*border: 1px solid #555;*/
-}
+
 
 .draggedover {
     border: 3px dashed red !important;
@@ -1095,6 +1091,7 @@ p, h3, h4, h5, img {
     display: flex;
     overflow-x: auto;
     justify-content: center;
+    position: relative;
 }
 
 .protoCanvas {
@@ -1177,9 +1174,9 @@ p, h3, h4, h5, img {
 
 
 #newDataTable th:hover {
-    border: dashed 3px #F1F1F1 !important;
-    /*background: #fff;*/
-    /*color: #424242;*/
+    /*border: dashed 3px #F1F1F1 !important;*/
+    background: #42424254;
+    color: #000;
 }
 
 .delSelectedPal {

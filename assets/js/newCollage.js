@@ -66,21 +66,31 @@ function setMarker() {
 function drawAllCollageAnchor() {
     let svg = d3.select("#composition")
 
+    svg.selectAll("circle").remove();
+    svg.selectAll("path").remove();
+
     let keys = Object.keys(megaPalettes)
 
     for (const [key, value] of Object.entries(megaPalettes)) {
-            if (value.linkto) {
+        // console.log(value.linkto);
+        // console.log(value.linkTo);
+        console.log(key)
+        if (value.linkTo !== undefined) {
                 console.log(key);
-                console.log(value.linkto);
+
                 let name = key
+
+            let frAnchor = megaPalettes[value.apply].encodings.range.marks["mark0"].proto.anchors[value.linkTo]
+            let toAnchor = megaPalettes[key].encodings.range.marks["mark0"].proto.anchors[value.linkTo]
+
                 tFrom = {
-                    x: drawnMarks[value.linkto].x + drawnMarks[value.linkto].w * 0.5,
-                    y: drawnMarks[value.linkto].y + drawnMarks[value.linkto].h * 0.5,
-                    name: value.linkto
+                    x: drawnMarks[value.apply].x + drawnMarks[value.apply].w * frAnchor.rx,
+                    y: drawnMarks[value.apply].y + drawnMarks[value.apply].h * frAnchor.ry,
+                    name: value.apply
                 }
                 tTo = {
-                    x: drawnMarks[key].x + drawnMarks[key].w * 0.5,
-                    y: drawnMarks[key].y + drawnMarks[key].h * 0.5,
+                    x: drawnMarks[key].x + drawnMarks[key].w * toAnchor.rx,
+                    y: drawnMarks[key].y + drawnMarks[key].h * toAnchor.ry,
                     name: key
                 }
 
@@ -91,7 +101,7 @@ function drawAllCollageAnchor() {
                     .style("stroke", "#424242")
                     .attr("fill", "none")
                     .attr("name", name)
-                    .attr("nAnchor", nAnchor)
+                    .attr("nAnchor", value.linkTo)
                     .attr("from", tFrom.name)
                     .attr("to", tTo.name)
                     .on("click", selAnchorPath)
@@ -107,7 +117,7 @@ function drawAllCollageAnchor() {
                     .attr("from", tFrom.name)
                     .attr("to", tTo.name)
                     .attr("name", name)
-                    .attr("nAnchor", nAnchor)
+                    .attr("nAnchor", value.linkTo)
                     .attr("r", 5)
 
                     .attr("fill", drawnMarks[name].x)
@@ -125,7 +135,7 @@ function drawAllCollageAnchor() {
                     .attr("to", tTo.name)
                     .attr("name", name)
                     .style("fill", collageColScale(tFrom.name))
-                    .attr("nAnchor", nAnchor)
+                    .attr("nAnchor", value.linkTo)
                     .attr("r", 5)
                     .attr("fill", drawnMarks[name].x)
                     .call(d3.drag()
@@ -147,6 +157,13 @@ function addPaletteInfoToCollage(palette, name) {
     drawnMarks[name] = placeMark()
     setMarker()
 
+    const drag = d3.drag()
+        .on("start", markDragStarted)
+        .on("drag", markDragged)
+        .on("end", markDragEnded);
+
+
+
     svg.append("g")
         .attr("id", "g-" + name)
         .append("image")
@@ -158,6 +175,7 @@ function addPaletteInfoToCollage(palette, name) {
         .attr("y", drawnMarks[name].y)
         .attr("width", drawnMarks[name].w)
         .attr("height", drawnMarks[name].h)
+        .call(drag)
         .on("click", function (e) {
             let elem = e.target
             if (collageMod !== "details") {
@@ -262,12 +280,14 @@ function addPaletteInfoToCollage(palette, name) {
                             nAnchor++
                             anchoring = false
                             anchoringRef = ""
+                            setAnchor()
 
                         } else {
                             //     TODO: DELETE from
                             fromCr.remove()
                             anchoring = false
                             anchoringRef = ""
+                            setAnchor()
                         }
 
                     } else {

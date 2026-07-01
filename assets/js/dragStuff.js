@@ -7,6 +7,12 @@ let offsetY = 0;
 
 let selectedDataColumn = ""
 
+
+let markOffx = 0
+let markOffy = 0
+
+let tdragName = ""
+
 function dragElement(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
@@ -180,7 +186,7 @@ function dragElement2(elmnt) {
 
         if (id !== "") {
 
-            elmnt.innerHTML =  `<div style="display: table-cell;background-color: ${collageColScale(id)};margin-left: calc(50% - 38px);" class="colorBrand"></div>${elmnt.innerText}`
+            elmnt.innerHTML = `<div style="display: table-cell;background-color: ${collageColScale(id)};margin-left: calc(50% - 38px);" class="colorBrand"></div>${elmnt.innerText}`
 
             let tsel = d3.select(telm).select("select")
 
@@ -194,6 +200,7 @@ function dragElement2(elmnt) {
 
             let key = elmnt.getAttribute("key");
             console.log(type);
+            let flag = false
             if (type === "shape") {
                 megaGlyph[id].dataColumn = key
 
@@ -206,11 +213,12 @@ function dragElement2(elmnt) {
 
             } else if (type === "size") {
                 megaGlyph[id]["size"] = makeSizeScale(id, key)
+                flag = true
             } else if (type === "orientation") {
                 megaGlyph[id]["orientation"] = makeOrrScale(id, key)
             }
 
-            updateSvg()
+            updateSvg(flag)
 
         }
 
@@ -242,7 +250,7 @@ function makeSizeScale(id, key) {
 
 function updateSelectEncoding(palette, key) {
     console.log("dadsadas");
-    let sel =document.querySelector(`.dataSelect[palette="${palette}"][encoding="${key}"]`)
+    let sel = document.querySelector(`.dataSelect[palette="${palette}"][encoding="${key}"]`)
 
     let val = sel.value
 
@@ -321,14 +329,14 @@ function dropPalette(e, elmnt) {
         }
 
         // megaPalettes[name] = {...allPalettes[num]}
-        megaPalettes[name] = allPalettes[num]
+        megaPalettes[name] = deepClone(allPalettes[num])
 
         if (megaPalettes[name].scale === undefined) {
             megaPalettes[name].scale = 1
         }
 
         dataBinding[name] = ""
-        addPaletteInfoToCollage(allPalettes[num], name)
+        addPaletteInfoToCollage(megaPalettes[name], name)
         addASelectedPalette(name)
 
         addPaletteMarksCompo(name)
@@ -462,6 +470,8 @@ function dragged(event, d) {
     console.log(elem.attr("name"));
     let type = elem.attr("type")
     let name = elem.attr("name")
+    let toName = elem.attr("to")
+    let fromName = elem.attr("from")
     let svg = d3.select("#composition")
 
     let tname = ""
@@ -470,6 +480,7 @@ function dragged(event, d) {
         // let node = svg.select(`circle[name='${name}'][type='from']`)
 
         tname += svg.select(`circle[name='${name}'][type='from']`).attr("from")
+
 
     } else if (type === "to") {
         tname += svg.select(`circle[name='${name}'][type='to']`).attr("to")
@@ -481,22 +492,22 @@ function dragged(event, d) {
     let tx = event.x - mark.attr("x")
     let ty = event.y - mark.attr("y")
 
-    console.log(tx,event.x,mark.attr("x"));
-    console.log(ty,event.y,mark.attr("y"));
+    console.log(tx, event.x, mark.attr("x"));
+    console.log(ty, event.y, mark.attr("y"));
     // console.log(ty);
 
     if ((tx > 0 && tx < 60) && (ty > 0 && ty < 60)) {
         elem.attr("cx", event.x).attr("cy", event.y);
 
 
-        let from = svg.select(`circle[name='${name}'][type='from']`)
-        let to = svg.select(`circle[name='${name}'][type='to']`)
+        let from = svg.select(`circle[name='${name}'][from='${fromName}'][to='${toName}'][type='from']`)
+        let to = svg.select(`circle[name='${name}'][from='${fromName}'][to='${toName}'][type='to']`)
 
-    /*    console.log(from);
-        console.log("----------");
-        console.log(to);*/
+        /*    console.log(from);
+            console.log("----------");
+            console.log(to);*/
 
-        let link = svg.select(`path[name='${name}']`)
+        let link = svg.select(`path[name='${name}'][from='${fromName}'][to='${toName}']`)
 
         link.transition().duration(40).attr("d", makeLink(+from.attr("cx"), +from.attr("cy"), +to.attr("cx"), +to.attr("cy")))
         // megaPalettes[name].apply = tFrom.name
@@ -665,4 +676,43 @@ function getInsertionPoint(container, mouseY) {
     }
 
     return closest;
+}
+
+/////////////////// Drag marks in composition
+
+function markDragStarted(event, d) {
+    let mark = d3.select(this)
+    markOffx = event.x - mark.attr("x")
+    markOffy = event.y - mark.attr("y")
+
+    console.log();
+    mark.style("cursor", "grabbing");
+}
+
+function markDragged(event, d) {
+    let elem = d3.select(this)
+
+    let name = elem.attr("id").replace("collage-", "")
+    console.log(name);
+
+    // console.log(event.x, "vs", drawnMarks[name].x, "with", markOffx)
+
+    elem.attr("x", event.x- markOffx);
+    elem.attr("y", event.y - markOffy);
+
+    drawnMarks[name].x = event.x- markOffx
+    drawnMarks[name].y = event.y - markOffy
+    // drawnMarks[name]
+    // d3.select("circles")
+    drawAllCollageAnchor()
+}
+
+function markDragEnded(event, d) {
+    // if (!event.active) simulation.alphaTarget(0);
+    // d.fx = null;
+    // d.fy = null;
+    let mark = d3.select(this)
+    mark.style("cursor", "grab");
+    markOffx =0
+    markOffy =0
 }
