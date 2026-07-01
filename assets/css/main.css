@@ -814,7 +814,7 @@ li .fakeGrammarRow {
     /*display: flex;*/
     margin: 2px;
     border: solid 1px #555;
-    width: 240px;
+    width: 200px;
     border-radius: 5px;
     cursor: grab;
     margin-left: 5px;
@@ -841,7 +841,7 @@ li .fakeGrammarRow {
     border-radius: 4px;
     text-align: center;
 
-    height: 50vh;
+    height: 100%;
     width: 260px;
 }
 
