@@ -740,6 +740,11 @@ function placeRectangleSpiral(
         }
     }
 
-    return null;
+    return {
+        x : center.x +60,
+        y:center.y +60,
+        w: size.w,
+        h: size.h,
+    }
 }
 
