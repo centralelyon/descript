@@ -2,7 +2,7 @@ let currImg;
 let tsaveim
 let viewDim = []
 let sampleData = []
-const totalExamples = 52
+const totalExamples = 50
 let categories = {
     default: {
         name: "default",
@@ -26,8 +26,8 @@ let dragMod = false
 let rotateMod = false
 let dataEncoding = {}
 let examples = [
-    "assets/images/tempExamples/cholera.png",
-    "assets/images/tempExamples/xrousse.png",
+    // "assets/images/tempExamples/cholera.png",
+    // "assets/images/tempExamples/xrousse.png",
     // "assets/images/tempExamples/goodbye.png",
     // "assets/images/tempExamples/buy.png",
     // "assets/images/tempExamples/laugh.png",
@@ -41,13 +41,39 @@ let globalPalettes = {}
 const fakePalettesBase = "assets/tempData/"
 // const fakePalettes = ["palette_anxiety.json", "palette_stem.json", "palette_you.json", "palette_wrong.json"]
 const fakePalettes = []
+let palSwitch = false
 
 
+const sampleImageList = [
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_26%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_04_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_05%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_15%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_38%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_41%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_42%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_44_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_45_whiteBack.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_47_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_47%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_49_Back.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_49%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_51%2Bback.jpg",
+    "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_52_Back.jpg",
+
+]
+
+
+const availableStates = ["*new*", "week26.json", "week15.json"]
+
+let collageColScale
 docReady(init)
 
+let curState = 'none'
 
 const dataRef = {
-    giorgia_36: "assets/images/tempLoad/full.json"
+    // giorgia_36: "assets/images/tempLoad/full.json"
 }
 
 
@@ -76,7 +102,7 @@ function loadExamples(week = 0, author = "giorgia") {
             el.onclick = loadEx
             container.appendChild(el);
         }*/
-    for (let i = 1; i < totalExamples; i++) {
+    for (let i = 25; i < totalExamples; i++) {
         let num = i
 
         if (num < 10) {
@@ -103,6 +129,39 @@ function loadExamples(week = 0, author = "giorgia") {
     }
 }
 
+function makeFlatImage(uri, num) {
+    const container = document.getElementById('selFlat');
+    const el = document.createElement("div");
+    el.style.backgroundImage = "url('" + uri + "')";
+    el.setAttribute('value', num);
+    el.setAttribute('type', "url");
+
+    el.onclick = loadEx2
+    container.appendChild(el);
+}
+
+function LoadSampleImages() {
+    for (let j = 0; j < sampleImageList.length; j++) {
+        makeFlatImage(sampleImageList[j], j);
+    }
+}
+
+
+async function loadEx2() {
+
+    clearExamples()
+    this.classList.add("selectedIm");
+    const type = this.getAttribute("type")
+    purge()
+    if (type === "url") {
+        let i = this.getAttribute("value")
+
+        loadImg(sampleImageList[i])
+
+    }
+}
+
+
 async function loadEx() {
 
     clearExamples()
@@ -128,43 +187,83 @@ async function loadEx() {
 async function init() {
     // loadImg("assets/images/tempLoad/dearDat.png")
     // fillAllPalette()
-    let week = null
-    let author = null
-    let type = null
-    if (urlParams.has("week"))
-        week = urlParams.get("week").toLowerCase()
+    /*    let week = null
+        let author = null
+        let type = null*/
+    /*    if (urlParams.has("week"))
+            week = urlParams.get("week").toLowerCase()
 
-    if (urlParams.has("author"))
-        author = urlParams.get("author").toLowerCase()
-    if (urlParams.has("type"))
-        type = urlParams.get("type").toLowerCase()
+        if (urlParams.has("author"))
+            author = urlParams.get("author").toLowerCase()
+        if (urlParams.has("type"))
+            type = urlParams.get("type").toLowerCase()*/
 
-    type = (type === null ? "deardata" : type)
-    if (type === "deardata") {  //Default to lollipops
-        week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
-        author = (author === null ? "giorgia" : author)
-    }
-    let authorRef = author === "giorgia" ? 0 : 1;
-    loadExamples(week);
+    // type = (type === null ? "deardata" : type)
+    // if (type === "deardata") {  //Default to lollipops
+    //     week = (week === null ? 36 : week.length === 1 ? "0" + week : week)
+    //     author = (author === null ? "giorgia" : author)
+    // }
+    // let authorRef = author === "giorgia" ? 0 : 1;
+    // loadExamples(week);
 
-    if (dataRef[author + "_" + week]) {
-        let json = await getData(dataRef[author + "_" + week])
-        importData(json);
+    if (urlParams.has("state")) {
+        let name = urlParams.get("state");
+
+        let state = await loadStateFromJson("assets/states/" + name + ".json");
+        initState(state)
     } else {
-        let url = ""
-        if (type === "deardata") {
-            url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
-        }
-        loadImg(url)
-    }
 
-    switchMode("rect")
-    document.getElementById("jsonLoader").addEventListener("change", importFromJson);
+        /*
+            if (dataRef[author + "_" + week]) {
+                let json = await getData(dataRef[author + "_" + week])
+                importData(json);
+            } else {
+                let url = ""
+                if (type === "deardata") {
+                    url = url_templates[authorRef][0] + week + url_templates[authorRef][1]
+                }
+                loadImg(url)
+            }
+        */
+        // loadImg("assets/images/hand/notice.png")
+        switchMode("rect")
+        initAllPalette()
+
+        // await loadDataset("assets/tempData/datasets/penguins.csv")
+        // await loadDataset("assets/tempData/datasets/week26.csv")
+
+        chartDataset.data = fakeWeek15()
+        // drawSvg()
+        // tdrawRefactor()
+        fillSidePanel()
+        fillTable()
+        fillAxis()
+        collageColScale = d3.scaleOrdinal(d3.schemeAccent)
+    }
+    LoadSampleImages()
+
+// document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
     document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
+    document.getElementById("glyphTree").addEventListener("click", cancelCollapse)
+
+    document.getElementById("availableData").addEventListener("change", updateDataset)
+    document.getElementById("fileInputState").addEventListener("change", handleStateFile)
+
+
+    let stateSel = document.getElementById("stateSelector");
+
+    for (let i = 0; i < availableStates.length; i++) {
+
+        stateSel.innerHTML += `<option value="${availableStates[i]}">${availableStates[i]}</option>`;
+    }
+
+
+    stateSel.onchange = loadState
 }
+
 
 async function getData(url) {
 
@@ -259,83 +358,23 @@ function fillCatMod(category) {
 
 
 docReady(function () {
-    document.getElementById("catContainer").addEventListener('click', (e) => {
-
-        const el = e.target;
-        let parent = null;
-
-        if (el.matches(".category")) {
-            parent = el
-        } else if (el.matches(".category p, .category div")) {
-            parent = el.parentNode;
-        } else if (el.matches(".category img")) {
-            parent = el.parentNode;
-            displayCat(parent.getAttribute("value"))
-
-        }
-
-        if (parent !== null) {
-
-            document.getElementById("selectedCat").removeAttribute("id")
-            parent.setAttribute("id", "selectedCat");
-            selectedCategory = parent.getAttribute("value");
 
 
-            if (seldots !== undefined) {
-                for (let i = 0; i < seldots.length; i++) {
-                    seldots[i].categories[selectedCategory] = categories[selectedCategory]
-                }
+    // document.getElementById("marks").addEventListener('mouseout', (e) => {
+    //     resetImg()
+    // });
 
-                seldots = undefined;
-                over_on = true
-                d3.select("#lasso").remove();
-                drawImage()
+    // document.getElementById("svgControl").addEventListener('click', (e) => {
 
-            }
-        }
-
-    });
-
-
-    document.getElementById("catContainer").addEventListener('mouseover', (e) => {
-
-        const el = e.target;
-        let parent = null;
-
-        if (el.matches(".category")) {
-            parent = el
-        } else if (el.matches(".category p, .category div")) {
-            parent = el.parentNode;
-        }
-
-        if (parent !== null) {
-            let samples = getSamplesFromCategory(parent.getAttribute("value"))
-            if (samples !== []) {
-                drawSamples(samples);
-            }
-        }
-    });
-
-    document.getElementById("catContainer").addEventListener('mouseout', (e) => {
-
-        resetImg()
-    });
-
-    document.getElementById("marks").addEventListener('mouseout', (e) => {
-        resetImg()
-    });
-
-    document.getElementById("svgControl").addEventListener('click', (e) => {
-
-        let el = e.target
-
-        if (el.matches('img')) {
-            el = el.parentNode
-            document.getElementById("selectedButton3").removeAttribute("id")
-            el.setAttribute("id", "selectedButton3")
-
-        }
-    });
+//         let el = e.target
+//
+//         if (el.matches('img')) {
+//             el = el.parentNode
+//             document.getElementById("selectedButton3").removeAttribute("id")
+//             el.setAttribute("id", "selectedButton3")
+//
+//         }
+//     });
 });
 
 
@@ -421,6 +460,9 @@ onkeydown = function (e) {
 
     if (keymap[27]) {
 
+        const container = document.getElementById("paletteDetails")
+        container.style.display = "none"
+
         if (document.activeElement === document.getElementById("dataInp")) {
             e.preventDefault()
             fillInfos(selectedMark)
@@ -445,15 +487,29 @@ onkeydown = function (e) {
     }
 
     if (keymap[46]) {
+        // d3.selectAll("circle[num='0']").remove()
+        if (selectedAnchor !== undefined) {
 
-        for (let i = 0; i < seldots.length; i++) {
+            selectedAnchor.path.remove()
+            selectedAnchor.circles.remove()
+            console.log(selectedAnchor.n);
+            d3.selectAll(`circle[palette="${selectedAnchor.from}"][num="${selectedAnchor.n}"]`).remove()
+            d3.selectAll(`circle[palette="${selectedAnchor.to}"][num="${selectedAnchor.n}"]`).remove()
+            purgeAnchor(selectedAnchor.from, selectedAnchor.to, selectedAnchor.n)
 
-            let id = sampleData.indexOf(seldots[i])
-            sampleData.splice(id, 1)
+            selectedAnchor = undefined
+
+
         }
-        updateChart(curr_mod, seldots)
-        seldots = undefined;
-        over_on = true
+
+        /*        for (let i = 0; i < seldots.length; i++) {
+
+                    let id = sampleData.indexOf(seldots[i])
+                    sampleData.splice(id, 1)
+                }
+                updateChart(curr_mod, seldots)
+                seldots = undefined;
+                over_on = true*/
 
 
     }
@@ -469,37 +525,17 @@ onkeydown = function (e) {
 }
 
 
-function sortMarks(marks, type) {
-
-    if (type === "category") {
-
-        let t = Object.groupBy(marks, ({category}) => category.name)
-        let temp = []
-
-        for (const [key, value] of Object.entries(t)) {
-            temp = temp.concat(value)
-        }
-
-        return temp
-
-    } else if (type === "size") {
-
-        return marks.sort((a, b) => (a.width * a.height) - (b.width * b.height));
-    }
-
-}
-
-function updateMarks(type) {
-
-    let container = document.getElementById("marks");
-    let marks = sortMarks([...sampleData], type)
-
-    container.innerHTML = "";
-    for (let i = 0; i < marks.length; i++) {
-        // marks[i].canvas.style.border = "solid " + marks[i].categories.color + " 2px"
-        container.appendChild(marks[i].canvas);
-    }
-}
+// function updateMarks(type) {
+//
+//     let container = document.getElementById("marks");
+//     let marks = sortMarks([...sampleData], type)
+//
+//     container.innerHTML = "";
+//     for (let i = 0; i < marks.length; i++) {
+//         // marks[i].canvas.style.border = "solid " + marks[i].categories.color + " 2px"
+//         container.appendChild(marks[i].canvas);
+//     }
+// }
 
 
 function updateCategories() {
@@ -633,7 +669,7 @@ function importFromJson(e) {
         // jsonObj.palette.primitive = {}
         // delete jsonObj.categories.time.prototype
 
-        importData(jsonObj).then(fillTable );
+        // importData(jsonObj).then(fillTable );
 
         // fillTable()
         // console.log(jsonObj)
@@ -722,8 +758,8 @@ async function importData(data) {
     updateCategories()
     updateMarks("size")
     fillPalette()
-    populateSelect()
-    fillTable()
+    // populateSelect()
+    // fillTable()
 
 }
 
@@ -743,7 +779,7 @@ function drawCat(name, color, selected = false) {
     newCat.setAttribute("value", name);
 
     newCat.innerHTML = "<div class='lightBorder catColor' style='background-color: " + color + "'> </div> <p>" + name + "</p><img src=\"assets/images/buttons/edit.png\" class=\"editCat\">"
-    document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
+    // document.getElementById("catContainer").insertBefore(newCat, document.getElementById("addCat"))
 
 }
 
@@ -831,19 +867,11 @@ function purge() {
     stroke = [];
 
     selectedMark = null
-    updateMarks("size")
-    document.querySelectorAll(".category").forEach((item) => {
-        // if (item.getAttribute("value") !== "default") {
-        item.remove()
-        // }
-    })
-    updateCategories()
 
-    const svg = d3.select('#svgDisplay');
-    svg.selectAll("image").remove();
-    document.getElementById("paletteCont").innerHTML = "";
-    populateSelect()
-    fillTable()
+
+    // document.getElementById("paletteCont").innerHTML = "";
+    // populateSelect()
+    // fillTable()
 }
 
 function clearExamples() {
@@ -913,3 +941,261 @@ async function fillAllPalette() {
     }
 
 }
+
+
+function displaySample() {
+    let canContainer = document.getElementById("canvasContainer");
+    let svgContainer = document.getElementById("fakePreviewSvg");
+
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    canContainer.style.display = "block"
+    svgContainer.style.display = "none"
+    tableContainer.style.display = "none"
+    settingsContainer.style.display = "none"
+}
+
+
+function hideSample() {
+
+    let canContainer = document.getElementById("canvasContainer");
+    let svgContainer = document.getElementById("fakePreviewSvg");
+
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+
+    canContainer.style.display = "none"
+    svgContainer.style.display = "block"
+    tableContainer.style.display = "block"
+    settingsContainer.style.display = "flex"
+}
+
+
+function switchPalette() {
+
+    palSwitch = !palSwitch
+
+
+    if (palSwitch) {
+        d3.select("#sampleDisplay").style("display", "none").selectAll("image").remove();
+        displaySample()
+
+    } else {
+        hideSample()
+    }
+
+}
+
+
+function fakeWeek26() {
+    let tdat = [53, 44, 27, 22, 23, 15, 14, 12, 12, 11, 8]
+
+    let res = []
+
+    let id = 0
+    for (let i = 0; i < tdat.length; i++) {
+        for (let j = 0; j < tdat[i]; j++) {
+
+            res.push({
+                id: id,
+                category: i,
+            })
+            ++id
+        }
+    }
+
+    return res
+}
+
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Shift" && !isDragging) {
+        let tcan = document.getElementById("inVis")
+        tcan.style.cursor = "grab";
+        sampling = false
+    }
+});
+
+window.addEventListener("keyup", (e) => {
+    if (e.key === "Shift") {
+        let tcan = document.getElementById("inVis")
+        tcan.style.cursor = "default";
+        // sampling = true
+    }
+});
+
+
+function dumpState() {
+
+
+    /*    const state = {
+            megaPalettes: dumpObject(megaPalettes),
+            megaGlyph: dumpObject(megaGlyph),
+            dataBinding: dumpObject(dataBinding),
+            allPalettes: dumpObject(allPalettes),
+            chartDataset: dumpObject(chartDataset),
+        }*/
+
+    const state = {
+        megaPalettes: megaPalettes,
+        megaGlyph: megaGlyph,
+        dataBinding: dataBinding,
+        allPalettes: allPalettes,
+        chartDataset: chartDataset,
+        chartAxis: chartAxis,
+        layout: layout,
+        nAnchor: nAnchor,
+        palSources: palSources
+
+    }
+
+    const date = new Date();
+
+    download(dumpObject(state), "state" + date.toLocaleString() + ".json", "text/json");
+}
+
+
+async function loadState() {
+    let tsel = document.getElementById("stateSelector");
+
+    let nState = tsel.value
+
+    if (nState !== curState) {
+        if (nState === '*new*') {
+            cleanSlate()
+        } else {
+            let state = await loadStateFromJson("assets/states/" + nState)
+            initState(state)
+        }
+    }
+}
+
+
+async function handleStateFile() {
+    let tfile = document.getElementById("fileInputState").files[0];
+    let state = await loadStateFromJson(tfile)
+    initState(state)
+}
+
+async function loadStateFromJson(source) {
+    let json;
+
+    if (source instanceof File) {
+        json = await source.text();
+    } else if (typeof source === "string") {
+        const response = await fetch(source);
+        if (!response.ok) {
+            throw new Error(`Failed to load state: ${response.statusText}`);
+        }
+        json = await response.text();
+    } else {
+        throw new Error("source must be a File or a URL string");
+    }
+
+    const pending = [];
+
+    const state = JSON.parse(json, (key, value) => {
+
+        if (value?.__type === "image") {
+            const img = new Image();
+            img.src = value.data;
+            const p = img.decode().catch(() => {
+            });
+            pending.push(p);
+
+            /*            pending.push(new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = reject;
+                            document.body.appendChild(img);
+                        }));*/
+
+
+            // img.decode()
+
+            return img;
+        }
+
+        if (value?.__type === "canvas") {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const img = new Image();
+
+            pending.push(new Promise((resolve, reject) => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve();
+                };
+                img.onerror = reject;
+            }));
+
+            img.src = value.data;
+
+            return canvas;
+        }
+
+        return value;
+    });
+
+    await Promise.all(pending);
+
+    return state;
+}
+
+
+function initState(state) {
+    cleanSlate()
+
+    console.log(state);
+    megaPalettes = state.megaPalettes
+    megaGlyph = state.megaGlyph
+    dataBinding = state.dataBinding
+    allPalettes = state.allPalettes
+    chartDataset = state.chartDataset
+    chartAxis = state.chartAxis
+    layout = (state.layout ? state.layout : "force")
+    nAnchor = (state.nAnchor ? state.nAnchor : 0)
+    palSources = state.palSources
+
+    initAllPalette()
+    fillTable()
+    fillSidePanel()
+    switchMode("rect")
+    fillAxis()
+
+
+    for (const [key, value] of Object.entries(megaPalettes)) {
+        addASelectedPalette(key)
+        addPaletteInfoToCollage(value, key)
+        addPaletteMarksCompo(key)
+
+
+        let tsel = document.getElementById("shape-" + key);
+
+        if (dataBinding[key] !== undefined || dataBinding[key] !== "") {
+            setSelectValue(tsel, dataBinding[key])
+        }
+
+
+        if (chartAxis.x !== undefined || chartAxis.x !== "") {
+            setSelectValue("x-axis", chartAxis.x)
+        }
+        if (chartAxis.y !== undefined || chartAxis.y !== "") {
+            setSelectValue("y-axis", chartAxis.y)
+        }
+
+
+        // displayPalette(key)
+
+    }
+
+    drawAllCollageAnchor()
+
+    document.getElementById("layout-" + layout).click()
+
+    updateDotsAndSvgs()
+
+
+}
+

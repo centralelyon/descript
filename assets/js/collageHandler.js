@@ -1,6 +1,6 @@
 let options_type = {}
 let displayedMarks = {}
-let dataList = {}
+// let dataList = {}
 
 
 function populateSelect() {
@@ -585,7 +585,7 @@ function saveCollage() {
         fillSvg(sampleData)
         document.getElementById("collageList").innerHTML = ""
         svg.innerHTML = ""
-        fillTable()
+        // fillTable()
     }
 }
 
@@ -617,15 +617,15 @@ function getCollageOrder(drawingData) {
 
     let links = getRelationships(drawingData)
 
-    console.log(links);
-
     let graph = pairsToIndex(links)
+
     let res = listNode(graph[""])
 
     return res
 }
 
 function getFromTo(key, data, value) {
+
     if (data.hasOwnProperty(key)) {
         if (value.apply) {
             if (typeof value.apply !== "string") //Shameless stuff to avoid to fix cat apply to mark issue
@@ -642,26 +642,28 @@ function getFromTo(key, data, value) {
 
 function getRelationships(drawingData) {
     let res = []
-    for (const [key, value] of Object.entries(marks)) {
+    for (const [key, value] of Object.entries(megaPalettes)) {
         let t = getFromTo(key, drawingData, value)
         if (t) {
             res.push(t)
         }
     }
 
-    for (const [key, value] of Object.entries(primitive)) {
-        let t = getFromTo(key, drawingData, value)
-        if (t) {
-            res.push(t)
+    /*
+        for (const [key, value] of Object.entries(primitive)) {
+            let t = getFromTo(key, drawingData, value)
+            if (t) {
+                res.push(t)
+            }
         }
-    }
 
-    for (const [key, value] of Object.entries(palette_cat)) {
-        let t = getFromTo(key, drawingData, value)
-        if (t) {
-            res.push(t)
+        for (const [key, value] of Object.entries(palette_cat)) {
+            let t = getFromTo(key, drawingData, value)
+            if (t) {
+                res.push(t)
+            }
         }
-    }
+    */
 
     return res
 }
@@ -693,4 +695,5 @@ function pairsToIndex(pairs) {
 
 function listNode(node) {
     return Array.prototype.concat.apply([node.key], node.children.map(listNode));
+
 }

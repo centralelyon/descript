@@ -486,8 +486,11 @@ function getBBox(canvas) {
     for (let i = 0; i < contours2.size(); ++i) {
         hierarchy2
         if (hierarchy2.intPtr(0, i)[3] > 0) {
+            let tt = 0
 
-            let tt = opencv.contourArea(contours.get(i), false)
+            if (i < contours.size()) {
+                tt = opencv.contourArea(contours.get(i), false)
+            }
 
             if (tt > 1) {
                 const ci = contours2.get(i)
@@ -583,7 +586,7 @@ function toColor(canvas, r, g, b, threshold) {
 
     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
 
-    // let M = opencv.Mat.ones(2, 2, cv.CV_8U);
+    // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
     // let p = new opencv.Point(-1, -1)
     // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
 
@@ -600,4 +603,470 @@ function toColor(canvas, r, g, b, threshold) {
 
     return res
 
+}
+
+
+function otherGrab(can, coords) {
+
+    let src = opencv.imread(can);
+    opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 0);
+    let mask = new opencv.Mat();
+    let bgdModel = new opencv.Mat();
+    let fgdModel = new opencv.Mat();
+    let rect = new opencv.Rect(coords.x, coords.y, coords.w, coords.h);
+
+    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 10, opencv.GC_INIT_WITH_RECT);
+// draw foreground
+    for (let i = 0; i < src.rows; i++) {
+        for (let j = 0; j < src.cols; j++) {
+            if (mask.ucharPtr(i, j)[0] == 0 || mask.ucharPtr(i, j)[0] == 2) {
+                src.ucharPtr(i, j)[0] = 0;
+                src.ucharPtr(i, j)[1] = 0;
+                src.ucharPtr(i, j)[2] = 0;
+            }
+        }
+    }
+    opencv.cvtColor(src, src, opencv.COLOR_RGB2RGBA, 0);
+    opencv.imshow(can, src);
+    src.delete();
+    mask.delete();
+    bgdModel.delete();
+    fgdModel.delete();
+
+    return can
+}
+
+
+function makeCanvasFit(canvas, can = undefined) {
+    let bbox = getBBox(canvas)
+
+    //small opti to prevent the re-creation of cans in mass calling
+    if (can === undefined) {
+        can = document.createElement("canvas")
+    }
+
+    let context = can.getContext("2d")
+    can.width = bbox[1][0] - bbox[0][0]
+    can.height = bbox[1][1] - bbox[0][1]
+    context.drawImage(canvas, bbox[0][0], bbox[0][1], can.width, can.height, 0, 0, can.width, can.height)
+
+    return can
+}
+
+
+function resizeWithBbox(canvas, bbox) {
+    let can = document.createElement("canvas")
+    let context = can.getContext("2d")
+    if (Array.isArray(bbox)) {
+
+        can.width = bbox[1][0] - bbox[0][0]
+        can.height = bbox[1][1] - bbox[0][1]
+        context.drawImage(canvas, bbox[0][0], bbox[0][1], can.width, can.height, 0, 0, can.width, can.height)
+    } else {
+        can.width = bbox.width
+        can.height = bbox.height
+        context.drawImage(canvas, bbox.x, bbox.y, can.width, can.height, 0, 0, can.width, can.height)
+    }
+    return can
+}
+
+function getMinimalBoundingBox(canvas, step = 4) {
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const {data} = ctx.getImageData(0, 0, w, h);
+
+    let top = 0, bottom = h - 1;
+    let left = 0, right = w - 1;
+
+    if (right < left || bottom < top) {
+        return null;
+    }
+
+    outerTop:
+        for (; top < h; top += step) {
+            for (let x = 0; x < w; x += step) {
+                if (data[((top * w + x) << 2) + 3] !== 0) break outerTop;
+            }
+        }
+    outerBottom:
+        for (; bottom >= top; bottom -= step) {
+            for (let x = 0; x < w; x += step) {
+                if (data[((bottom * w + x) << 2) + 3] !== 0) break outerBottom;
+            }
+        }
+
+    outerLeft:
+        for (; left < w; left += step) {
+            for (let y = top; y <= bottom; y += step) {
+                if (data[((y * w + left) << 2) + 3] !== 0) break outerLeft;
+            }
+        }
+
+    outerRight:
+        for (; right >= left; right -= step) {
+            for (let y = top; y <= bottom; y += step) {
+                if (data[((y * w + right) << 2) + 3] !== 0) break outerRight;
+            }
+        }
+
+    if (step > 1) {
+        // top
+        for (let y = Math.max(0, top - step); y < top; y++) {
+            for (let x = left; x <= right; x++) {
+                if (data[((y * w + x) << 2) + 3] !== 0) {
+                    top = y;
+                    break;
+                }
+            }
+        }
+
+        // bottom
+        for (let y = Math.min(h - 1, bottom + step); y > bottom; y--) {
+            for (let x = left; x <= right; x++) {
+                if (data[((y * w + x) << 2) + 3] !== 0) {
+                    bottom = y;
+                    break;
+                }
+            }
+        }
+
+        // left
+        for (let x = Math.max(0, left - step); x < left; x++) {
+            for (let y = top; y <= bottom; y++) {
+                if (data[((y * w + x) << 2) + 3] !== 0) {
+                    left = x;
+                    break;
+                }
+            }
+        }
+
+        // right
+        for (let x = Math.min(w - 1, right + step); x > right; x--) {
+            for (let y = top; y <= bottom; y++) {
+                if (data[((y * w + x) << 2) + 3] !== 0) {
+                    right = x;
+                    break;
+                }
+            }
+        }
+    }
+
+    return {
+        x: left,
+        y: top,
+        width: right - left + 7,
+        height: bottom - top + 7
+    };
+}
+
+function recolorCanvasLAB(canvas, targetRGB, strength = 1.0) {
+
+    const [targetR, targetG, targetB] = targetRGB;
+
+    // =========================
+    // READ CANVAS
+    // =========================
+
+    let src = opencv.imread(canvas);
+
+    // =========================
+    // ORIGINAL LAB
+    // Preserve original luminance/details
+    // =========================
+
+    let originalLab = new opencv.Mat();
+
+    opencv.cvtColor(src, originalLab, opencv.COLOR_RGBA2Lab);
+
+    let originalChannels = new opencv.MatVector();
+    opencv.split(originalLab, originalChannels);
+
+    let originalL = originalChannels.get(0);
+    let alpha = originalChannels.get(3);
+
+    // =========================
+    // GRAYSCALE BASE
+    // =========================
+
+    let gray = new opencv.Mat();
+
+    opencv.cvtColor(src, gray, opencv.COLOR_RGBA2GRAY);
+
+    let grayRGBA = new opencv.Mat();
+
+    opencv.cvtColor(gray, grayRGBA, opencv.COLOR_GRAY2RGBA);
+
+    // restore original alpha
+    let grayChannels = new opencv.MatVector();
+    opencv.split(grayRGBA, grayChannels);
+
+    grayChannels.set(3, alpha);
+
+    opencv.merge(grayChannels, grayRGBA);
+
+    // =========================
+    // RGBA -> LAB
+    // =========================
+
+    let lab = new opencv.Mat();
+
+    opencv.cvtColor(grayRGBA, lab, opencv.COLOR_RGBA2Lab);
+
+    let channels = new opencv.MatVector();
+    opencv.split(lab, channels);
+
+    // preserve original luminance
+    let L = originalL;
+
+    let A = channels.get(1);
+    let B = channels.get(2);
+
+    // =========================
+    // VISIBLE PIXELS MASK
+    // =========================
+
+    let visibleMask = new opencv.Mat();
+
+    opencv.threshold(
+        alpha,
+        visibleMask,
+        0,
+        255,
+        opencv.THRESH_BINARY
+    );
+
+    // =========================
+    // TARGET COLOR
+    // =========================
+
+    let targetMat = new opencv.Mat(
+        src.rows,
+        src.cols,
+        opencv.CV_8UC4,
+        new opencv.Scalar(targetR, targetG, targetB, 255)
+    );
+
+    let targetLab = new opencv.Mat();
+
+    opencv.cvtColor(targetMat, targetLab, opencv.COLOR_RGBA2Lab);
+
+    let targetChannels = new opencv.MatVector();
+    opencv.split(targetLab, targetChannels);
+
+    let targetA = targetChannels.get(1);
+    let targetBChannel = targetChannels.get(2);
+
+    // =========================
+    // BASE BLEND
+    // =========================
+
+    let mixedA = new opencv.Mat();
+    let mixedB = new opencv.Mat();
+
+    opencv.addWeighted(
+        A,
+        1.0 - strength,
+        targetA,
+        strength,
+        0,
+        mixedA
+    );
+
+    opencv.addWeighted(
+        B,
+        1.0 - strength,
+        targetBChannel,
+        strength,
+        0,
+        mixedB
+    );
+
+    // =========================
+    // DARK LINES BOOST
+    // stronger recolor on dark regions
+    // =========================
+
+    let luminanceMask = new opencv.Mat();
+
+    // invert luminance
+    opencv.bitwise_not(L, luminanceMask);
+
+    // soften transitions
+    opencv.GaussianBlur(
+        luminanceMask,
+        luminanceMask,
+        new opencv.Size(0, 0),
+        5
+    );
+
+    let darkA = new opencv.Mat();
+    let darkB = new opencv.Mat();
+
+    // stronger target influence
+    opencv.addWeighted(
+        mixedA,
+        0.6,
+        targetA,
+        0.4,
+        0,
+        darkA
+    );
+
+    opencv.addWeighted(
+        mixedB,
+        0.6,
+        targetBChannel,
+        0.4,
+        0,
+        darkB
+    );
+
+    // apply extra boost on dark areas
+    darkA.copyTo(mixedA, luminanceMask);
+    darkB.copyTo(mixedB, luminanceMask);
+
+    // apply only visible pixels
+    mixedA.copyTo(A, visibleMask);
+    mixedB.copyTo(B, visibleMask);
+
+    // =========================
+    // REBUILD LABA
+    // =========================
+
+    let merged = new opencv.Mat();
+    let mergedChannels = new opencv.MatVector();
+
+    mergedChannels.push_back(L);
+    mergedChannels.push_back(A);
+    mergedChannels.push_back(B);
+    mergedChannels.push_back(alpha);
+
+    opencv.merge(mergedChannels, merged);
+
+    // =========================
+    // LAB -> RGBA
+    // =========================
+
+    let result = new opencv.Mat();
+
+    opencv.cvtColor(merged, result, opencv.COLOR_Lab2RGBA);
+
+    // =========================
+    // WRITE BACK TO CANVAS
+    // =========================
+
+    opencv.imshow(canvas, result);
+
+    // =========================
+    // CLEANUP
+    // =========================
+
+    src.delete();
+
+    originalLab.delete();
+    originalChannels.delete();
+
+    gray.delete();
+    grayRGBA.delete();
+    grayChannels.delete();
+
+    lab.delete();
+    channels.delete();
+
+    visibleMask.delete();
+    luminanceMask.delete();
+
+    targetMat.delete();
+    targetLab.delete();
+    targetChannels.delete();
+
+    mixedA.delete();
+    mixedB.delete();
+
+    darkA.delete();
+    darkB.delete();
+
+    merged.delete();
+    mergedChannels.delete();
+
+    result.delete();
+
+    A.delete();
+    B.delete();
+
+    alpha.delete();
+
+    targetA.delete();
+    targetBChannel.delete();
+}
+
+
+async function grabCutFromSelection(imageElement, polygonPoints, iterations = 5) {
+    const src = opencv.imread(imageElement);
+
+    // Create mask initialized as "probable background"
+    const mask = new opencv.Mat(src.rows, src.cols, opencv.CV_8UC1);
+    mask.setTo(new opencv.Scalar(opencv.GC_BGD));
+
+    // Convert polygon to OpenCV format
+    const pts = polygonPoints.flatMap(p => [p.x, p.y]);
+    const contour = opencv.matFromArray(
+        polygonPoints.length,
+        1,
+        opencv.CV_32SC2,
+        pts
+    );
+
+    const contours = new opencv.MatVector();
+    contours.push_back(contour);
+
+    // Mark selected region as probable foreground
+    opencv.fillPoly(mask, contours, new opencv.Scalar(cv.GC_PR_FGD));
+
+    const bgdModel = new opencv.Mat();
+    const fgdModel = new opencv.Mat();
+
+    // Run GrabCut using the mask
+    opencv.grabCut(
+        src,
+        mask,
+        new opencv.Rect(),
+        bgdModel,
+        fgdModel,
+        iterations,
+        opencv.GC_INIT_WITH_MASK
+    );
+
+    // Build binary foreground mask
+    const fgMask = new cv.Mat();
+    const prFgMask = new cv.Mat();
+
+    opencv.compare(mask, opencv.GC_FGD, fgMask, opencv.CMP_EQ);
+    opencv.compare(mask, opencv.GC_PR_FGD, prFgMask, opencv.CMP_EQ);
+    opencv.bitwise_or(fgMask, prFgMask, fgMask);
+
+    // Apply mask to image
+    const result = new opencv.Mat();
+    src.copyTo(result, fgMask);
+
+    // Output canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = src.cols;
+    canvas.height = src.rows;
+    opencv.imshow(canvas, result);
+
+    // Cleanup
+    src.delete();
+    mask.delete();
+    contour.delete();
+    contours.delete();
+    bgdModel.delete();
+    fgdModel.delete();
+    fgMask.delete();
+    prFgMask.delete();
+    result.delete();
+
+    return canvas;
 }

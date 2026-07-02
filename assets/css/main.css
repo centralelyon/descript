@@ -1,5 +1,6 @@
 body {
     font-family: Helvetica Neue, sans-serif;
+    user-select: none;
 }
 
 .editCat {
@@ -13,16 +14,19 @@ body {
 }
 
 .paletteMark {
-    display: inline-block;
+    display: flex;
     width: fit-content;
+    flex-direction: column;
+    position: relative;
 }
 
 .paletteMark canvas {
-    border: #555555 solid 1px;
+    border: #424242 solid 1px;
     margin: 1px;
     border-radius: 3px;
     height: 60px;
     cursor: pointer;
+    background-color: rgba(240, 240, 240, 0.15);
 }
 
 .paletteNumber {
@@ -83,6 +87,7 @@ body {
 
 }
 
+
 #catData {
     width: 30%;
     margin-left: 2%;
@@ -107,7 +112,7 @@ body {
 
 #selFlat {
     height: 100%;
-    width: 81%;
+    width: calc(100% - 32px);
     display: block;
     /*overflow-x: scroll;*/
     overflow-y: hidden;
@@ -302,7 +307,7 @@ canvas {
 }
 
 .buttonImg img {
-    width: 32px;
+    width: 24px;
     display: inline-block;
     padding: 1px;
 }
@@ -350,9 +355,11 @@ canvas {
 }
 
 #inVis {
-    width: 100%;
+    /*width: 100%;*/
     cursor: crosshair;
     touch-action: none;
+    min-width: 80%;
+    min-height: 400px;
 }
 
 #markInfos {
@@ -402,13 +409,28 @@ canvas {
     transform-origin: center;
 }
 
+#paletteCont {
+    border-radius: 5px;
+    padding: 20px;
+    border: solid #333 thin;
+    width: 65.2%;
+    margin-top: 5px;
+    background-color: #fff;
+}
+
 
 #paletteContainer {
     padding: 20px;
-    border: solid #555 thin;
-    position: relative;
-    width: min-content;
-    padding-right: 70px;
+    border: solid #333 thin;
+    position: absolute;
+    top: 270px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    left: 550px;
+    background-color: #424242;
+    color: #fff;
+    z-index: 99;
+
 
 }
 
@@ -470,12 +492,830 @@ table th {
 }
 
 
-#newDataTable div p{
+#newDataTable div p {
     font-weight: 700;
     margin-bottom: 0;
     margin-right: 23px;
 }
 
-#newDataTable div input[type="text"]{
-   width: 75px;
+#newDataTable div input[type="text"] {
+    width: 75px;
+}
+
+.paletteName {
+    display: flex;
+}
+
+#palettePlusMark {
+    filter: opacity(0.9);
+}
+
+.waypointTitle {
+    background-color: #424242 !important;
+    font-weight: 600;
+    text-align: left;
+    margin-left: 10px;
+    color: #fff;
+    border-radius: 0 !important;
+    border: none !important;
+    border-color: #333;
+    border-bottom: 1px solid !important;;
+    /*padding: 5px 10px !important;*/
+    padding: 5px 2px !important;
+    outline: none !important;
+    /*width: 15%;*/
+    font-size: 14pt;
+    margin-right: 10px;
+    min-width: 90px;
+    height: 27px !important;
+}
+
+#sampledMarks canvas {
+    max-height: 110px;
+    margin-right: 2px;
+    border: 1px solid #777;
+    border-radius: 4px;
+    cursor: grab;
+}
+
+#sampledMarks {
+    overflow-x: auto;
+    display: flex;
+    padding: 2px;
+}
+
+.scaleMarks {
+    width: 120px;
+}
+
+
+.paletteMarkName {
+    font-weight: 500;
+    text-align: center;
+
+    color: #333;
+    border-radius: 0 !important;
+    border: none !important;
+    border-color: #333;
+    border-bottom: 1px solid !important;;
+    /*padding: 5px 10px !important;*/
+    padding: 5px 2px !important;
+    outline: none !important;
+    width: 52px;
+    font-size: 9pt;
+
+    line-height: 13px;
+    height: 13px !important;
+
+    display: inline-block;
+    margin-bottom: 3px;
+    margin-left: 6px;
+}
+
+#AllPaletteCont canvas, #selectedPaletteCont canvas {
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #F1F1F1;
+    /*position: absolute;;*/
+}
+
+/*#chartSettings*/
+#fakeGrammar {
+    width: 100%;
+}
+
+#fakePreview {
+    width: 60%;
+    height: 500px;
+}
+
+#fakePreviewSvg {
+    width: 97%;
+    border: solid #555 1px;
+    border-radius: 14px;
+    height: 82%;
+}
+
+.fakeGrammarRow {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+
+/* ---------------- TREE STUFF -----------------------*/
+
+.tree {
+    --spacing: 4rem;
+    --radius: 5px;
+    width: 90%;
+    margin-left: -50px;
+}
+
+
+.tree li {
+    display: block;
+    position: relative;
+    padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
+    /*width: 100%;*/
+}
+
+.tree ul {
+    margin-left: calc(var(--radius) - var(--spacing));
+    padding-left: 0;
+}
+
+
+.tree ul li {
+    border-left: 2px solid #ddd;
+}
+
+.tree ul li:last-child {
+    border-color: transparent;
+}
+
+
+.tree ul li::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: calc(var(--spacing) / -1);
+    left: -2px;
+    width: calc(var(--spacing) + 30px);
+    height: calc(var(--spacing) + 24px);
+    border: solid #ddd;
+    border-width: 0 0 2px 2px;
+}
+
+.tree summary {
+    display: block;
+    cursor: pointer;
+}
+
+.tree summary::marker,
+.tree summary::-webkit-details-marker {
+    display: none;
+}
+
+.tree summary:focus {
+    outline: none;
+}
+
+.tree summary:focus-visible {
+    outline: 1px dotted #000;
+}
+
+.tree li summary::after {
+    display: none;
+}
+
+/*.tree li::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: calc(var(--spacing) / 2 - var(--radius) + 4px);
+    left: calc(var(--spacing) - var(--radius) + 29px);
+    width: calc(2 * var(--radius));
+    height: calc(2 * var(--radius));
+    border-radius: 50%;
+    background: #ddd;
+}*/
+
+.tree summary::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 9px;
+    /*top: calc(var(--spacing) / 2 - var(--radius)+ (-4px));*/
+    left: calc(var(--spacing) - var(--radius) + (-1px));
+    width: calc(2 * var(--radius));
+    height: calc(2 * var(--radius));
+    border-radius: 50%;
+    background: #ddd;
+}
+
+li .fakeGrammarRow {
+    /*margin-left: -2rem;*/
+    /*margin-top: 5px ;*/
+}
+
+.fakeGrammarRow p {
+    margin-top: 9px;
+    margin-right: 6px;
+}
+
+.fakeGrammarRow select {
+    margin-top: 5px;
+    margin-right: 6px;
+}
+
+.fakeGrammarTitleMark {
+    position: absolute;
+    font-weight: 600;
+    top: -27px;
+    left: 85px;
+}
+
+.fakeGrammarTitleData {
+    position: absolute;
+    font-weight: 600;
+    top: -27px;
+    left: 240px;
+}
+
+
+.colorRampCan {
+    border: 1px solid #777;
+    border-radius: 4px;
+    width: 190px;
+    height: 15px;
+    margin-left: 35px;
+}
+
+.colorRamp {
+    display: flex
+
+}
+
+.colorRamp div {
+    width: 25px;
+}
+
+.colorRamp p {
+    display: flex;
+    margin-bottom: -3px;
+
+}
+
+.colorRamp span {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #777;
+    border-radius: 4px;
+    display: block;
+}
+
+.rampLabel {
+    position: absolute;
+    top: 26px;
+}
+
+.colorDisplay div {
+    max-width: 25px;
+
+}
+
+.colorDisplay {
+    display: flex;
+    margin-left: 45px;
+}
+
+.colorDisplayElem {
+    width: 15px;
+    height: 15px;
+}
+
+.colorDisplayLabel {
+    transform-origin: center;
+    transform: rotate(-45deg);
+    margin-bottom: 11px;
+    margin-left: -14px;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 60px;
+}
+
+.exportPaletteBtn {
+    cursor: pointer;
+    width: 32px;
+    padding: 0;
+    height: 29px;
+    /*margin-top: 35px;*/
+}
+
+.exportPaletteBtn img {
+    transform: scaleX(-1);
+    width: 21px;
+    height: 21px;
+    filter: invert(1);
+}
+
+.canPreview {
+    position: relative;
+}
+
+.canPreview canvas {
+    position: absolute;
+}
+
+#AllPaletteCont .allPaletteRow {
+    /*display: flex;*/
+    margin: 2px;
+    border: solid 1px #555;
+    width: 200px;
+    border-radius: 5px;
+    cursor: grab;
+    margin-left: 5px;
+    background-color: #fff;
+    position: relative;
+
+}
+
+#AllPaletteCont p {
+    margin-bottom: 0px;
+    text-decoration: underline;
+    user-select: none;
+}
+
+.canPreview {
+    border-bottom: none !important;
+    margin-bottom: 5px;
+}
+
+#AllPaletteCont {
+    /*width: 180px;*/
+    /*height: 406px;*/
+    overflow-y: auto;
+    /*border: 1px solid #555;*/
+    border-radius: 4px;
+    text-align: center;
+
+    height: 100%;
+    width: 260px;
+}
+
+p, h3, h4, h5, img {
+    user-select: none;
+}
+
+
+#sidebar {
+    transition: 0.5s;
+    position: absolute;
+    width: 15px;
+    background-color: #fff;
+    right: -2vw;
+    /*height: 99.5vh;*/
+    /*top: 0;*/
+    height: 34vh;
+    top: 30%;
+    z-index: 99;
+    text-align: center;
+    padding: 3px;
+    border-top-left-radius: 25px 25px;
+    border-bottom-left-radius: 25px 25px;;
+    border-left: solid 1px #717171;
+}
+
+
+#sideArrow img {
+    width: 20px;
+    cursor: pointer;
+    height: 20px;
+    margin-top: 7px;
+    margin-left: 5px;
+    transition: 1.15s;
+    transform: rotate(-90deg);
+    filter: invert(1);
+
+}
+
+#sideArrow {
+    position: absolute;
+    /*top: 50%;*/
+    top: calc(97% - 12px);
+    width: 32px;
+    height: 30px;
+    background-color: inherit;
+    left: 50%;
+    border-radius: 5px;
+    transition: 1s;
+    z-index: 99;
+}
+
+
+.sideContent {
+    display: none;
+}
+
+
+.draggedover {
+    border: 3px dashed red !important;
+    transition: 0s !important;
+    background-color: rgba(50, 50, 50, 0.1);
+    padding: 0 !important;
+}
+
+#navButtonList button {
+    color: #eee;
+}
+
+.collageElement {
+    outline: solid 1px #333;
+    border-radius: 4px;
+    cursor: crosshair;
+}
+
+.dataEncodingColumn {
+    display: flex;
+    justify-content: center;
+}
+
+
+#paletteDetails p {
+    color: #fff
+}
+
+#paletteDetails {
+    /*padding-bottom: 15px;*/
+    position: absolute;
+    background-color: #424242;
+    /*width: 100%;*/
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 20px;
+    z-index: 99;
+}
+
+#sampleDisplay image {
+    pointer-events: all;
+
+}
+
+#sampleDisplay .sample {
+    outline: solid 1px #424242;
+}
+
+.LassoControls {
+    cursor: pointer;
+}
+
+.LassoControls circle {
+    fill: rgba(244, 244, 244, 0.9);
+    stroke-width: 2px;
+    stroke: #222
+}
+
+.LassoControls:hover {
+    fill: rgba(244, 244, 244, 0.5);
+}
+
+
+#composition path:hover {
+
+    stroke-width: 6px;
+    cursor: pointer;
+
+}
+
+#composition circle:hover {
+
+    r: 9px;
+    cursor: grab;
+
+
+}
+
+.dataRow {
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+}
+
+.dataRow:hover {
+    border: solid 1px #424242;
+    cursor: grab;
+}
+
+.dataColumn {
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.markAnchorSvg {
+    /*background-color: rgba(255,10,10,0.7);*/
+    position: absolute;
+    /*top: 18px;*/
+    pointer-events: none;
+
+}
+
+.markAnchorSvg circle {
+    pointer-events: all;
+    cursor: grab;
+}
+
+.placeholder {
+    width: 60px;
+    height: 7px;
+    background: dodgerblue;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#composition circle, .markAnchorSvg circle {
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+#datasetContainer {
+    border-radius: 15px;
+
+    background-color: #FFF;
+    border: solid 1px #424242;
+}
+
+
+.dragOver {
+    border: 3px dashed red !important;
+    background-color: rgba(50, 50, 50, 0.6) !important;
+}
+
+
+.dropArea {
+    border: 3px dashed #000 !important;
+
+}
+
+
+.selectedPaletteRow {
+    display: flex;
+    padding: 4px;
+    border: solid 1px #555;
+    width: 97%;
+    border-radius: 5px;
+    cursor: grab;
+    margin-left: 0;
+    background-color: #fff;
+    margin-bottom: 3px;
+
+}
+
+.selectedCanPreview {
+
+    border-radius: 1px;
+    border-right: solid 1px #424242;
+    width: 140px;
+    min-height: 75px;
+    /*margin-top: -13px;*/
+    position: relative;
+}
+
+.leftSideSelected p {
+    width: 200px;
+    margin-bottom: 5px;
+}
+
+.leftSideSelected {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.platteColorBand {
+
+    width: 9px;
+    margin-left: -10px;
+    margin-right: 9px;
+    border-radius: 5px;
+    /*height: 130px;*/
+}
+
+#MarksPaletteList {
+    display: flex;
+    overflow-x: auto;
+    justify-content: center;
+    position: relative;
+}
+
+.protoCanvas {
+    border-radius: 4px;
+    border: solid 1px #424242;
+}
+
+.colorBrand {
+    width: 80px;
+    height: 9px;
+    border-radius: 3px;
+    margin-bottom: -2px;
+    z-index: 9;
+}
+
+.paletteMarksList {
+    /*display: flex;*/
+    flex-direction: column;
+    margin-left: 15px;
+}
+
+.paletteMarksCanvasHolder canvas {
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #F1F1F1;
+    width: 60px;
+}
+
+
+#dataPopupReduced {
+    position: absolute;
+    left: 35%;
+    /*width: 50%;*/
+    /*overflow-y: hidden;*/
+    background: #424242;
+    border: solid 1px #424242;
+    padding: 7px;
+    z-index: 99;
+    border-bottom-radius: 4px;
+    /*border-radius-bottomright: 4px;*/
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    height: 29px;
+}
+
+#newDataTable td {
+    text-align: center;
+}
+
+#newDataTable tr {
+    background: #fff;
+}
+
+#newDataTable {
+    /*z-index: 99;*/
+    background: #424242 !important;
+    border-radius: 15px;
+    border: solid 1px #424242;
+
+}
+
+#newDataTable th:last-of-type {
+    border-right: none !important;
+}
+
+#newDataTable tr:first-child {
+    height: 20px;
+}
+
+#newDataTable th {
+    background: #424242;
+    color: #fff;
+    border-right: solid 2px #F1F1F1 !important;
+    height: 20px;
+    padding-top: 0;
+    /*padding-left: 15px;*/
+    text-align: center;
+    cursor: grab;
+}
+
+
+#newDataTable th:hover {
+    /*border: dashed 3px #F1F1F1 !important;*/
+    background: #42424254;
+    color: #000;
+}
+
+.delSelectedPal {
+    width: 12px;
+    cursor: pointer
+}
+
+#marksHolder {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#marksHolder canvas {
+    border: 1px solid #424242;
+    border-radius: 4px;
+    margin-right: 5px;
+    height: 90%;
+}
+
+.btnDisabled {
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+#layoutList {
+    display: flex;
+    border: solid 1px #424242;
+    border-radius: 7px;
+    /*padding: 7px;*/
+    height: 30px;
+}
+
+#layoutList div {
+    border-right: 1px solid #424242;
+    cursor: pointer;
+    padding: 8px;
+    line-height: 12px;
+}
+
+#layoutList div:last-child {
+    border-right: none;
+}
+
+.selectedLayout {
+
+    color: #fff;
+    background-color: #424242;
+}
+
+.dataBindingLabel {
+    width: 50px;
+    height: 60px;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-left: -9px;
+    line-height: 15px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.dataBindingContainer {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    margin-top: -2px;
+}
+
+.moreCan {
+    width: 60px;
+    height: 60px;
+}
+
+.sizeDiv {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sizeDiv div {
+    height: 24px;
+}
+
+.sizeControl {
+    font-size: 22pt;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+
+.sizeControl:hover {
+    cursor: pointer;
+    font-size: 25pt;
+}
+
+.propertyLabel {
+
+}
+
+.dataSelectContainer {
+    display: flex;
+    width: 123px;
+    height: 33px;
+}
+
+.dataSelectContainer p {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.dataSelect {
+    width: 70px;
+    height: 30px;
+    padding: 0 8px;
+}
+
+.selectHold {
+    display: flex;
+}
+
+.delEncoding {
+    margin-top: 8px;
+    margin-left: -5px;
+    margin-right: 3px;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+}
+
+.paletteArrowDiv img {
+    width: 12px;
+    height: 12px;
+
+}
+
+.paletteArrowDiv {
+    position: absolute;
+    right: 7px;
+    z-index: 99;
+    /*border-right: solid 1px #424242;*/
+    top: 37%;
 }

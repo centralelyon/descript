@@ -15,9 +15,104 @@ let offset
 let selectedImg
 let tx
 
-function fillSvg(marks) {
+function fillSampleBar(marks) {
+    const container = document.getElementById("sampledMarks")
+    container.innerHTML = ""
+    for (let i = 0; i < marks.length; i++) {
 
-    const tsvg = document.getElementById("inVis")
+        let tcan = document.createElement("canvas");
+        tcan.width = marks[i].width
+        tcan.height = marks[i].height
+
+        let tcont = tcan.getContext("2d")
+
+        tcan.setAttribute("num", i)
+        tcont.drawImage(marks[i].canvas, 0, 0)
+
+        dragElement(tcan)
+        container.appendChild(tcan)
+    }
+}
+
+
+function displayAllMarksInSvg(samples) {
+
+    let tkeys = Object.keys(samples)
+
+    let svg = d3.select("#sampleDisplay")
+
+    if (tkeys.length > 0) {
+        svg.style("background-color", "rgba(75,75,75,0.5)")
+        svg.style("display", "block")
+    } else {
+        svg.style("display", "none")
+    }
+
+    const rect = svg.node().getBoundingClientRect()
+
+    const w = rect.width
+    const h = rect.height
+    bounds = [w, h]
+
+    svg.selectAll("image").remove();
+    svg.selectAll(".LassoControls").remove();
+    for (const [key, value] of Object.entries(samples)) {
+
+        console.log(value);
+
+        svg.append("svg:image")
+            .attr("class", "sample")
+            .attr("xlink:href", value.canvas.toDataURL())
+            .attr('num', (d, i) => i)
+            .attr("x", value.rx * w)
+            .attr("y", value.ry * h)
+            .attr("width", value.rWidth * w)
+            .attr("height", value.rHeight * h)
+    }
+
+}
+
+function fillSvg(marks) {
+    // fillSampleBar(marks)
+
+    let svg = d3.select("#sampleDisplay")
+
+    if (marks.length > 0) {
+        svg.style("background-color", "rgba(75,75,75,0.5)")
+        svg.style("display", "block")
+    } else {
+        svg.style("display", "none")
+    }
+
+    const rect = svg.node().getBoundingClientRect()
+
+    const w = rect.width
+    const h = rect.height
+    bounds = [w, h]
+
+    svg.selectAll("image").remove();
+    svg.selectAll(".LassoControls").remove();
+
+    svg.selectAll("dot")
+        .data(marks)
+        .enter()
+        .append("svg:image")
+        .attr("class", "sample")
+        .attr("xlink:href", (d) => d.canvas.toDataURL())
+        .attr('num', (d, i) => i)
+        .attr("x", (d) => d.rx * w)
+        .attr("y", (d) => d.ry * h)
+        .attr("width", (d) => d.rWidth * w)
+        .attr("height", (d) => d.rHeight * h)
+        .on("click", (e, d) => {
+
+            d3.selectAll("image").style("opacity", 1)
+            // showControls(svg, [d.rx * w, d.ry * h], e.target)
+
+            // loadModal(sampleData.find((d) => d === el.__data__))
+        })
+
+    /*const tsvg = document.getElementById("inVis")
 
 
     const rect = tsvg.getBoundingClientRect()
@@ -28,7 +123,7 @@ function fillSvg(marks) {
     svg.style("height", rect.height + "px")
 
 
-    svg.selectAll("image").remove();
+
 
     const w = rect.width
     const h = rect.height
@@ -91,7 +186,7 @@ function fillSvg(marks) {
 
     svg.selectAll("image").call(drag2)
 
-
+*/
 }
 
 function loopViews(timer = 3000) {
@@ -814,4 +909,71 @@ function imgDragEnd(event) {
         dragMod = false
 
     }
+}
+
+function showAllSamples(samples) {
+
+}
+
+
+function showControls(svg, coords, elem) {
+
+    let offX = 12
+    let offY = 8
+
+    let marg = 10
+
+    svg.selectAll(".LassoControls").remove();
+    let g = svg.append("g")
+        .attr("class", "LassoControls")
+
+    let rad = 13
+    let size = 19
+
+    g.append("circle")
+        .attr("cx", coords[0] + size / 2 + offX)
+        .attr("cy", coords[1] + size / 2 + offY)
+        .attr("r", rad)
+
+    g.append("svg:image")
+        .attr("href", "assets/images/buttons/plus.png")
+        .attr("x", coords[0] + offX)
+        .attr("y", coords[1] + offY)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("id", "mergeSvg")
+        .attr("class", "svgButton")
+        .style("clip-path", `circle(${rad}px)`)
+        .on("click", function (e) {
+
+            let tplus = document.getElementById("palettePlusMark")
+
+            addACan(tplus, newSelectedPalette, elem)
+
+
+        })
+
+
+    g.append("circle")
+        .attr("cx", marg + size + coords[0] + size / 2 + offX)
+        .attr("cy", coords[1] + size / 2 + offY)
+        .attr("r", rad)
+
+    g.append("svg:image")
+        .attr("href", "assets/images/buttons/del.png")
+        .attr("x", marg + size + coords[0] + offX)
+        .attr("y", coords[1] + offY)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("id", "deleteSvg")
+        .attr("class", "svgButton")
+        .style("clip-path", `circle(${rad}px)`)
+        .on("click", function (e) {
+
+            let id = +elem.getAttribute("num")
+
+            sampleData.splice(id, 1);
+            fillSvg(sampleData)
+        })
+
 }

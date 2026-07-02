@@ -1,3 +1,13 @@
+let gSampleType = "rect"
+
+let saveAllowed = false;
+let currSampleList = {}
+
+let sampling = false
+
+let currSampleEdited;
+
+
 function resetListeners(can) {
     // can.onmousemove = null;
     // can.onmousedown = null;
@@ -10,21 +20,25 @@ function resetListeners(can) {
 
 function switchMode(type) {
     let can = document.getElementById("inVis")
+    gSampleType = type
+
 
     if (type === "rect") {
         resetListeners(can)
 
         can.onpointerdown = e => {
+            if (isDragging) return
             origin = {x: e.offsetX, y: e.offsetY};
+            sampling = true
 
         };
 
         can.onpointerup = e => {
-
+            if (isDragging) return
             const torigin = {...origin}
 
             origin = null;
-
+            sampling = false
             clear();
             drawImage();
 
@@ -45,6 +59,32 @@ function switchMode(type) {
         can.onpointermove = onMouseMove
         can.onpointerup = onMouseUp
 
+    } else if (type === "grab") {
+
+        resetListeners(can)
+
+        can.onpointerdown = onMouseDown
+        can.onpointermove = onMouseMove
+        can.onpointerup = onMouseUp
+
+        /*        can.onpointerdown = e => {
+                    origin = {x: e.offsetX, y: e.offsetY};
+
+                };
+
+                can.onpointerup = e => {
+
+                    const torigin = {...origin}
+
+                    origin = null;
+
+                    clear();
+                    drawImage();
+
+                    addGrabSample(torigin.x, torigin.y, e.offsetX - torigin.x, e.offsetY - torigin.y);
+                };
+                can.onpointermove = render;*/
+
     }
 
 
@@ -54,10 +94,22 @@ function switchMode(type) {
 //----------------- Rect stuff
 
 const drawImage = () => {
-    let can = document.getElementById("inVis")
-    let cont = can.getContext('2d');
+    if (!isDragging) {
+        let can = document.getElementById("inVis")
+        let cont = can.getContext('2d');
 
-    cont.drawImage(currImg, 0, 0, ...viewDim);
+
+        cont.setTransform(1, 0, 0, 1, 0, 0);
+        cont.clearRect(0, 0, can.width, can.height);
+
+        cont.setTransform(
+            zoom, 0,
+            0, zoom,
+            -x0 * zoom,
+            -y0 * zoom
+        );
+        cont.drawImage(currImg, 0, 0, viewDim[0], viewDim[1]);
+    }
 }
 
 const drawSelection = (e) => {
@@ -66,6 +118,8 @@ const drawSelection = (e) => {
 
     cont.strokeStyle = "#000";
     cont.beginPath();
+
+    cont.setTransform(1, 0, 0, 1, 0, 0);
     cont.rect(origin.x, origin.y, e.offsetX - origin.x, e.offsetY - origin.y);
     cont.stroke();
 };
@@ -83,10 +137,12 @@ const clear = () => {
 
 const render = (e) => {
 
-    if (origin) {
+    if (origin && !isDragging && sampling) {
         clear();
         drawImage();
         drawSelection(e);
+
+
     }
 }
 
@@ -94,7 +150,7 @@ async function addRectSample(x, y, width, height) {
 
 
     let coords = curateCoordinates(x, y, width, height);
-
+    coords = screenRectToWorld(coords)
 
     let can = document.getElementById("inVis")
     let trec = can.getBoundingClientRect()
@@ -106,14 +162,18 @@ async function addRectSample(x, y, width, height) {
     let tcont = tcan.getContext('2d');
 
 
-    tcan.width = coords[2]
-    tcan.height = coords[3]
+    let canW = 80
+    let canH = 80
 
-    tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
+
+    tcan.width = Math.min(coords[2], canW)
+    tcan.height = Math.min(coords[3], canH)
+
+    // tcan.style.border = "solid " + categories[selectedCategory].color + " 2px"
 
     let tcat = {}
 
-    tcat[selectedCategory] = categories[selectedCategory]
+    // tcat[selectedCategory] = categories[selectedCategory]
 
     let tres = {
         x: coords[0],
@@ -127,18 +187,31 @@ async function addRectSample(x, y, width, height) {
         ry: coords[1] / ty,
         rWidth: coords[2] / tx,
         rHeight: coords[3] / ty,
-        categories: tcat,
+        // categories: tcat,
         data: {}
     }
 
     let dp = tres
 
+    let n = Object.keys(currSampleList).length
+    currSampleList[`mark${n}`] = tres
 
-    sampleData.push(tres)
+    let container = document.getElementById("marksHolder")
 
-    let marks = document.getElementById("marks")
+    let tdiv = document.createElement("div");
+    tdiv.style.position = "relative";
+    tdiv.innerHTML = `<img onclick="removeMark('mark${n}',this)" src="assets/images/buttons/del.png" style="width: 12px;cursor: pointer;position: absolute;top: 3px;left: 3px"> `
+    tdiv.appendChild(tcan);
+    container.appendChild(tdiv)
 
-    marks.append(tcan)
+
+    tdiv.onclick = editSample
+
+    // sampleData.push(tres)
+    /*
+        let marks = document.getElementById("marks")
+
+        marks.append(tcan)*/
 
     tcont.drawImage(currImg,
         Math.round(dp.rx * currImg.width),
@@ -147,12 +220,111 @@ async function addRectSample(x, y, width, height) {
         Math.round(dp.rHeight * currImg.height),
         0,
         0,
-        dp.width,
-        dp.height);
+        tcan.width,
+        tcan.height);
+
+    // let svg = d3.select("#sampleDisplay")
+
+    // fillSvg(sampleData)
+    // showControls(svg, [tres.x - 25, tres.y - 25], tcan)
+}
+
+
+function newAddGrabbedSample(points) {
+    let can = document.getElementById("inVis")
+
+
+    let ncan = grabCutFromSelection(can, points)
+
+    document.getElementById("paletteMarks").append(ncan)
+
+}
+
+async function addGrabSample(x, y, width, height) {
+
+
+    let coords = curateCoordinates(x, y, width, height);
+
+    // otherGrab(coords);
+
+    let can = document.getElementById("inVis")
+    let trec = can.getBoundingClientRect()
+    let tx = trec.width
+    let ty = trec.height
+
+
+    let tcan = document.createElement('canvas');
+    // let tcont = tcan.getContext('2d');
+
+
+    tcan.width = coords[2]
+    tcan.height = coords[3]
+
+
+    let tcat = {}
+
+    tcat[selectedCategory] = categories[selectedCategory]
+
+
+    // let dp = tres
+
+
+    let marks = document.getElementById("marks")
+
+
+    let rCoords = [coords[0] / tx,
+        coords[1] / ty,
+        coords[2] / tx,
+        coords[3] / ty]
+
+
+    let placeHolder = document.createElement("canvas");
+    let tcont = placeHolder.getContext('2d');
+
+    placeHolder.width = currImg.naturalWidth
+    placeHolder.height = currImg.naturalHeight
+
+    tcont.drawImage(currImg, 0, 0)
+
+    console.log(placeHolder);
+    let grabbed = otherGrab(placeHolder, rCoords)
+    marks.append(grabbed)
+
+    console.log("dsadsadasda");
+    // tcont.drawImage(currImg,
+    //     Math.round(dp.rx * currImg.width),
+    //     Math.round(dp.ry * currImg.height),
+    //     Math.round(dp.rWidth * currImg.width),
+    //     Math.round(dp.rHeight * currImg.height),
+    //     0,
+    //     0,
+    //     dp.width,
+    //     dp.height);
+
+
+    // otherGrab(tcan)
+
+    let tres = {
+        x: coords[0],
+        y: coords[1],
+        width: coords[2],
+        height: coords[3],
+        type: "rect",
+        canvas: grabbed,
+        // img: tcan.toDataURL("image/png"), //use of imgs for furture works -> load from json ?
+        rx: coords[0] / tx,
+        ry: coords[1] / ty,
+        rWidth: coords[2] / tx,
+        rHeight: coords[3] / ty,
+        categories: tcat,
+        data: {}
+    }
+
+    sampleData.push(tres)
+
 
     fillSvg(sampleData)
 }
-
 
 function curateCoordinates(x, y, width, height) {
 
@@ -190,7 +362,12 @@ function onMouseDown(e) {
 
 function onMouseUp() {
     mouseDown = 0
-    addFreeSample(stroke)
+    if (gSampleType === "free") {
+        addFreeSample(stroke)
+    } else if (gSampleType === "grab") {
+        newAddGrabbedSample(stroke)
+    }
+
     stroke = []
     // drawImage()
 
@@ -295,9 +472,9 @@ async function addFreeSample(points) {
     )
 
 
-    let marks = document.getElementById("marks")
+    /*    let marks = document.getElementById("marks")
 
-    marks.append(tcan)
+        marks.append(tcan)*/
     sampleData.push(tres)
     fillSvg(sampleData)
 }
@@ -337,4 +514,175 @@ function tempTest() {
             0,
             tw,
             th*/
+}
+
+
+function removeMark(id, e) {
+
+    e.parentElement.remove()
+    delete currSampleList[id]
+}
+
+function updateName(e) {
+
+    let t = e.value
+    let btn = document.getElementById("exportPalette")
+
+    if (t === "") {
+        btn.classList.add("btnDisabled")
+        saveAllowed = false
+    } else {
+        btn.classList.remove("btnDisabled")
+        saveAllowed = true
+    }
+
+}
+
+function movePalette2Available() {
+
+
+    let name = document.getElementById("newPaletteName").value
+
+    if (saveAllowed && name !== "") {
+
+        if (megaPalettes[name] === undefined) {
+
+        } else {
+            name += '_' + Object.keys(megaPalettes).length
+        }
+
+        let marks = {}
+        let i = 0
+
+        for (const [_, val] of Object.entries(currSampleList)) {
+            console.log(val.canvas.width, val.canvas.height);
+            marks["mark" + i] = {
+                proto: {canvas: val.canvas}
+            }
+            i++
+        }
+
+        let tpal = {
+            displayType: "range",
+            originImg: currImg.cloneNode(true),
+            sampling: currSampleList,
+            encodings: {
+                range: {
+                    marks
+                }
+            }
+        }
+
+        appendSingle(tpal, name)
+        currSampleList = {}
+        document.getElementById("marksHolder").innerHTML = ""
+        document.getElementById("newPaletteName").value = ""
+        switchPalette()
+        savePal(tpal, name)
+
+
+    }
+}
+
+
+function editSample(e) {
+    let el = e.target
+
+    let proto
+    if (el.matches("canvas")) {
+        proto = el
+    } else {
+        proto = el.querySelector('canvas');
+    }
+
+    currSampleEdited = proto
+    document.getElementById("paletteContainer").style.display = "block";
+    primRot = undefined
+
+
+    let trange = document.getElementById("strokewidth")
+    trange.onchange = function (e) {
+
+        const val = parseInt(document.getElementById("strokewidth").value);
+        stWidth = val
+    }
+
+    document.getElementById('strokecolor').onchange = function () {
+
+        stColor = this.value
+    }
+
+
+    paletteResetZoom()
+
+    let can = document.getElementById("paletteEdit")
+    let cont = can.getContext("2d")
+
+    let trec = can.getBoundingClientRect()
+
+    can.width = trec.width;
+    can.height = trec.height;
+
+    let w = trec.width
+    let h = trec.height
+
+
+    // corners[1][0] - corners[0][0]
+    let tw = proto.width
+    let th = proto.height
+
+
+    cont.clearRect(0, 0, 900, 900)
+    cont.drawImage(proto,
+        0,
+        0,
+        proto.width,
+        proto.height,
+        can.width / 2 - tw / 2,
+        can.height / 2 - th / 2,
+        tw,
+        th
+    );
+
+
+    can.onpointerdown = onMouseDownPalette
+    can.onpointermove = onMouseMovePalette
+    can.onpointerup = onMouseUpPalette
+    can.onclick = onClickPalette
+
+
+    let control = document.getElementById('editControl')
+
+    control.onclick = function (e) {
+
+        let el = e.target
+
+        if (el.matches('img')) {
+            el = el.parentNode
+            if (el.classList.contains('selectablePallete')) {
+                document.getElementById("selectedButton2").removeAttribute("id")
+                el.setAttribute("id", "selectedButton2")
+            }
+        }
+
+    }
+    // can.onwheel = paletteZoom
+
+    document.getElementById("paletteEditRotate").oninput = function (e) {
+        primRot = +this.value
+        paletteRotate(primRot)
+    }
+    paletteTempCan = document.createElement("canvas");
+    paletteTempCan.width = can.width;
+    paletteTempCan.height = can.height;
+
+    let tcon = paletteTempCan.getContext('2d')
+
+    tcon.drawImage(can, 0, 0)
+
+    can.addEventListener("mousewheel", paletteZoom, false);
+    can.addEventListener("DOMMouseScroll", paletteZoom, false);
+    // can.addEventListener("mousewheel", zoom, false);
+    // can.addEventListener("DOMMouseScroll", zoom, false);
+
 }
