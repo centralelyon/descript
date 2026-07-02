@@ -55,10 +55,9 @@
         <!--        <img onclick="loadState()" src="assets/images/buttons/right.png" style="filter:invert(1);width: 25px;height: 26px;cursor: pointer">-->
         <p style="margin-right: 9px;margin-left: 9px;line-height: 17px;width: 80px">...or upload one</p>
         <input type="file" id="fileInputState" accept="application/json">
-        <button style="color: #f1f1f1" onclick="dumpState()"><img onclick="loadState()"
-                                                                  src="assets/images/buttons/save.png"
-                                                                  style="filter:invert(1);width: 15px;height: 15px;margin-right: 5px;cursor: pointer">save
-            State
+        <button style="color: #f1f1f1" onclick="dumpState()">
+            <img onclick="loadState()" src="assets/images/buttons/save.png"
+                 style="filter:invert(1);width: 15px;height: 15px;margin-right: 5px;cursor: pointer">save
         </button>
     </div>
     <div style="justify-content: left;margin-left: 30px;display: flex" id="navButtonList">
@@ -95,16 +94,16 @@
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container"
-     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;height: calc(99vh - 40px); min-height:900px;padding-top: 8px;overflow: hidden" id="">
+     style="  max-width: unset;width:99vw;margin-bottom: 5%;display: flex;height: calc(99vh - 40px); min-height:900px;padding-top: 8px;overflow: hidden"
+     id="">
     <div style="width: 225px;display: flex;flex-direction:column; border-right: dashed 3px rgb(66 66 66 / 0.29); height: 94.5vh;"
          id="sideSettings">
 
 
-
         <div style="flex: 2;margin-top: 32px">
             <div style=" height: 100%" class="">
-<!--                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px"> Available-->
-<!--                    Palettes</p>-->
+                <!--                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px"> Available-->
+                <!--                    Palettes</p>-->
                 <div id="AllPaletteCont">
 
                 </div>
@@ -144,31 +143,31 @@
     </div>
 
     <div style="width: calc(100% - 650px);border-radius: 14px;margin-top: 32px;position: relative">
-<!--        <div style="display: none" id="paletteDetails">
+        <!--        <div style="display: none" id="paletteDetails">
 
-            <div style="position: absolute;width: 18px;height: 18px;right: 65px;top: 13px;cursor: pointer">
-                <img style="width: inherit;filter: invert(1)" onclick="newSavePalette()"
-                     src="assets/images/buttons/save.png">
-            </div>
-            <div style="position: absolute;width: 18px;height: 18px;right: 40px;top: 13px;cursor: pointer">
-                <img style="width: inherit;filter: invert(1)" onclick="delPalette()"
-                     src="assets/images/buttons/del.png">
-            </div>
-            <div style="position: absolute;width: 25px;height: 25px;right: 10px;top: 10px;cursor: pointer">
-                <img style="width: inherit;filter: invert(1)" onclick="hidePalette()"
-                     src="assets/images/buttons/cross.png">
-            </div>
+                    <div style="position: absolute;width: 18px;height: 18px;right: 65px;top: 13px;cursor: pointer">
+                        <img style="width: inherit;filter: invert(1)" onclick="newSavePalette()"
+                             src="assets/images/buttons/save.png">
+                    </div>
+                    <div style="position: absolute;width: 18px;height: 18px;right: 40px;top: 13px;cursor: pointer">
+                        <img style="width: inherit;filter: invert(1)" onclick="delPalette()"
+                             src="assets/images/buttons/del.png">
+                    </div>
+                    <div style="position: absolute;width: 25px;height: 25px;right: 10px;top: 10px;cursor: pointer">
+                        <img style="width: inherit;filter: invert(1)" onclick="hidePalette()"
+                             src="assets/images/buttons/cross.png">
+                    </div>
 
 
-            <div id="paletteTitle" style="width: 100%; display: flex">
-            </div>
-            <div></div>
-            <div id="paletteMarks" style="width: 100%; display: flex">
-            </div>
-            <div id="paletteControls" style="width: 100%; display: flex">
-            </div>
+                    <div id="paletteTitle" style="width: 100%; display: flex">
+                    </div>
+                    <div></div>
+                    <div id="paletteMarks" style="width: 100%; display: flex">
+                    </div>
+                    <div id="paletteControls" style="width: 100%; display: flex">
+                    </div>
 
-        </div>-->
+                </div>-->
 
         <div>
             <div class="" style="display: none" id="paletteContainer">
@@ -357,7 +356,6 @@
                     </div>
                 </div>
                 -->
-
 
 
         <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>

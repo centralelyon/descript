@@ -317,53 +317,7 @@ function dropPalette(e, elmnt) {
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
 
-
-        if (megaPalettes[name] !== undefined) {
-            name += Object.keys(megaPalettes).length
-        }
-
-        let tflag = false
-
-        if (Object.keys(megaPalettes).length === 0) {
-            tflag = true
-        }
-
-        // megaPalettes[name] = {...allPalettes[num]}
-        megaPalettes[name] = deepClone(allPalettes[num])
-
-        if (megaPalettes[name].scale === undefined) {
-            megaPalettes[name].scale = 1
-        }
-
-        dataBinding[name] = ""
-        addPaletteInfoToCollage(megaPalettes[name], name)
-        addASelectedPalette(name)
-
-        addPaletteMarksCompo(name)
-        updateDotsAndSvgs()
-
-
-        megaGlyph[name] = {
-            dataColumn: "",
-            size: {
-                dataColumn: "",
-                scale: "",
-            },
-            intensity: {
-                dataColumn: "",
-                scale: "",
-            }
-        }
-        megaGlyph[name].color = makeColorScale(name, "")
-        // makeMarkTree()
-
-        // displayPalette(name)
-
-        if (tflag) {
-            tdrawRefactor()
-        } else {
-            updateSvg()
-        }
+        selectThisPalette(name,num)
     }
 }
 

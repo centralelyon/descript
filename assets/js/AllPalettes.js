@@ -5,7 +5,7 @@ let palSources = [
     "week15_squares",
     "week15_RightSymbol",
     "week15_InnerCircle",
-    "week26_circle",
+    // "week26_circle",
     // "sudoku_time",
     // "sudoku_level",
     // "sudoku_hint",
@@ -104,6 +104,9 @@ function addASelectedPalette(key) {
     // propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style="display: flex;width: 123px"><p  style="font-weight: 500 ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="width: 70px;height: 30px;padding: 0 8px">${options}</select></div><div style="display: inline-block" onclick="appendEncoding('${key}')"><img  style="width: 15px;cursor: pointer;border-radius: 10px;padding: 2px;border: 1px solid #424242" src="assets/images/buttons/plus.png"></div></div>`;
     propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style=""><p  style=" ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="">${options}</select></div></div>`;
 
+
+
+    // propertyContainer.appendChild(arrowDiv);
     let sel = makeEncodingSelect(key)
     let selectHold = document.createElement("div");
     selectHold.className = "selectHold";
@@ -142,6 +145,56 @@ function setAddNewMenu() {
 }
 
 
+function selectThisPalette(name,num) {
+    if (megaPalettes[name] !== undefined) {
+        name += Object.keys(megaPalettes).length
+    }
+
+    let tflag = false
+
+    if (Object.keys(megaPalettes).length === 0) {
+        tflag = true
+    }
+
+    // megaPalettes[name] = {...allPalettes[num]}
+    megaPalettes[name] = deepClone(allPalettes[num])
+
+    if (megaPalettes[name].scale === undefined) {
+        megaPalettes[name].scale = 1
+    }
+
+    dataBinding[name] = ""
+    addPaletteInfoToCollage(megaPalettes[name], name)
+    addASelectedPalette(name)
+
+    addPaletteMarksCompo(name)
+    updateDotsAndSvgs()
+
+
+    megaGlyph[name] = {
+        dataColumn: "",
+        size: {
+            dataColumn: "",
+            scale: "",
+        },
+        intensity: {
+            dataColumn: "",
+            scale: "",
+        }
+    }
+    megaGlyph[name].color = makeColorScale(name, "")
+    // makeMarkTree()
+
+    // displayPalette(name)
+
+    if (tflag) {
+        tdrawRefactor()
+    } else {
+        updateSvg()
+    }
+
+}
+
 async function initAllPalette() {
 
 
@@ -171,6 +224,11 @@ async function initAllPalette() {
         canContainer.className = "canPreview";
 
         tdiv.appendChild(canContainer);
+        let arrowDiv = document.createElement("div");
+
+        arrowDiv.className = "paletteArrowDiv";
+        arrowDiv.innerHTML = `<img src ="assets/images/buttons/side.png" style="transform: scaleX(-1);cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
+        tdiv.appendChild(arrowDiv);
         container.appendChild(tdiv);
 
         dragElement(tdiv)

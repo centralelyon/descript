@@ -819,6 +819,7 @@ li .fakeGrammarRow {
     cursor: grab;
     margin-left: 5px;
     background-color: #fff;
+    position: relative;
 
 }
 
@@ -898,7 +899,6 @@ p, h3, h4, h5, img {
 .sideContent {
     display: none;
 }
-
 
 
 .draggedover {
@@ -1304,4 +1304,18 @@ p, h3, h4, h5, img {
     cursor: pointer;
     width: 12px;
     height: 12px;
+}
+
+.paletteArrowDiv img {
+    width: 12px;
+    height: 12px;
+
+}
+
+.paletteArrowDiv {
+    position: absolute;
+    right: 7px;
+    z-index: 99;
+    /*border-right: solid 1px #424242;*/
+    top: 37%;
 }
