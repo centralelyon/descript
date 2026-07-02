@@ -244,7 +244,7 @@ async function init() {
 
 // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
-    document.getElementById("paletteLoader").addEventListener("change", importPalette);
+    // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
     document.getElementById("glyphTree").addEventListener("click", cancelCollapse)
@@ -262,8 +262,19 @@ async function init() {
 
 
     stateSel.onchange = loadState
+
+
 }
 
+function selectTab(tab) {
+    switchPalette()
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+    });
+
+
+    tab.classList.add('active');
+}
 
 async function getData(url) {
 
@@ -945,11 +956,13 @@ async function fillAllPalette() {
 
 function displaySample() {
     let canContainer = document.getElementById("canvasContainer");
+    let sampleContainer = document.getElementById("samplingHolder");
     let svgContainer = document.getElementById("fakePreviewSvg");
 
     let tableContainer = document.getElementById("newTableContainer");
     let settingsContainer = document.getElementById("settingsContainer");
     canContainer.style.display = "block"
+    sampleContainer.style.display = "block"
     svgContainer.style.display = "none"
     tableContainer.style.display = "none"
     settingsContainer.style.display = "none"
@@ -959,12 +972,14 @@ function displaySample() {
 function hideSample() {
 
     let canContainer = document.getElementById("canvasContainer");
+    let sampleContainer = document.getElementById("samplingHolder");
     let svgContainer = document.getElementById("fakePreviewSvg");
 
     let tableContainer = document.getElementById("newTableContainer");
     let settingsContainer = document.getElementById("settingsContainer");
 
     canContainer.style.display = "none"
+    sampleContainer.style.display = "none"
     svgContainer.style.display = "block"
     tableContainer.style.display = "block"
     settingsContainer.style.display = "flex"
