@@ -347,10 +347,14 @@ function editPalette(e) {
     }
 
     // corners[1][0] - corners[0][0]
-    let tw = proto.corners[1][0] - proto.corners[0][0]
-    let th = proto.corners[1][1] - proto.corners[0][1]
+    let tw = proto.canvas.width
+    let th = proto.canvas.height
+    if (proto.corners) {
 
+        tw = proto.corners[1][0] - proto.corners[0][0]
+        th = proto.corners[1][1] - proto.corners[0][1]
 
+    }
     cont.clearRect(0, 0, 900, 900)
     cont.drawImage(proto.canvas,
         0,
@@ -802,18 +806,41 @@ function savePalette() {
     // resCan.width = corn.width
     // resCan.height = corn.height
 
+    let tw = Math.min(corn.width, resCan.width)
+    let th = Math.min(corn.height, resCan.height)
+
+    resCan.width = tw
+    resCan.height = th
+
     const resCont = resCan.getContext('2d')
 
 
     resCont.clearRect(0, 0, 999, 999)
     resCont.save()
-    resCont.translate(resCan.width / 2, resCan.width / 2);
-    resCont.rotate(toRad(primRot));
+    resCont.translate(resCan.width / 2, resCan.height / 2);
+
+    if(primRot !== undefined)
+        resCont.rotate(toRad(primRot));
+
+
     // resCont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
 
 
-    let tw = Math.min(corn.width, resCan.width)
-    let th = Math.min(corn.height, resCan.height)
+
+
+    console.log(corn);
+    console.log(tw,th);
+    // document.body.appendChild(resCont)
+
+let factor = 2
+
+    if (tw<15) {
+        factor = 4
+    } else if (tw<40) {
+        factor = 2.5
+    } else {
+        factor = 2
+    }
 
 
     resCont.drawImage(paletteTempCan,
@@ -821,24 +848,59 @@ function savePalette() {
         corn.y,
         corn.width,
         corn.height,
-        -tw / 2,
-        -th / 2,
+        -(tw / factor),
+        -(th / factor),
         tw,
         th
     )
-    resCont.restore();
 
-    if (selectedPalette[2] === "mark" && !palSwitch) {
-        if (selectedPalette[1]) {
 
-            // marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
-            megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
-        } else {
-            marks[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
+/*
+    resCont.drawImage(paletteTempCan,
+        corn.x,
+        corn.y,
+        corn.width,
+        corn.height,
+        -tw/4,
+        -th/4,
+        tw,
+        th
+    )
+*/
+
+/*    resCont.setTransform(1,0,0,1,0,0);
+
+    resCont.drawImage(
+        paletteTempCan,
+        corn.x, corn.y, corn.width, corn.height,
+        0, 0, corn.width, corn.height
+    );*/
+
+    // const sx = corn.x;
+    // const sy = corn.y;
+    // const sw = corn.width;
+    // const sh = corn.height;
+    //
+    // resCont.drawImage(
+    //     paletteTempCan,
+    //     sx, sy, sw, sh,
+    //     -sw / 2, -sh / 2,
+    //     sw, sh
+    // );
+
+    if (selectedPalette) {
+        if (selectedPalette[2] === "mark" && !palSwitch) {
+            if (selectedPalette[1]) {
+
+                // marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
+                megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
+            } else {
+                marks[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
+
+            }
+
 
         }
-
-
     }
     document.getElementById("paletteContainer").style.display = "none";
 
@@ -1759,9 +1821,9 @@ function delEncoding(key, val) {
 
     select.innerHTML += `<option value="${val}">${val}</option>`
 
-    let div =document.querySelector(`div[key="${key}"][val="${val}"]`)
+    let div = document.querySelector(`div[key="${key}"][val="${val}"]`)
 
-    if (val ==="color") {
+    if (val === "color") {
         megaGlyph[key].color.dataColumn = ""
     }
 

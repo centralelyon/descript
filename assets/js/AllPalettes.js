@@ -1,10 +1,13 @@
 let allPalettes = []
 
 let palSources = [
-
-    "week15_squares",
-    "week15_RightSymbol",
-    "week15_InnerCircle",
+    "test"
+    // "week15_squares",
+    // "week15_test",
+    // "week15_RightSymbol",
+    // "week15_Symbol",
+    // "week15_InnerCircle",
+    // "week15_circle",
     // "week26_circle",
     // "sudoku_time",
     // "sudoku_level",
@@ -105,7 +108,6 @@ function addASelectedPalette(key) {
     propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style=""><p  style=" ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="">${options}</select></div></div>`;
 
 
-
     // propertyContainer.appendChild(arrowDiv);
     let sel = makeEncodingSelect(key)
     let selectHold = document.createElement("div");
@@ -145,7 +147,7 @@ function setAddNewMenu() {
 }
 
 
-function selectThisPalette(name,num) {
+function selectThisPalette(name, num) {
     if (megaPalettes[name] !== undefined) {
         name += Object.keys(megaPalettes).length
     }
@@ -253,7 +255,7 @@ async function initAllPalette() {
                 b64 = allMarks[MarkNames[j]].proto.canvas
                 allMarks[MarkNames[j]].source = allMarks[MarkNames[j]].proto.canvas
             }
-
+            console.log(b64);
             let tcan = cloneCanvas(b64)
             tcan.style.width = `${subW}px`
             tcan.style.height = `${subH}px`
@@ -293,26 +295,48 @@ async function loadSavedPalette(url) {
 
     const palette = await d3.json(url)
 
+    console.log(palette);
 
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
         if (value.proto) {
+
+
             value.proto.canvas = await convertToCanvas(value.proto.canvas)
+
+            // console.log(tcan);
+            // value.proto.canvas = tcan
+
             // removeColor(241, 241, 241,   value.proto.canvas, 15)
         }
 
-        if (value.source) {
-            value.source = await convertToCanvas(value.source)
-            // removeColor(241, 241, 241, value.source, 15)
-        }
+        /*      if (value.source) {
+                  console.log("here");
+                  value.source = await convertToCanvas(value.source)
+                  // removeColor(241, 241, 241, value.source, 15)
+              }*/
+    }
+
+    for (const [key, value] of Object.entries(palette.sampling)) {
+        value.canvas = await convertToCanvas(value.canvas)
     }
 
 
+    if (palette.originImg) {
+        console.log("here");
+        const img = new Image();
+        img.src = palette.originImg;
+        palette.originImg = img;
+    }
+
+    console.log(palette);
+
+    document.body.appendChild(palette.originImg);
     let n = Object.keys(megaPalettes).length
 
 
     allPalettes.push(palette)
 
-    // megaPalettes[`temp${n}`] = jsonObj
+// megaPalettes[`temp${n}`] = jsonObj
 
 
 }
@@ -382,16 +406,19 @@ function bindingMouseOver(elem) {
     elem.addEventListener("mouseout", hideOrigin)
 
 
-    function displayOrigin(e) {
-
+    async function displayOrigin(e) {
 
         let tempKey = elem.getAttribute("name")
         let tempNum = +elem.getAttribute("number");
-        if (tempNum) {
+
+        if (tempNum !==undefined) {
+
             if (allPalettes[tempNum].originImg) {
                 displaySample()
 
                 let tcan = document.getElementById("inVis")
+                await allPalettes[tempNum].originImg.decode()
+
                 resetView(tcan, allPalettes[tempNum].originImg)
 
 
@@ -586,8 +613,10 @@ function updateDotsAndSvgs() {
 }
 
 
-function savePal(palette, key) {
+async function savePal(palette, key) {
 
+    palette = deepClone(palette)
+    console.log(palette);
     let res = {}
     for (const [key, value] of Object.entries(palette)) {
         if (typeof value === "object" && key !== "originImg" && key !== "sampling") {
@@ -597,22 +626,30 @@ function savePal(palette, key) {
 
     }
 
-    res.originImg = imageToBase64(palette.originImg)
+    // palette.originImg.crossOrigin = "anonymous";
 
+    palette.originImg.crossOrigin = "anonymous";
+    await palette.originImg.decode();
+    let tstr = imageToBase64(palette.originImg)
+
+    palette.originImg = tstr
     const marks = {}
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
-        marks[key] = {
-            ...value,
-            proto: {
-                ...value.proto
-            }
-        };
+        /*        marks[key] = {
+                    ...value,
+                    proto: {
+                        ...value.proto
+                    }
+                };*/
 
-        marks[key].proto.canvas = cloneCanvas(palette.encodings.range.marks[key].proto.canvas).toDataURL("image/png")
+        console.log(key);
+
+        // marks[key].proto.canvas = cloneCanvas(palette.encodings.range.marks[key].proto.canvas).toDataURL("image/png")
+        value.proto.canvas = value.proto.canvas.toDataURL("image/png")
 
         if (palette.encodings.range.marks[key].source) {
 
-            marks[key].source = cloneCanvas(palette.encodings.range.marks[key].source).toDataURL("image/png")
+            value.source = value.source.toDataURL("image/png")
         }
     }
 
@@ -623,9 +660,9 @@ function savePal(palette, key) {
         sample[key].canvas = cloneCanvas(palette.sampling[key].canvas).toDataURL("image/png")
     }
 
-    res.sampling = sample
+    palette.sampling = sample
 
-    download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
+    download(JSON.stringify(palette), "palette_" + key + ".json", "text/json");
 
 }
 

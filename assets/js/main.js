@@ -463,6 +463,8 @@ onkeydown = function (e) {
         dragMod = true
         let svg = d3.select("#svgDisplay")
         svg.selectAll("image").style("cursor", "grab")
+
+
     }
 
     if (keymap[18]) {
@@ -807,6 +809,7 @@ async function convertToCanvas(url) {
     const can = document.createElement('canvas');
     const cont = can.getContext('2d');
     const img = new Image;
+    img.crossOrigin = "anonymous";
 
     await new Promise(r => img.onload = r, img.src = url);
 
@@ -1025,8 +1028,11 @@ function fakeWeek26() {
 window.addEventListener("keydown", (e) => {
     if (e.key === "Shift" && !isDragging) {
         let tcan = document.getElementById("inVis")
-        tcan.style.cursor = "grab";
+        tcan.style.cursor = "move";
         sampling = false
+        let btn = document.getElementById("moveBtn")
+
+        btn.classList.add("selectedButton");
     }
 });
 
@@ -1034,6 +1040,9 @@ window.addEventListener("keyup", (e) => {
     if (e.key === "Shift") {
         let tcan = document.getElementById("inVis")
         tcan.style.cursor = "default";
+        let btn = document.getElementById("moveBtn")
+
+        btn.classList.remove("selectedButton");
         // sampling = true
     }
 });

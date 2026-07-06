@@ -224,8 +224,9 @@
                 </div>
             </div>
         </div>
-        <div id="canvasContainer" style="display: none;width: 100%;z-index: 2">
-            <div style="display: flex"><p>Upload an image.. </p>
+        <div id="canvasContainer" style="display: none;width: 100%;z-index: 2;margin-top: -50px;margin-left: -82px">
+            <div style="display: flex;margin-bottom: -15px;margin-top: 14px">
+                <p>Upload an image.. </p>
                 <div class="buttonImg" style="padding: 0;border: none">
                     <input type="file" name="img" id="imgLoader" style="display: none;"/>
                     <img src="assets/images/buttons/addimg.png" class="lightBorder"
@@ -247,45 +248,51 @@
 
         <div id="samplingHolder" style="display: none;width: 100%;z-index: 2">
             <div id="inVisHolder"
-                 style="width: calc(100% - 650px);position: relative;background-color:#fff;max-height: 80vh;">
+                 style="">
                 <!--        <div style=";position:absolute;">
                             <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer"
                                  onclick="switchPalette()">
                         </div>-->
+                <div style="position: absolute;margin-top:3px;margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
+                    <div class="buttonImg">
+                        <img id="moveBtn" src="assets/images/buttons/move.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'move')"
+                             style=""/>
+                    </div>
+                    <div class="buttonImg">
+                        <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'rect')" style=""/>
+                    </div>
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/lasso.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'free')"
+                             style=""/>
+                    </div>
 
+
+                    <div class="buttonImg">
+                        <img src="assets/images/buttons/magic.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'grab')"
+                             style=""/>
+                    </div>
+                    <!--            <div>
+                                    <div class="buttonImg" style="padding: 0;border: none">
+                                        &lt;!&ndash;                        <input type="file" name="img" id="imgLoader" style="display: none;"/>&ndash;&gt;
+                                        &lt;!&ndash;                        <img src="assets/images/buttons/addimg.png" class="lightBorder"&ndash;&gt;
+                                        &lt;!&ndash;                             style="" onclick="fakeFile('imgLoader')"/>&ndash;&gt;
+                                    </div>
+                                </div>-->
+                </div>
 
                 <canvas id="inVis"
-                        style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;"></canvas>
+                        style="width: 100%;height: 100%;border-radius: 5px"></canvas>
                 <svg id="sampleDisplay"
                      style="width: 100%;height: 100%;position: absolute;pointer-events: none;top: 0">
 
                 </svg>
             </div>
-            <div style="margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
-                <div class="buttonImg">
-                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'rect')" style=""/>
-                </div>
-                <div class="buttonImg">
-                    <img src="assets/images/buttons/lasso.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'free')"
-                         style=""/>
-                </div>
 
-                <div class="buttonImg">
-                    <img src="assets/images/buttons/magic.png" class="lightBorder"
-                         onclick="switchSampleSelect(this,'grab')"
-                         style=""/>
-                </div>
-                <div>
-                    <div class="buttonImg" style="padding: 0;border: none">
-                        <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
-                        <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
-                        <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
-                    </div>
-                </div>
-            </div>
-            <div style=";overflow-y: auto;height: 161px" id="paletteCont">
+            <div  id="paletteCont">
                 <div style="display: flex">
                     <div>
                         <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
@@ -306,7 +313,6 @@
         <!--            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
 
         <!--            </div>-->
-
 
 
         <div id="svgHolder" style="height: 100%;">
@@ -350,8 +356,6 @@
         </div>
 
     </div>
-
-
 
 
     <!--        <div id="datasetContainer"-->

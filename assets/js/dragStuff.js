@@ -533,20 +533,25 @@ function dragElement3(elmnt) {
         // set the element's new position:
         elmnt.style.position = "absolute";
 
-        let tcords = elmnt.parentElement.getBoundingClientRect();
+        let rect = elmnt.parentElement.getBoundingClientRect();
 
-        elmnt.style.left =
-            ((e.pageX - offsetX)) + "px";
-
+        // elmnt.style.left =
+        //     ((e.pageX ) - tcords.x) + "px";
+        let parentRect = elmnt.parentElement.getBoundingClientRect()
+        console.log(parentRect.top);
         elmnt.style.top =
-            ((e.pageY - offsetY + 50) - 50) + "px";
+            ((e.pageY - offsetY + 50) - (parentRect.top -40)) + "px";
+        // console.log('sdsadas');
+
+        // elmnt.style.top  = e.pageY  - (rect.top + rect.height / 2);
+
 
         // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
         // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
 
 
         let container = document.getElementById("list-" + key)
-        let tt = getInsertionPoint(container, (e.pageY))
+        let tt = getInsertionPoint(container, e.pageY)
         // tt === placeholder.nextSibling ||
 
         if (tt.matches(".colorBrand") || tt.matches(".sizeDiv")) {

@@ -85,6 +85,9 @@ function switchMode(type) {
                 };
                 can.onpointermove = render;*/
 
+    } else if (type === "move") {
+
+        sampling = false
     }
 
 
@@ -564,7 +567,7 @@ function movePalette2Available() {
 
         let tpal = {
             displayType: "range",
-            originImg: currImg.cloneNode(true),
+            originImg: currImg,
             sampling: currSampleList,
             encodings: {
                 range: {

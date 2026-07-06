@@ -111,13 +111,15 @@ body {
 }
 
 #selFlat {
-    height: 100%;
-    width: calc(100% - 32px);
+    /*height: 100%;*/
+    width: 71.3%;
     display: block;
     /*overflow-x: scroll;*/
     overflow-y: hidden;
     white-space: nowrap;
-    margin-left: 9px;
+    margin-left: 331px;
+    margin-top: -33px;
+    position: absolute;
 }
 
 
@@ -310,6 +312,7 @@ canvas {
     width: 24px;
     display: inline-block;
     padding: 1px;
+    background-color: #fff;
 }
 
 
@@ -411,11 +414,14 @@ canvas {
 
 #paletteCont {
     border-radius: 5px;
-    padding: 20px;
+    padding-left: 20px;
+    padding-top: 5px;
     border: solid #333 thin;
-    width: 65.2%;
+    width: 93%;
     margin-top: 5px;
     background-color: #fff;
+    height: 180px;
+    overflow-y: hidden;
 }
 
 
@@ -426,7 +432,7 @@ canvas {
     top: 270px;
     border-radius: 5px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    left: 550px;
+    /*left: 550px;*/
     background-color: #424242;
     color: #fff;
     z-index: 99;
@@ -1352,4 +1358,19 @@ p, h3, h4, h5, img {
     position: relative;
     top: 1px; /* Covers the bottom border */
     z-index: 2;
+}
+
+#inVisHolder {
+    width: 95%;
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #424242;
+    border-radius: 14px;
+    /*padding-right: 6px;*/
+    /*padding-left: 6px;*/
+}
+
+.selectedButton {
+    border: red solid 1px !important;
+    filter: none !important;
 }

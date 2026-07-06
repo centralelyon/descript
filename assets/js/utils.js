@@ -167,9 +167,11 @@ async function tempRemoveProtoCan() {
 
 function imageToBase64(img, type = 'image/png') {
     const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    console.log(img.complete);
+    canvas.width = img.width;
+    canvas.height = img.height;
 
+    console.log(canvas.width);
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
 
