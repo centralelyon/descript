@@ -1,13 +1,13 @@
 let allPalettes = []
 
 let palSources = [
-    "test"
-    // "week15_squares",
+    // "test"
+    "week15_square",
     // "week15_test",
-    // "week15_RightSymbol",
+    "week15_rightSymbol",
     // "week15_Symbol",
     // "week15_InnerCircle",
-    // "week15_circle",
+    "week15_circle",
     // "week26_circle",
     // "sudoku_time",
     // "sudoku_level",
