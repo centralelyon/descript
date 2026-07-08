@@ -1,5 +1,7 @@
 let allPalettes = []
 
+let displayMode = "Visualization"
+
 let palSources = [
     // "test"
     "week15_square",
@@ -218,7 +220,7 @@ async function initAllPalette() {
 
     container.innerHTML = "";
 
-    container.appendChild(setAddNewMenu());
+    // container.appendChild(setAddNewMenu());
 
     for (let i = 0; i < allPalettes.length; i++) {
         let tdiv = document.createElement("div");
@@ -234,7 +236,7 @@ async function initAllPalette() {
         let arrowDiv = document.createElement("div");
 
         arrowDiv.className = "paletteArrowDiv";
-        arrowDiv.innerHTML = `<img src ="assets/images/buttons/side.png" style="transform: scaleX(-1);cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
+        arrowDiv.innerHTML = `<img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
         tdiv.appendChild(arrowDiv);
         container.appendChild(tdiv);
 
@@ -416,30 +418,34 @@ function bindingMouseOver(elem) {
         let tempKey = elem.getAttribute("name")
         let tempNum = +elem.getAttribute("number");
 
-        if (tempNum !==undefined) {
+        if (tempNum !== undefined) {
+            if (displayMode === "Visualization") {
 
-            if (allPalettes[tempNum].originImg) {
-                displaySample()
+                if (allPalettes[tempNum].originImg) {
+                    displaySample()
 
-                let tcan = document.getElementById("inVis")
-                await allPalettes[tempNum].originImg.decode()
+                    let tcan = document.getElementById("inVis")
+                    await allPalettes[tempNum].originImg.decode()
 
-                resetView(tcan, allPalettes[tempNum].originImg)
+                    resetView(tcan, allPalettes[tempNum].originImg)
 
 
-                displayAllMarksInSvg(allPalettes[tempNum].sampling)
-            } else {
-                hideSample()
+                    displayAllMarksInSvg(allPalettes[tempNum].sampling)
+                } else {
+                    hideSample()
+                }
+
+
             }
-
-
         }
     }
 
     function hideOrigin() {
         tempKey = undefined
         tempNum = undefined
-        hideSample()
+        if (displayMode === "Visualization") {
+            hideSample()
+        }
     }
 
 
@@ -667,6 +673,9 @@ async function savePal(palette, key) {
 
     palette.sampling = sample
 
+
+    let tt = document.querySelector(".tab").click()
+    console.log(tt);
     download(JSON.stringify(palette), "palette_" + key + ".json", "text/json");
 
 }

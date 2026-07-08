@@ -42,7 +42,7 @@ function displayAllMarksInSvg(samples) {
     let svg = d3.select("#sampleDisplay")
 
     if (tkeys.length > 0) {
-        svg.style("background-color", "rgba(75,75,75,0.5)")
+        svg.style("background-color", "rgba(75,75,75,0.85)")
         svg.style("display", "block")
     } else {
         svg.style("display", "none")
@@ -57,8 +57,6 @@ function displayAllMarksInSvg(samples) {
     svg.selectAll("image").remove();
     svg.selectAll(".LassoControls").remove();
     for (const [key, value] of Object.entries(samples)) {
-
-        console.log(value);
 
         svg.append("svg:image")
             .attr("class", "sample")
@@ -78,7 +76,7 @@ function fillSvg(marks) {
     let svg = d3.select("#sampleDisplay")
 
     if (marks.length > 0) {
-        svg.style("background-color", "rgba(75,75,75,0.5)")
+        svg.style("background-color", "rgba(75,75,75,0.7)")
         svg.style("display", "block")
     } else {
         svg.style("display", "none")

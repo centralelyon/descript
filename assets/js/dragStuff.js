@@ -317,7 +317,7 @@ function dropPalette(e, elmnt) {
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
 
-        selectThisPalette(name,num)
+        selectThisPalette(name, num)
     }
 }
 
@@ -519,6 +519,7 @@ function dragElement3(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+        elmnt.classList.add("dragging");
     }
 
     function elementDrag(e) {
@@ -540,7 +541,7 @@ function dragElement3(elmnt) {
         let parentRect = elmnt.parentElement.getBoundingClientRect()
         console.log(parentRect.top);
         elmnt.style.top =
-            ((e.pageY - offsetY + 50) - (parentRect.top -40)) + "px";
+            ((e.pageY - offsetY + 50) - (parentRect.top - 40)) + "px";
         // console.log('sdsadas');
 
         // elmnt.style.top  = e.pageY  - (rect.top + rect.height / 2);
@@ -551,19 +552,33 @@ function dragElement3(elmnt) {
 
 
         let container = document.getElementById("list-" + key)
-        let tt = getInsertionPoint(container, e.pageY)
+        // let tt = getInsertionPoint(container, e.clientY)
+        let tt = getInsertionPoint(container, e.clientY, placeholder)
         // tt === placeholder.nextSibling ||
 
-        if (tt.matches(".colorBrand") || tt.matches(".sizeDiv")) {
+        if (tt && (tt.matches(".colorBrand") || tt.matches(".sizeDiv"))) {
             return;
         }
+
+        console.log(tt);
         if (tt) {
             container.insertBefore(placeholder, tt);
         } else {
-            container.appendChild(placeholder);
-        }
 
+            let moreCan = container.querySelector(".moreCan")
+            // container.appendChild(placeholder);
+            container.insertBefore(placeholder,moreCan);
+        }
     }
+
+
+    /*        if (tt) {
+                container.insertBefore(placeholder, tt);
+            } else {
+                container.appendChild(placeholder);
+            }
+
+        }*/
 
     function closeDragElement(e) {
         // stop moving when mouse button is released:
@@ -574,7 +589,7 @@ function dragElement3(elmnt) {
         document.onmousemove = null;
         dragging = false
         let telem = placeholder.nextSibling
-
+        elmnt.classList.remove("dragging")
         if (telem !== null) {
             let curNb = elmnt.getAttribute("number")
 
@@ -614,7 +629,7 @@ function dragElement3(elmnt) {
 }
 
 
-function getInsertionPoint(container, mouseY) {
+/*function getInsertionPoint(container, mouseY) {
     const items = [...container.children].filter(
         el =>
             !el.classList.contains("dragging") &&
@@ -635,6 +650,41 @@ function getInsertionPoint(container, mouseY) {
     }
 
     return closest;
+}*/
+
+function getInsertionPoint(container, mouseY, placeholder) {
+    const items = [...container.children].filter(
+        el => !el.classList.contains("dragging")
+            && !el.classList.contains("placeholder")
+            && !el.classList.contains("colorBrand")
+            && !el.classList.contains("sizeDiv")
+            && !el.classList.contains("markAnchorSvg")
+            && !el.classList.contains("dataBindingLabel")
+            && !el.classList.contains("dataBindingContainer")
+            && !el.classList.contains("moreCan")
+            && !el.classList.contains("palettePlusMark")
+
+    );
+
+    const BUFFER = 8;
+
+    for (const item of items) {
+        const rect = item.getBoundingClientRect();
+        const middle = rect.top + rect.height / 2;
+
+        const placeholderIsBefore =
+            !!(item.compareDocumentPosition(placeholder) & Node.DOCUMENT_POSITION_PRECEDING);
+
+        if (placeholderIsBefore) {
+
+            if (mouseY < middle + BUFFER) return item;
+        } else {
+
+            if (mouseY < middle - BUFFER) return item;
+        }
+    }
+
+    return null;
 }
 
 /////////////////// Drag marks in composition
@@ -656,10 +706,10 @@ function markDragged(event, d) {
 
     // console.log(event.x, "vs", drawnMarks[name].x, "with", markOffx)
 
-    elem.attr("x", event.x- markOffx);
+    elem.attr("x", event.x - markOffx);
     elem.attr("y", event.y - markOffy);
 
-    drawnMarks[name].x = event.x- markOffx
+    drawnMarks[name].x = event.x - markOffx
     drawnMarks[name].y = event.y - markOffy
     // drawnMarks[name]
     // d3.select("circles")
@@ -672,6 +722,6 @@ function markDragEnded(event, d) {
     // d.fy = null;
     let mark = d3.select(this)
     mark.style("cursor", "grab");
-    markOffx =0
-    markOffy =0
+    markOffx = 0
+    markOffy = 0
 }

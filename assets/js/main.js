@@ -272,6 +272,7 @@ function selectTab(tab) {
         t.classList.remove('active');
     });
 
+    displayMode = tab.innerHTML
 
     tab.classList.add('active');
 }

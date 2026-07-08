@@ -1634,8 +1634,9 @@ function getMarkRange(key) {
 function makeBindingDisplay(container, palette, dataColumn) {
     if (!isCont(chartDataset.data, dataColumn)) {
         let set = new Set(chartDataset.data.map(d => d[dataColumn]));
-        let uniques = Array.from(set)
-
+        console.log(set);
+        let uniques = Array.from(set).map(d=> ""+d)
+        console.log(uniques);
         let nMarks = Object.keys(megaPalettes[palette].encodings.range.marks).length
 
         for (let i = 0; i < uniques.length; i++) {

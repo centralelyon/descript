@@ -953,7 +953,7 @@ p, h3, h4, h5, img {
 }
 
 #sampleDisplay .sample {
-    outline: solid 1px #424242;
+    outline: solid 2px #f1f1f1;
 }
 
 .LassoControls {
@@ -1098,6 +1098,7 @@ p, h3, h4, h5, img {
     overflow-x: auto;
     justify-content: center;
     position: relative;
+    height: 100%;
 }
 
 .protoCanvas {
@@ -1250,6 +1251,8 @@ p, h3, h4, h5, img {
     flex-direction: column;
     position: absolute;
     margin-top: -2px;
+    overflow-x: visible !important;
+    top: 35px
 }
 
 .moreCan {

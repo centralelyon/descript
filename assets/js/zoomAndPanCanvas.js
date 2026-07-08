@@ -18,7 +18,7 @@ function redraw(canvas,image) {
     const ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    currImg = image
     ctx.setTransform(
         zoom, 0,
         0, zoom,

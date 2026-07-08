@@ -580,7 +580,7 @@ function movePalette2Available() {
         currSampleList = {}
         document.getElementById("marksHolder").innerHTML = ""
         document.getElementById("newPaletteName").value = ""
-        switchPalette()
+        // switchPalette()
         savePal(tpal, name)
 
 

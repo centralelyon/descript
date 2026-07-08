@@ -153,7 +153,16 @@ function makeRange(palette, data, column) {
             if (i < markKeys.length) {
                 marks[allVals[i]] = pal.encodings.range.marks[markKeys[i]]
             } else {
-                marks[allVals[i]] = pal.encodings.range.marks[markKeys[0]] //todo: set a default visual when no encoding is provided
+
+                let tcan = document.createElement("canvas");
+                tcan.width = 60;
+                tcan.height = 60;
+                marks[allVals[i]] = deepClone(pal.encodings.range.marks[markKeys[0]])
+                marks[allVals[i]].proto.canvas = tcan
+
+
+                //todo: set a default visual when no encoding is provided
+
             }
 
         }
@@ -176,6 +185,8 @@ function makeMarks(encodings, dataset) {
         }
 
     }
+
+    console.log(marks);
 
     return marks
 }
@@ -297,7 +308,6 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
 
             //TODO: bug inducing with chained anchors
             drawnMarks[order[j]] = {x: offX, y: offY, w: sourceW, h: sourceH}
-
 
 
         }

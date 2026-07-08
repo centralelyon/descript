@@ -1188,7 +1188,7 @@ function drawAxis(svg, data, xScale, yScale, marginH, marginV) {
 }
 
 
-function drawGrid(svg, data, encodings, order, tmarks) {
+function drawGrid(svg, viewport,data, encodings, order, tmarks) {
     let xCumul = 5
     let yCumul = 5
 
@@ -1207,7 +1207,7 @@ function drawGrid(svg, data, encodings, order, tmarks) {
         let tw = can.width
         let th = can.height
 
-        svg.append("image")
+        viewport.append("image")
             .attr("xlink:href", can.toDataURL("image/png"))
             .attr("x", xCumul)
             .attr("y", yCumul)
@@ -1224,7 +1224,7 @@ function drawGrid(svg, data, encodings, order, tmarks) {
 
 }
 
-function drawScatter(svg, data, encodings, order, tmarks) {
+function drawScatter(svg,viewport, data, encodings, order, tmarks) {
     let [xScale, yScale] = getScales(svg, data)
     const tdata = data.map(d => ({...d}));
     let size = svg.node().getBoundingClientRect()
@@ -1274,7 +1274,7 @@ function drawScatter(svg, data, encodings, order, tmarks) {
         d.canvas = makeCollageFromData(encodings, order, tmarks, d);
     });
 
-    svg.selectAll("dots")
+    viewport.selectAll("dots")
         .data(tdata)
         .enter()
         .append("image")
@@ -1292,7 +1292,7 @@ function drawScatter(svg, data, encodings, order, tmarks) {
 
 }
 
-function drawForce(svg, data, encodings, order, tmarks) {
+function drawForce(svg, viewport,data, encodings, order, tmarks) {
 
     let size = svg.node().getBoundingClientRect()
 
@@ -1316,7 +1316,7 @@ function drawForce(svg, data, encodings, order, tmarks) {
         d.y = (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2) + 20 * Math.random());
     });
 
-    let timages = svg.selectAll("dots")
+    let timages = viewport.selectAll("dots")
         .data(tdata)
         .enter()
         .append("image")
@@ -1379,6 +1379,16 @@ function drawForce(svg, data, encodings, order, tmarks) {
 async function tdrawRefactor() {
     let svg = d3.select("#fakePreviewSvg")
     svg.selectAll("*").remove();
+    let viewport =   svg.append("g")
+        .attr("id","viewport")
+
+    const zoom = d3.zoom()
+        .scaleExtent([0.2, 10])
+        .on("zoom", (event) => {
+            viewport.attr("transform", event.transform);
+        });
+
+    svg.call(zoom);
     let data = chartDataset.data
 
     let encodings = Object.keys(dataBinding)
@@ -1397,11 +1407,11 @@ async function tdrawRefactor() {
 
 
     if (layout === "grid") {
-        drawGrid(svg, data, encodings, order, tmarks)
+        drawGrid(svg,viewport, data, encodings, order, tmarks)
     } else if (layout === "scatterplot") {
-        drawScatter(svg, data, encodings, order, tmarks)
+        drawScatter(svg,viewport, data, encodings, order, tmarks)
     } else if (layout === "force") {
-        drawForce(svg, data, encodings, order, tmarks)
+        drawForce(svg,viewport, data, encodings, order, tmarks)
     }
 
 
