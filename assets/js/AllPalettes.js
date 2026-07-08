@@ -12,7 +12,7 @@ let palSources = [
     "week05_empty",
     "week05_full",
     "week05_star",
-    "week05_type",
+    "week05_type"
     // "week26_circle",
     // "sudoku_time",
     // "sudoku_level",
