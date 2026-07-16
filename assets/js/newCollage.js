@@ -14,9 +14,111 @@ let anchoringRef = ""
 let nAnchor = 0
 
 let collageMod = "details"
-
-
 let selectedAnchor
+
+
+let collageDisplaySwitch = false // false = cartesian ?
+
+
+function cartesianOfMarks(root) {
+    const rootKeys = Object.keys(root);
+
+    const keySets = rootKeys.map(rk => {
+        const marks = root[rk]?.encodings?.range?.marks ?? {};
+        return Object.keys(marks);
+    });
+
+    const combos = keySets.reduce(
+        (acc, set) => acc.flatMap(a => set.map(v => [...a, v])),
+        [[]]
+    );
+
+    return combos.map(combo =>
+        Object.fromEntries(rootKeys.map((rk, i) => [rk, combo[i]]))
+    );
+}
+
+
+function showExample() {
+
+    let svg = d3.select("#bigCartesian")
+
+
+    svg.selectAll("*").remove();
+
+    let encodings = Object.keys(dataBinding)
+
+    let data = chartDataset.data
+    let tmarks = makeMarks(encodings, data)
+    let order = getOrder(encodings)
+
+    let trect = svg.node().getBoundingClientRect()
+
+    // console.log(tmarks);
+
+
+    let cart = cartesianOfMarks(megaPalettes)
+
+    console.log(cart);
+    let n = cart.length
+    let size = 120
+    let margin = 5
+    // data[(Math.random() * data.length) | 0] -- Random Data
+    for (let i = 0; i < n; i++) {
+        let can = makeCollageFromData(encodings, order, tmarks, data[(Math.random() * data.length) | 0], cart[i])
+
+        let coords = getGridLayout(trect.width, trect.height, n,i, size)
+
+        svg.append("image")
+            .attr("xlink:href", can.toDataURL("image/png"))
+            .attr("x", coords.x)
+            .attr("y", coords.y)
+            .attr("width", coords.itemSize)
+            .attr("height", coords.itemSize)
+            .datum(cart[i])
+
+
+    }
+
+
+}
+
+function getGridLayout(
+    containerWidth,
+    containerHeight,
+    itemCount,
+    currentIndex,
+    maxItemSize
+) {
+    let bestCols = 1;
+    let bestRows = itemCount;
+    let bestSize = 0;
+
+    for (let cols = 1; cols <= itemCount; cols++) {
+        const rows = Math.ceil(itemCount / cols);
+
+        const size = Math.min(
+            containerWidth / cols,
+            containerHeight / rows,
+            maxItemSize // never exceed this size
+        );
+
+        if (size > bestSize) {
+            bestSize = size;
+            bestCols = cols;
+            bestRows = rows;
+        }
+    }
+
+    return {
+        cols: bestCols,
+        rows: bestRows,
+        itemSize: bestSize,
+        x: (currentIndex % bestCols) * bestSize,
+        y: Math.floor(currentIndex / bestCols) * bestSize
+    };
+}
+
 
 function placeMark() {
 
@@ -62,7 +164,6 @@ function setMarker() {
 }
 
 
-
 function drawAllCollageAnchor() {
     let svg = d3.select("#composition")
 
@@ -76,74 +177,74 @@ function drawAllCollageAnchor() {
         // console.log(value.linkTo);
         console.log(key)
         if (value.linkTo !== undefined) {
-                console.log(key);
+            console.log(key);
 
-                let name = key
+            let name = key
 
             let frAnchor = megaPalettes[value.apply].encodings.range.marks["mark0"].proto.anchors[value.linkTo]
             let toAnchor = megaPalettes[key].encodings.range.marks["mark0"].proto.anchors[value.linkTo]
 
-                tFrom = {
-                    x: drawnMarks[value.apply].x + drawnMarks[value.apply].w * frAnchor.rx,
-                    y: drawnMarks[value.apply].y + drawnMarks[value.apply].h * frAnchor.ry,
-                    name: value.apply
-                }
-                tTo = {
-                    x: drawnMarks[key].x + drawnMarks[key].w * toAnchor.rx,
-                    y: drawnMarks[key].y + drawnMarks[key].h * toAnchor.ry,
-                    name: key
-                }
-
-                svg.append("path")
-                    // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
-                    .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
-                    .attr("stroke-width", 3)
-                    .style("stroke", "#424242")
-                    .attr("fill", "none")
-                    .attr("name", name)
-                    .attr("nAnchor", value.linkTo)
-                    .attr("from", tFrom.name)
-                    .attr("to", tTo.name)
-                    .on("click", selAnchorPath)
-                // .attr("marker-mid", "url(#arrow)")
-                // .attr("stroke", drawnMarks[name].x)
-
-
-                svg.append("circle")
-                    .attr("cx", tFrom.x)
-                    .attr("cy", tFrom.y)
-                    .attr("type", "from")
-                    .style("fill", collageColScale(tTo.name))
-                    .attr("from", tFrom.name)
-                    .attr("to", tTo.name)
-                    .attr("name", name)
-                    .attr("nAnchor", value.linkTo)
-                    .attr("r", 5)
-
-                    .attr("fill", drawnMarks[name].x)
-                    .call(d3.drag()
-                        .on("start", dragstarted)
-                        .on("drag", dragged)
-                        .on("end", dragended))
-
-
-                svg.append("circle")
-                    .attr("cx", tTo.x)
-                    .attr("cy", tTo.y)
-                    .attr("type", "to")
-                    .attr("from", tFrom.name)
-                    .attr("to", tTo.name)
-                    .attr("name", name)
-                    .style("fill", collageColScale(tFrom.name))
-                    .attr("nAnchor", value.linkTo)
-                    .attr("r", 5)
-                    .attr("fill", drawnMarks[name].x)
-                    .call(d3.drag()
-                        .on("start", dragstarted)
-                        .on("drag", dragged)
-                        .on("end", dragended))
-
+            tFrom = {
+                x: drawnMarks[value.apply].x + drawnMarks[value.apply].w * frAnchor.rx,
+                y: drawnMarks[value.apply].y + drawnMarks[value.apply].h * frAnchor.ry,
+                name: value.apply
             }
+            tTo = {
+                x: drawnMarks[key].x + drawnMarks[key].w * toAnchor.rx,
+                y: drawnMarks[key].y + drawnMarks[key].h * toAnchor.ry,
+                name: key
+            }
+
+            svg.append("path")
+                // .attr("d", `M ${tFrom.x} ${tFrom.y} Q ${cx} ${curve} ${tTo.x} ${tTo.y}`)
+                .attr("d", makeLink(tFrom.x, tFrom.y, tTo.x, tTo.y))
+                .attr("stroke-width", 3)
+                .style("stroke", "#424242")
+                .attr("fill", "none")
+                .attr("name", name)
+                .attr("nAnchor", value.linkTo)
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .on("click", selAnchorPath)
+            // .attr("marker-mid", "url(#arrow)")
+            // .attr("stroke", drawnMarks[name].x)
+
+
+            svg.append("circle")
+                .attr("cx", tFrom.x)
+                .attr("cy", tFrom.y)
+                .attr("type", "from")
+                .style("fill", collageColScale(tTo.name))
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .attr("name", name)
+                .attr("nAnchor", value.linkTo)
+                .attr("r", 5)
+
+                .attr("fill", drawnMarks[name].x)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+
+
+            svg.append("circle")
+                .attr("cx", tTo.x)
+                .attr("cy", tTo.y)
+                .attr("type", "to")
+                .attr("from", tFrom.name)
+                .attr("to", tTo.name)
+                .attr("name", name)
+                .style("fill", collageColScale(tFrom.name))
+                .attr("nAnchor", value.linkTo)
+                .attr("r", 5)
+                .attr("fill", drawnMarks[name].x)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+
+        }
     }
 
 }
@@ -161,7 +262,6 @@ function addPaletteInfoToCollage(palette, name) {
         .on("start", markDragStarted)
         .on("drag", markDragged)
         .on("end", markDragEnded);
-
 
 
     svg.append("g")
@@ -741,8 +841,8 @@ function placeRectangleSpiral(
     }
 
     return {
-        x : center.x +60,
-        y:center.y +60,
+        x: center.x + 60,
+        y: center.y + 60,
         w: size.w,
         h: size.h,
     }

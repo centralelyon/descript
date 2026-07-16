@@ -1137,34 +1137,65 @@ function switchForce() {
 
 async function updateSvg(changedEncoding = false) {
 
-    //
-    if (changedEncoding) {
-        tdrawRefactor()
+
+    if (displayMode === "Cartesian Grid") {
+
+        if (changedEncoding) {
+            showExample()
+        } else {
+            let svg = d3.select("#bigCartesian")
+            console.log("called");
+
+
+                    let data = chartDataset.data
+
+                    let encodings = Object.keys(dataBinding)
+                    let [xScale, yScale] = getScales(svg, data)
+
+
+                    let tmarks = makeMarks(encodings, data)
+
+                    let order = getOrder(encodings)
+
+
+                    svg.selectAll("image")
+                        .attr("xlink:href", d =>
+                            makeCollageFromData(encodings, order, tmarks, d,d).toDataURL("image/png"))
+
+        }
     } else {
-        let svg = d3.select("#fakePreviewSvg")
-        let data = chartDataset.data
-
-        let encodings = Object.keys(dataBinding)
-        let [xScale, yScale] = getScales(svg, data)
 
 
-        let tmarks = makeMarks(encodings, data)
+        //
+        if (changedEncoding) {
+            tdrawRefactor()
+        } else {
+            let svg = d3.select("#fakePreviewSvg")
+            let data = chartDataset.data
 
-        let order = getOrder(encodings)
+            let encodings = Object.keys(dataBinding)
+            let [xScale, yScale] = getScales(svg, data)
 
-        svg.selectAll("image")
-            .attr("xlink:href", d =>
-                makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+
+            let tmarks = makeMarks(encodings, data)
+
+            let order = getOrder(encodings)
+
+            svg.selectAll("image")
+                .attr("xlink:href", d =>
+                    makeCollageFromData(encodings, order, tmarks, d).toDataURL("image/png"))
+
+        }
+        /*        .attr("x", d => {
+                    return xScale(d[chartAxis.x])
+                })
+                .attr("y", d => {
+                    return yScale(d[chartAxis.y]);
+                })*/
 
     }
-    /*        .attr("x", d => {
-                return xScale(d[chartAxis.x])
-            })
-            .attr("y", d => {
-                return yScale(d[chartAxis.y]);
-            })*/
-
 }
+
 
 function drawAxis(svg, data, xScale, yScale, marginH, marginV) {
 
@@ -1188,7 +1219,7 @@ function drawAxis(svg, data, xScale, yScale, marginH, marginV) {
 }
 
 
-function drawGrid(svg, viewport,data, encodings, order, tmarks) {
+function drawGrid(svg, viewport, data, encodings, order, tmarks) {
     let xCumul = 5
     let yCumul = 5
 
@@ -1224,13 +1255,12 @@ function drawGrid(svg, viewport,data, encodings, order, tmarks) {
 
 }
 
-function drawScatter(svg,viewport, data, encodings, order, tmarks) {
+function drawScatter(svg, viewport, data, encodings, order, tmarks) {
     let [xScale, yScale] = getScales(svg, data)
     const tdata = data.map(d => ({...d}));
     let size = svg.node().getBoundingClientRect()
     let width = size.width
     let height = size.height
-
 
 
     if (drawLegend) {
@@ -1240,7 +1270,7 @@ function drawScatter(svg,viewport, data, encodings, order, tmarks) {
         let marginV = height * 0.07;
 
 
-        xScale.range([marginH, width -marginH]);
+        xScale.range([marginH, width - marginH]);
         yScale.range([height - marginV, marginV]);
 
         drawAxis(svg, tdata, xScale, yScale, marginH, marginV)
@@ -1268,8 +1298,6 @@ function drawScatter(svg,viewport, data, encodings, order, tmarks) {
     }
 
 
-
-
     tdata.forEach((d, i) => {
         d.canvas = makeCollageFromData(encodings, order, tmarks, d);
     });
@@ -1288,11 +1316,9 @@ function drawScatter(svg,viewport, data, encodings, order, tmarks) {
         })
 
 
-
-
 }
 
-function drawForce(svg, viewport,data, encodings, order, tmarks) {
+function drawForce(svg, viewport, data, encodings, order, tmarks) {
 
     let size = svg.node().getBoundingClientRect()
 
@@ -1379,8 +1405,8 @@ function drawForce(svg, viewport,data, encodings, order, tmarks) {
 async function tdrawRefactor() {
     let svg = d3.select("#fakePreviewSvg")
     svg.selectAll("*").remove();
-    let viewport =   svg.append("g")
-        .attr("id","viewport")
+    let viewport = svg.append("g")
+        .attr("id", "viewport")
 
     const zoom = d3.zoom()
         .scaleExtent([0.2, 10])
@@ -1407,11 +1433,11 @@ async function tdrawRefactor() {
 
 
     if (layout === "grid") {
-        drawGrid(svg,viewport, data, encodings, order, tmarks)
+        drawGrid(svg, viewport, data, encodings, order, tmarks)
     } else if (layout === "scatterplot") {
-        drawScatter(svg,viewport, data, encodings, order, tmarks)
+        drawScatter(svg, viewport, data, encodings, order, tmarks)
     } else if (layout === "force") {
-        drawForce(svg,viewport, data, encodings, order, tmarks)
+        drawForce(svg, viewport, data, encodings, order, tmarks)
     }
 
 
@@ -1506,13 +1532,13 @@ function getScales(svg, data) {
         xScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.x]))
             .range([margin, size.width - margin])
-            // .padding(0.1);
+        // .padding(0.1);
     }
 
     if (!isCont(data, chartAxis.y)) {
         yScale = d3.scaleBand()
             .domain(data.map(d => d[chartAxis.y]))
-            .range([margin,size.height - margin])
+            .range([margin, size.height - margin])
             .padding(0.1);
     }
 

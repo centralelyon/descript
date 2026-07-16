@@ -267,12 +267,14 @@ async function init() {
 }
 
 function selectTab(tab) {
-    switchPalette()
+
     document.querySelectorAll('.tab').forEach(t => {
         t.classList.remove('active');
     });
 
     displayMode = tab.innerHTML
+
+    switchPalette()
 
     tab.classList.add('active');
 }
@@ -961,23 +963,67 @@ async function fillAllPalette() {
 function displaySample() {
     let canContainer = document.getElementById("canvasContainer");
     let sampleContainer = document.getElementById("samplingHolder");
-    let svgContainer = document.getElementById("fakePreviewSvg");
 
-    let tableContainer = document.getElementById("newTableContainer");
-    let settingsContainer = document.getElementById("settingsContainer");
+
     canContainer.style.display = "block"
     sampleContainer.style.display = "block"
+
+}
+
+function hideSample() {
+    let canContainer = document.getElementById("canvasContainer");
+    let sampleContainer = document.getElementById("samplingHolder");
+
+
+    canContainer.style.display = "none"
+    sampleContainer.style.display = "none"
+
+}
+
+function showViz() {
+    let svgContainer = document.getElementById("fakePreviewSvg");
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    let cont = document.getElementById("svgHolder");
+
+    cont.style.display = "block"
+
+    svgContainer.style.display = "block"
+    tableContainer.style.display = "block"
+    settingsContainer.style.display = "flex"
+}
+
+
+function hideViz() {
+    let svgContainer = document.getElementById("fakePreviewSvg");
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    let cont = document.getElementById("svgHolder");
+
+    cont.style.display = "none"
     svgContainer.style.display = "none"
     tableContainer.style.display = "none"
     settingsContainer.style.display = "none"
 }
 
 
-function hideSample() {
+function hideCart() {
+    let cont = document.getElementById("cartesianHolder");
+    cont.style.display = "none";
+}
+
+function showCart() {
+    let cont = document.getElementById("cartesianHolder");
+    cont.style.display = "block";
+    showExample()
+}
+
+/*function hideSample() {
 
     let canContainer = document.getElementById("canvasContainer");
     let sampleContainer = document.getElementById("samplingHolder");
     let svgContainer = document.getElementById("fakePreviewSvg");
+
 
     let tableContainer = document.getElementById("newTableContainer");
     let settingsContainer = document.getElementById("settingsContainer");
@@ -987,20 +1033,29 @@ function hideSample() {
     svgContainer.style.display = "block"
     tableContainer.style.display = "block"
     settingsContainer.style.display = "flex"
-}
+}*/
 
 
 function switchPalette() {
 
-    palSwitch = !palSwitch
 
+    if (displayMode === "Visualization") {
 
-    if (palSwitch) {
+        palSwitch = false
+        hideSample()
+        hideCart()
+        showViz()
+    } else if (displayMode === "Cartesian Grid") {
+
+        hideSample()
+        hideViz()
+        showCart()
+    } else if (displayMode === "Source Image") {
+        palSwitch = true
         d3.select("#sampleDisplay").style("display", "none").selectAll("image").remove();
         displaySample()
-
-    } else {
-        hideSample()
+        hideViz()
+        hideCart()
     }
 
 }

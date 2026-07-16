@@ -1377,3 +1377,10 @@ p, h3, h4, h5, img {
     border: red solid 1px !important;
     filter: none !important;
 }
+
+#bigCartesian {
+    width: 97%;
+    border: solid #555 1px;
+    border-radius: 14px;
+    height: 75%;
+}

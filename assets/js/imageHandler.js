@@ -1,3 +1,5 @@
+let reducedDim = [0,0]
+
 function loadImg(src) {
 
     let im = new Image();
@@ -17,7 +19,17 @@ function loadImg(src) {
 
 
         // cont.drawImage(im, 0, 0, rate[0], rate[1])
-        cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
+
+
+        let th = Math.min(im.height, viewDim[1])
+        // let tw = Math.min(im.width, th * tRatio)
+
+        let tw = Math.min( (im.width *th) / im.height, viewDim[0])
+
+
+        reducedDim = [tw,th]
+
+        cont.drawImage(im, 0, 0, tw, th);
 
         // fillSvg(sampleData)
         // addAPalette()
@@ -34,6 +46,12 @@ function fitCanvas(canvas, image) {
     let trect = document.getElementById("inVisHolder").getBoundingClientRect()
 
     let tScreenHeight = window.innerHeight;
+
+    let tRatio = image.width / image.height;
+
+    // let tw =
+    // let th = Math.min(image.height, tScreenHeight * 0.72)
+    // let tw = Math.min(image.width, th * tRatio)
     let t = Math.min(Math.round((image.height * trect.width) / image.width), tScreenHeight * 0.72)
     viewDim = [trect.width, t]
     canvas.width = viewDim[0]

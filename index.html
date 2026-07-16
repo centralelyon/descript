@@ -106,9 +106,10 @@
                 <!--                    Palettes</p>-->
                 <div id="AllPaletteCont">
 
-                    <div style="width: 100%; margin-top: 50%;text-align: center;margin-left: -15px" id="AllPalettesLoading">
+                    <div style="width: 100%; margin-top: 50%;text-align: center;margin-left: -15px"
+                         id="AllPalettesLoading">
                         <h3 style="width: 100%;text-align: center"> Loading...</h3>
-                        <img  style="width: 30%;height: auto" src="assets/images/buttons/loading.gif">
+                        <img style="width: 30%;height: auto" src="assets/images/buttons/loading.gif">
                     </div>
 
                 </div>
@@ -136,11 +137,17 @@
             <div class="buttonImg" style="position: absolute;width: 15px;margin-left: 10px" id="anchorBtn">
                 <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
             </div>
+            <!--            <svg id="cartesian" width="320" height="320"
+                             style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
+
+
+                        </svg>-->
             <svg id="composition" width="320" height="320"
                  style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
 
 
             </svg>
+
         </div>
         <div id="MarksPaletteList">
 
@@ -247,7 +254,9 @@
         <!--        <div style="display: flex;">-->
         <div class="tabHolder">
             <div class="tab active" onclick="selectTab(this)">Visualization</div>
+            <div class="tab" onclick="selectTab(this)">Cartesian Grid</div>
             <div class="tab" onclick="selectTab(this)">Source Image</div>
+
             <!--            <div class="tab">Settings</div>-->
         </div>
 
@@ -297,7 +306,7 @@
                 </svg>
             </div>
 
-            <div  id="paletteCont">
+            <div id="paletteCont">
                 <div style="display: flex">
                     <div>
                         <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
@@ -358,6 +367,12 @@
                     <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
                 </table>
             </div>
+        </div>
+
+        <div id="cartesianHolder" style="height: 100%;display: none;">
+            <svg style="background-color:#fff;" id="bigCartesian">
+
+            </svg>
         </div>
 
     </div>

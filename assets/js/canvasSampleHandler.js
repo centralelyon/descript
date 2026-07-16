@@ -111,7 +111,7 @@ const drawImage = () => {
             -x0 * zoom,
             -y0 * zoom
         );
-        cont.drawImage(currImg, 0, 0, viewDim[0], viewDim[1]);
+        cont.drawImage(currImg, 0, 0, reducedDim[0], reducedDim[1]);
     }
 }
 
@@ -157,8 +157,8 @@ async function addRectSample(x, y, width, height) {
 
     let can = document.getElementById("inVis")
     let trec = can.getBoundingClientRect()
-    let tx = trec.width
-    let ty = trec.height
+    let tx = reducedDim[0]
+    let ty = reducedDim[1]
 
 
     let tcan = document.createElement('canvas');

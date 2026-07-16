@@ -199,7 +199,12 @@ function selectThisPalette(name, num) {
     if (tflag) {
         tdrawRefactor()
     } else {
-        updateSvg()
+        if (displayMode == "Visualization") {
+            updateSvg()
+        } else if (displayMode == "Cartesian Grid") {
+            updateSvg(true)
+        }
+
     }
 
 }

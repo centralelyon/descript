@@ -17,6 +17,8 @@ function redraw(canvas,image) {
 
     const ctx = canvas.getContext("2d");
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     currImg = image
     ctx.setTransform(
@@ -25,7 +27,11 @@ function redraw(canvas,image) {
         -x0 * zoom,
         -y0 * zoom
     );
-    ctx.drawImage(image, 0, 0,viewDim[0], viewDim[1]);
+
+    let trect = document.getElementById("sampleDisplay").getBoundingClientRect();
+
+
+    ctx.drawImage(image, 0, 0,trect.width, trect.height);
 }
 
 function enableZoomPan(canvas, image) {

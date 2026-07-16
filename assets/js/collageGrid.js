@@ -38,9 +38,11 @@ function makeCartesian() {
 
     }
 
-    let all = cartesian(glyphs)
+    // let all = cartesian(glyphs)
 
     let test = cartesianProduct(glyphs)
+
+    console.log(test);
 
 
     let drawnMarks = {}
@@ -198,11 +200,9 @@ function makeMorph(palette, data, column) {
     return {scale: sizeScale, can: pal.encodings.morph.max.proto.canvas}
 }
 
-function makeCollageFromData(palettes, order, marks, row, color = undefined, size = undefined) {
-
+function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) {
 
     let drawnMarks = {}
-
 
     let tcan = document.createElement("canvas");
     tcan.width = 400;
@@ -223,7 +223,12 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
         if (ref.displayType === "range") {
 
             let mark = marks[order[j]][row[dataBinding[order[j]]]];
-
+            if (gridMark !== undefined) {
+                mark =  megaPalettes[order[j]].encodings.range.marks[gridMark[order[j]]]
+                console.log(gridMark[order[j]]);
+                console.log(order[j]);
+                // console.log("dasdasdasda");
+            }
 
             let can = mark.proto.canvas
             let cl = 1
@@ -270,6 +275,15 @@ function makeCollageFromData(palettes, order, marks, row, color = undefined, siz
 
                 if (to.displayType === "range") {
                     let instancedMark = marks[ref.apply][row[dataBinding[ref.apply]]]
+
+                    if (gridMark !== undefined) {
+
+                        // console.log(megaPalettes[ref.apply]);
+                        instancedMark =  megaPalettes[ref.apply].encodings.range.marks[gridMark[ref.apply]]
+                        // console.log(gridMark[order[j]]);
+                        // console.log("dasdasdasda");
+                    }
+
                     let ToAnchor = instancedMark.proto.anchors[anchorId]
                     let tsc = 1
                     if (instancedMark.scale) {
