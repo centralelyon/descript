@@ -188,8 +188,6 @@ function makeMarks(encodings, dataset) {
 
     }
 
-    console.log(marks);
-
     return marks
 }
 

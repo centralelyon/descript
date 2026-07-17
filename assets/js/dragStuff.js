@@ -567,7 +567,7 @@ function dragElement3(elmnt) {
 
             let moreCan = container.querySelector(".moreCan")
             // container.appendChild(placeholder);
-            container.insertBefore(placeholder,moreCan);
+            container.insertBefore(placeholder, moreCan);
         }
     }
 
@@ -663,7 +663,6 @@ function getInsertionPoint(container, mouseY, placeholder) {
             && !el.classList.contains("dataBindingContainer")
             && !el.classList.contains("moreCan")
             && !el.classList.contains("palettePlusMark")
-
     );
 
     const BUFFER = 8;
@@ -729,12 +728,14 @@ function markDragEnded(event, d) {
 
 function dragElement4(elmnt) {
     var offsetX, offsetY;
-    var originalParent, originalNextSibling;
+    var scrollParent, prevOverflow;
     var startLeft, startTop;
     var currentX = 0, currentY = 0;
     var rafId = null;
     var hasDragged = false;
-    var DRAG_THRESHOLD = 3; // px of movement before it counts as a drag
+    var DRAG_THRESHOLD = 3;
+    var lastClientX = 0, lastClientY = 0;
+    var currentHoverTarget = null;
 
     elmnt.onmousedown = dragMouseDown;
 
@@ -745,8 +746,10 @@ function dragElement4(elmnt) {
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        originalParent = elmnt.parentElement;
-        originalNextSibling = elmnt.nextSibling;
+        // instead of reparenting, just let the parent stop clipping for now
+        scrollParent = elmnt.parentElement;
+        prevOverflow = scrollParent.style.overflow;
+        scrollParent.style.overflow = "visible";
 
         startLeft = rect.left;
         startTop = rect.top;
@@ -756,9 +759,8 @@ function dragElement4(elmnt) {
         elmnt.style.top = startTop + "px";
         elmnt.style.left = startLeft + "px";
         elmnt.style.margin = "0";
-        elmnt.style.willChange = "transform";
-        elmnt.style.pointerEvents = "none"
-        document.body.appendChild(elmnt);
+        elmnt.style.pointerEvents = "none";
+        // no appendChild — elmnt never leaves its original spot in the DOM
 
         document.onmouseup = closeDragElement;
         document.onmousemove = elementDrag;
@@ -771,6 +773,8 @@ function dragElement4(elmnt) {
 
         currentX = e.clientX - offsetX - startLeft;
         currentY = e.clientY - offsetY - startTop;
+        lastClientX = e.clientX;
+        lastClientY = e.clientY;
 
         if (!hasDragged && (Math.abs(currentX) > DRAG_THRESHOLD || Math.abs(currentY) > DRAG_THRESHOLD)) {
             hasDragged = true;
@@ -780,20 +784,29 @@ function dragElement4(elmnt) {
             rafId = requestAnimationFrame(applyPosition);
         }
 
-        d3.selectAll(".paletteMark").style("border","")
+        d3.selectAll(".paletteMark").style("border", "")
         if (e.target.matches(".paletteMark")) {
             // updateSvg();
             e.target.style.border = "dashed 3px #424242"
 
-        } else if(e.target.parentElement.matches(".paletteMark")) {
+        } else if (e.target.parentElement.matches(".paletteMark")) {
             e.target.parentElement.style.border = "dashed 3px #424242"
-            e.target.parentElement.style.boxShadow = "0 0 0 2px rgba(255, 200, 0, 0.6)"
+            // e.target.parentElement.style.boxShadow = "0 0 0 2px rgba(255, 200, 0, 0.6)"
         }
-
     }
 
     function applyPosition() {
         elmnt.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+        const under = document.elementFromPoint(lastClientX, lastClientY);
+        const target = under ? under.closest(".paletteMark") : null;
+
+        if (target !== currentHoverTarget) {
+            if (currentHoverTarget) currentHoverTarget.classList.remove("drag-hover");
+            if (target) target.classList.add("drag-hover");
+            currentHoverTarget = target;
+        }
+
         rafId = null;
     }
 
@@ -807,36 +820,73 @@ function dragElement4(elmnt) {
             rafId = null;
         }
 
-        const parentRect = originalParent.getBoundingClientRect();
-        const elRect = elmnt.getBoundingClientRect();
-
-        if (originalNextSibling) {
-            originalParent.insertBefore(elmnt, originalNextSibling);
-        } else {
-            originalParent.appendChild(elmnt);
+        if (currentHoverTarget) {
+            currentHoverTarget.classList.remove("drag-hover");
         }
 
-        elmnt.style.willChange = "";
+
         elmnt.style.transform = "";
-        elmnt.style.position = "";
         elmnt.style.pointerEvents = "";
-        // elmnt.style.top = finalTop + "px";
-        // elmnt.style.left = finalLeft + "px";
+        elmnt.style.position = "";
 
 
-        if (e.target.matches(".paletteMark")) {
-            // updateSvg();
+        scrollParent.style.overflow = prevOverflow;
 
-        } else {
-
-        }
-
-        // swallow the click event the browser is about to fire
         if (hasDragged) {
-            elmnt.addEventListener("click", suppressClick, { capture: true, once: true });
+            elmnt.addEventListener("click", suppressClick, {capture: true, once: true});
+            d3.selectAll(".paletteMark").style("border", "")
+
+            let telem
+            if (e.target.matches(".paletteMark")) {
+                telem = e.target
+
+            } else if (e.target.parentElement.matches(".paletteMark")) {
+                telem = e.target.parentElement
+            }
+
+            if (telem) {
+                let key = telem.getAttribute("key")
+                let number = telem.getAttribute("number")
+                let tcan = telem.querySelector('canvas');
+                let newCan = elmnt.querySelector('canvas');
+
+                let th = 60
+                let tw = 60
+
+                console.log(newCan.width, newCan.height)
+                if (newCan.height > th){
+                    tw = (th * newCan.width) / newCan.height
+                } else {
+                    // th = newCan.height
+                }
+
+                if (newCan.width > tw && th > 60){
+                    th = (tw * newCan.height) / newCan.width
+                } else if (tw > 60) {
+
+                } else {
+                    // tw = newCan.width
+                }
+
+
+
+                tcan.with = tw
+                tcan.height = th
+
+                let tcon = tcan.getContext("2d")
+                console.log(newCan.height);
+
+
+                tcon.drawImage(newCan,0,0,tw,th)
+
+                console.log(key);
+                console.log(number);
+                console.log(megaPalettes[key].encodings.range.marks[number]);
+                megaPalettes[key].encodings.range.marks[number].proto.canvas = cloneCanvas(newCan)
+                megaPalettes[key].encodings.range.marks[number].source = cloneCanvas(newCan)
+                updateSvg();
+            }
         }
-
-
     }
 
     function suppressClick(e) {

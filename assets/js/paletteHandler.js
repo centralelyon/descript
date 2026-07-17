@@ -786,7 +786,7 @@ function savePalette() {
 
     let resCan
 
-    if (palSwitch) {
+    if (selectedPalette === undefined) {
         resCan = currSampleEdited
     } else {
 
@@ -803,9 +803,6 @@ function savePalette() {
         }
     }
 
-    // resCan.width = corn.width
-    // resCan.height = corn.height
-
     let tw = Math.min(corn.width, resCan.width)
     let th = Math.min(corn.height, resCan.height)
 
@@ -819,24 +816,14 @@ function savePalette() {
     resCont.save()
     resCont.translate(resCan.width / 2, resCan.height / 2);
 
-    if(primRot !== undefined)
+    if (primRot !== undefined)
         resCont.rotate(toRad(primRot));
 
+    let factor = 2
 
-    // resCont.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
-
-
-
-
-    console.log(corn);
-    console.log(tw,th);
-    // document.body.appendChild(resCont)
-
-let factor = 2
-
-    if (tw<15) {
+    if (tw < 15) {
         factor = 4
-    } else if (tw<40) {
+    } else if (tw < 40) {
         factor = 2.5
     } else {
         factor = 2
@@ -855,40 +842,14 @@ let factor = 2
     )
 
 
-/*
-    resCont.drawImage(paletteTempCan,
-        corn.x,
-        corn.y,
-        corn.width,
-        corn.height,
-        -tw/4,
-        -th/4,
-        tw,
-        th
-    )
-*/
-
-/*    resCont.setTransform(1,0,0,1,0,0);
-
-    resCont.drawImage(
-        paletteTempCan,
-        corn.x, corn.y, corn.width, corn.height,
-        0, 0, corn.width, corn.height
-    );*/
-
-    // const sx = corn.x;
-    // const sy = corn.y;
-    // const sw = corn.width;
-    // const sh = corn.height;
-    //
-    // resCont.drawImage(
-    //     paletteTempCan,
-    //     sx, sy, sw, sh,
-    //     -sw / 2, -sh / 2,
-    //     sw, sh
-    // );
-
     if (selectedPalette) {
+        let oldCan = document.getElementById("canvas_" + selectedPalette[0] + "_" + selectedPalette[1])
+        oldCan.width = tw
+        oldCan.height = th
+
+        let oldCon = oldCan.getContext('2d')
+
+        oldCon.drawImage(resCan, 0, 0, tw, th)
         if (selectedPalette[2] === "mark" && !palSwitch) {
             if (selectedPalette[1]) {
 
@@ -905,6 +866,8 @@ let factor = 2
     document.getElementById("paletteContainer").style.display = "none";
 
     // fillPalette()
+
+    selectedPalette = undefined
 
     updateSvg()
 }
@@ -1120,6 +1083,7 @@ function setCatEvents(type, key) {
 function hidePaletteContainer() {
 
     document.getElementById("paletteContainer").style.display = "none";
+    selectedPalette = undefined
 }
 
 function updateLinkTo() {
@@ -1600,20 +1564,77 @@ function addACan(elem, key, img = undefined) {
     tcan.width = 60
     tcan.height = 60
     let name = "mark" + len
+
     if (img) {
         drawCanvasWithScale(img, tcan, 1)
     }
 
-    megaPalettes[key].encodings.range.marks[name] = {
-        value: name,
-        type: "fake",
-        proto: {canvas: tcan, corners: [[0, 0], [tcan.width, tcan.height]]},
+
+    if (megaPalettes[key].encodings.range.marks) {
+        let anchor = {}
+        for (const [_, value] of Object.entries(megaPalettes[key].encodings.range.marks)) {
+            if (value.proto.anchors) {
+                anchor = deepClone(value.proto.anchors)
+                break
+            }
+        }
+
+
+        megaPalettes[key].encodings.range.marks[name] = {
+            value: name,
+            type: "fake",
+            proto: {
+                canvas: tcan,
+                corners: [[0, 0], [tcan.width, tcan.height]],
+
+            },
+        }
+
+        if (anchor != {}) {
+            megaPalettes[key].encodings.range.marks[name].proto.anchors = anchor
+        }
+
+        let tmark = makeSingleMark(key, name, "range", tcan)
+        elem.parentElement.parentElement.insertBefore(tmark, elem.parentElement)
+        // let tcan = tmark.lastChild;
+        let trect = tcan.getBoundingClientRect()
+
+        let tsvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        tmark.appendChild(tsvg)
+
+        dragElement3(tmark)
+        tsvg = d3.select(tsvg)
+
+
+        tsvg
+            .attr("id", "svg-" + key + "-" + name)
+            .attr("class", "markAnchorSvg")
+            .attr("viewBox", `0 0 ${trect.width} ${trect.height}`)
+            .attr("width", trect.width)
+            .attr("height", trect.height)
+
+
+        if (megaPalettes[key].encodings.range.marks[name].proto.anchors) {
+            for (const [id, coords] of Object.entries(megaPalettes[key].encodings.range.marks[name].proto.anchors)) {
+                tsvg.append("circle")
+                    .attr("cx", trect.width * coords.rx)
+                    .attr("cy", trect.height * coords.ry)
+                    .attr("num", id)
+                    .attr("fill", collageColScale(coords.relatedTo))
+                    .style("stroke", "1px")
+                    .attr("palette", key)
+                    .attr("name", name)
+                    .attr("r", "5")
+                    .call(d3.drag()
+                        .on("start", nodeDragst)
+                        .on("drag", nodeDragged)
+                        .on("end", nodeDragend))
+            }
+
+        }
+
+
     }
-
-    let tmark = makeSingleMark(key, name, "range", tcan)
-    elem.parentElement.parentElement.insertBefore(tmark, elem.parentElement)
-    dragElement3(tmark)
-
 }
 
 function getMarkRange(key) {
@@ -1635,7 +1656,7 @@ function makeBindingDisplay(container, palette, dataColumn) {
     if (!isCont(chartDataset.data, dataColumn)) {
         let set = new Set(chartDataset.data.map(d => d[dataColumn]));
         console.log(set);
-        let uniques = Array.from(set).map(d=> ""+d)
+        let uniques = Array.from(set).map(d => "" + d)
         console.log(uniques);
         let nMarks = Object.keys(megaPalettes[palette].encodings.range.marks).length
 

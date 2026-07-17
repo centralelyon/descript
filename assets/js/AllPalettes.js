@@ -267,7 +267,6 @@ async function initAllPalette() {
                 b64 = allMarks[MarkNames[j]].proto.canvas
                 allMarks[MarkNames[j]].source = allMarks[MarkNames[j]].proto.canvas
             }
-            console.log(b64);
             let tcan = cloneCanvas(b64)
             tcan.style.width = `${subW}px`
             tcan.style.height = `${subH}px`
@@ -304,10 +303,7 @@ async function initAllPalette() {
 
 async function loadSavedPalette(url) {
 
-
     const palette = await d3.json(url)
-
-    console.log(palette);
 
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
         if (value.proto) {
@@ -343,7 +339,6 @@ async function loadSavedPalette(url) {
     if (palette.preloadName) {
         if (palette.preloadName !== "") {
             palette.originImg = preload[palette.preloadName];
-            console.log("hererezrzerze");
         }
     }
     // console.log(preload[palette.preloadName]);
