@@ -493,7 +493,7 @@ function dragended(event, d) {
     updateSvg()
 }
 
-
+//Reorder of pixel-mark
 function dragElement3(elmnt) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
@@ -694,7 +694,7 @@ function markDragStarted(event, d) {
     markOffx = event.x - mark.attr("x")
     markOffy = event.y - mark.attr("y")
 
-    console.log();
+
     mark.style("cursor", "grabbing");
 }
 
@@ -724,4 +724,123 @@ function markDragEnded(event, d) {
     mark.style("cursor", "grab");
     markOffx = 0
     markOffy = 0
+}
+
+
+function dragElement4(elmnt) {
+    var offsetX, offsetY;
+    var originalParent, originalNextSibling;
+    var startLeft, startTop;
+    var currentX = 0, currentY = 0;
+    var rafId = null;
+    var hasDragged = false;
+    var DRAG_THRESHOLD = 3; // px of movement before it counts as a drag
+
+    elmnt.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+
+        const rect = elmnt.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        originalParent = elmnt.parentElement;
+        originalNextSibling = elmnt.nextSibling;
+
+        startLeft = rect.left;
+        startTop = rect.top;
+        hasDragged = false;
+
+        elmnt.style.position = "fixed";
+        elmnt.style.top = startTop + "px";
+        elmnt.style.left = startLeft + "px";
+        elmnt.style.margin = "0";
+        elmnt.style.willChange = "transform";
+        elmnt.style.pointerEvents = "none"
+        document.body.appendChild(elmnt);
+
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        elmnt.classList.add("draggingSample");
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+
+        currentX = e.clientX - offsetX - startLeft;
+        currentY = e.clientY - offsetY - startTop;
+
+        if (!hasDragged && (Math.abs(currentX) > DRAG_THRESHOLD || Math.abs(currentY) > DRAG_THRESHOLD)) {
+            hasDragged = true;
+        }
+
+        if (rafId === null) {
+            rafId = requestAnimationFrame(applyPosition);
+        }
+
+        d3.selectAll(".paletteMark").style("border","")
+        if (e.target.matches(".paletteMark")) {
+            // updateSvg();
+            e.target.style.border = "dashed 3px #424242"
+
+        } else if(e.target.parentElement.matches(".paletteMark")) {
+            e.target.parentElement.style.border = "dashed 3px #424242"
+            e.target.parentElement.style.boxShadow = "0 0 0 2px rgba(255, 200, 0, 0.6)"
+        }
+
+    }
+
+    function applyPosition() {
+        elmnt.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        rafId = null;
+    }
+
+    function closeDragElement(e) {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        elmnt.classList.remove("draggingSample");
+
+        if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+
+        const parentRect = originalParent.getBoundingClientRect();
+        const elRect = elmnt.getBoundingClientRect();
+
+        if (originalNextSibling) {
+            originalParent.insertBefore(elmnt, originalNextSibling);
+        } else {
+            originalParent.appendChild(elmnt);
+        }
+
+        elmnt.style.willChange = "";
+        elmnt.style.transform = "";
+        elmnt.style.position = "";
+        elmnt.style.pointerEvents = "";
+        // elmnt.style.top = finalTop + "px";
+        // elmnt.style.left = finalLeft + "px";
+
+
+        if (e.target.matches(".paletteMark")) {
+            // updateSvg();
+
+        } else {
+
+        }
+
+        // swallow the click event the browser is about to fire
+        if (hasDragged) {
+            elmnt.addEventListener("click", suppressClick, { capture: true, once: true });
+        }
+
+
+    }
+
+    function suppressClick(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
 }

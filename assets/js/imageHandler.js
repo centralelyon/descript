@@ -52,7 +52,7 @@ function fitCanvas(canvas, image) {
     // let tw =
     // let th = Math.min(image.height, tScreenHeight * 0.72)
     // let tw = Math.min(image.width, th * tRatio)
-    let t = Math.min(Math.round((image.height * trect.width) / image.width), tScreenHeight * 0.72)
+    let t = Math.min(Math.round((image.height * trect.width) / image.width), tScreenHeight * 0.71)
     viewDim = [trect.width, t]
     canvas.width = viewDim[0]
     canvas.style.width = viewDim[0] + 'px';

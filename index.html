@@ -237,7 +237,7 @@
             </div>
         </div>
         <div id="canvasContainer" style="display: none;width: 100%;z-index: 2;margin-top: -50px;margin-left: -19px">
-            <div style="display: flex;margin-bottom: -15px;margin-top: 14px">
+            <div style="display: flex;margin-bottom: -15px;margin-left: 138px;margin-top: 14px">
                 <p>Upload an image.. </p>
                 <div class="buttonImg" style="padding: 0;border: none">
                     <input type="file" name="img" id="imgLoader" style="display: none;"/>
@@ -307,18 +307,18 @@
             </div>
 
             <div id="paletteCont">
-                <div style="display: flex">
+                <div style="display: flex;height: 27px">
                     <div>
                         <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
                              style="width: 20px;cursor: pointer" id="exportPalette"/>
                     </div>
-                    <p style="font-weight: 600;"> Name: </p><input oninput="updateName(this)" type="text"
+                    <p style="font-weight: 600;margin-left: 10px"> Name: </p><input style="height: 22px;margin-left: 10px" oninput="updateName(this)" type="text"
                                                                    id="newPaletteName"
                                                                    placeholder="Type a name here...">
 
                 </div>
                 <div id="marksHolder"
-                     style="display: flex;height: 100px;border: solid 1px #424242;border-radius: 5px;padding: 5px">
+                     style="">
 
                 </div>
             </div>

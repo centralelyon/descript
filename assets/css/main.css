@@ -112,12 +112,12 @@ body {
 
 #selFlat {
     /*height: 100%;*/
-    width: 71.3%;
+    width: 51.3%;
     display: block;
     /*overflow-x: scroll;*/
     overflow-y: hidden;
     white-space: nowrap;
-    margin-left: 331px;
+    margin-left: 465px;
     margin-top: -33px;
     position: absolute;
 }
@@ -413,14 +413,14 @@ canvas {
 }
 
 #paletteCont {
-    border-radius: 5px;
+    border-radius: 14px;
     padding-left: 20px;
     padding-top: 5px;
     border: solid #333 thin;
     width: 93%;
     margin-top: 5px;
     background-color: #fff;
-    height: 180px;
+    height: 135px;
     overflow-y: hidden;
 }
 
@@ -1194,12 +1194,27 @@ p, h3, h4, h5, img {
 #marksHolder {
     overflow-x: auto;
     overflow-y: hidden;
+    display: flex;
+    height: 100px;
+    /*border: solid 1px #424242;*/
+    /*border-radius: 14px;*/
+    padding: 0;
+    margin-left: -12px;
+    position: relative;
+
+}
+
+.draggingSample canvas {
+    border: 1px solid #424242;
+    border-radius: 4px;
+    margin-right: 2px;
+    height: 40px;
 }
 
 #marksHolder canvas {
     border: 1px solid #424242;
     border-radius: 4px;
-    margin-right: 5px;
+    margin-right: 2px;
     height: 90%;
 }
 
