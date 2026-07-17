@@ -495,19 +495,22 @@ function dragended(event, d) {
 
 //Reorder of pixel-mark
 function dragElement3(elmnt) {
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     elmnt.onmousedown = dragMouseDown;
 
     let placeholder = document.createElement("div");
     placeholder.classList.add("placeholder");
 
+    let gap =document.createElement("div");
+    gap.classList.add("gapHolder");
+
+    let inserted = false
+
     let key = elmnt.getAttribute("key");
 
     function dragMouseDown(e) {
         e = e || window.event;
-        // e.preventDefault();
-        selectedDataColumn = elmnt.getAttribute("datacolumn");
+
         const rect = elmnt.getBoundingClientRect();
 
         offsetX = e.clientX - rect.left
@@ -520,53 +523,47 @@ function dragElement3(elmnt) {
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
         elmnt.classList.add("dragging");
+        inserted = false
     }
 
     function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
-        // calculate the new cursor position:
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-
-        // set the element's new position:
-        elmnt.style.position = "absolute";
-
-        let rect = elmnt.parentElement.getBoundingClientRect();
-
-        // elmnt.style.left =
-        //     ((e.pageX ) - tcords.x) + "px";
-        let parentRect = elmnt.parentElement.getBoundingClientRect()
-        console.log(parentRect.top);
-        elmnt.style.top =
-            ((e.pageY - offsetY + 50) - (parentRect.top - 40)) + "px";
-        // console.log('sdsadas');
-
-        // elmnt.style.top  = e.pageY  - (rect.top + rect.height / 2);
-
-
-        // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-
 
         let container = document.getElementById("list-" + key)
-        // let tt = getInsertionPoint(container, e.clientY)
+        console.log(inserted);
+        if (!inserted) {
+            console.log(inserted);
+            inserted = true;
+            let rect = elmnt.getBoundingClientRect();
+            elmnt.style.position = "absolute";
+            gap.style.height = rect.height + "px"
+            gap.style.width = rect.width+ "px"
+            container.insertBefore(gap, elmnt);
+
+        }
+
+
+
+
+        let parentRect = elmnt.parentElement.getBoundingClientRect()
+
+        elmnt.style.top =
+            ((e.pageY - offsetY ) - (parentRect.top )) + "px";
+
         let tt = getInsertionPoint(container, e.clientY, placeholder)
-        // tt === placeholder.nextSibling ||
+
 
         if (tt && (tt.matches(".colorBrand") || tt.matches(".sizeDiv"))) {
             return;
         }
 
-        console.log(tt);
         if (tt) {
             container.insertBefore(placeholder, tt);
         } else {
 
             let moreCan = container.querySelector(".moreCan")
-            // container.appendChild(placeholder);
+
             container.insertBefore(placeholder, moreCan);
         }
     }
@@ -590,6 +587,7 @@ function dragElement3(elmnt) {
         dragging = false
         let telem = placeholder.nextSibling
         elmnt.classList.remove("dragging")
+        gap.remove()
         if (telem !== null) {
             let curNb = elmnt.getAttribute("number")
 
@@ -627,30 +625,6 @@ function dragElement3(elmnt) {
         }
     }
 }
-
-
-/*function getInsertionPoint(container, mouseY) {
-    const items = [...container.children].filter(
-        el =>
-            !el.classList.contains("dragging") &&
-            !el.classList.contains("placeholder")
-    );
-
-    let closest = null;
-    let closestOffset = Number.NEGATIVE_INFINITY;
-
-    for (const item of items) {
-        const rect = item.getBoundingClientRect();
-        const offset = mouseY - (rect.top + rect.height / 2);
-
-        if (offset < 0 && offset > closestOffset) {
-            closestOffset = offset;
-            closest = item;
-        }
-    }
-
-    return closest;
-}*/
 
 function getInsertionPoint(container, mouseY, placeholder) {
     const items = [...container.children].filter(

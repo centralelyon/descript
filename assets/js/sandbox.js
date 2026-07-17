@@ -18,6 +18,8 @@ let gridMod = false
 let layout = "force"
 let megaGlyph = {}
 
+let simulation
+
 let debugGlyph = {
     temp0: {
         dataColumn: "species",
@@ -1119,8 +1121,9 @@ function switchLayout(elem, type) {
     }
 
 
-    tdrawRefactor()
+    tdrawRefactor(true)
 
+    // updateSvg()
 }
 
 function switchGrid() {
@@ -1147,20 +1150,20 @@ async function updateSvg(changedEncoding = false) {
             console.log("called");
 
 
-                    let data = chartDataset.data
+            let data = chartDataset.data
 
-                    let encodings = Object.keys(dataBinding)
-                    let [xScale, yScale] = getScales(svg, data)
-
-
-                    let tmarks = makeMarks(encodings, data)
-
-                    let order = getOrder(encodings)
+            let encodings = Object.keys(dataBinding)
+            let [xScale, yScale] = getScales(svg, data)
 
 
-                    svg.selectAll("image")
-                        .attr("xlink:href", d =>
-                            makeCollageFromData(encodings, order, tmarks, d,d).toDataURL("image/png"))
+            let tmarks = makeMarks(encodings, data)
+
+            let order = getOrder(encodings)
+
+
+            svg.selectAll("image")
+                .attr("xlink:href", d =>
+                    makeCollageFromData(encodings, order, tmarks, d, d).toDataURL("image/png"))
 
         }
     } else {
@@ -1209,17 +1212,19 @@ function drawAxis(svg, data, xScale, yScale, marginH, marginV) {
 
 
     svg.append("g")
+        .attr("class", "axis")
         .attr("transform", `translate(0,${height - marginV})`)
         .call(xAxis);
 
 // Draw y-axis
     svg.append("g")
+        .attr("class", "axis")
         .attr("transform", `translate(${marginH},0)`)
         .call(yAxis);
 }
 
 
-function drawGrid(svg, viewport, data, encodings, order, tmarks) {
+async function drawGrid(svg, viewport, data, encodings, order, tmarks, update) {
     let xCumul = 5
     let yCumul = 5
 
@@ -1228,60 +1233,87 @@ function drawGrid(svg, viewport, data, encodings, order, tmarks) {
     let width = size.width
     let height = size.height
 
-    for (let i = 0; i < data.length; i++) {
+    let tdat = []
 
+    for (let i = 0; i < data.length; i++) {
         let d = data[i]
 
         let can = makeCollageFromData(encodings, order, tmarks, d)
 
-
         let tw = can.width
         let th = can.height
-
-        viewport.append("image")
-            .attr("xlink:href", can.toDataURL("image/png"))
-            .attr("x", xCumul)
-            .attr("y", yCumul)
-            .attr("width", tw)
-            .attr("height", th)
+        tdat.push({can: can, tw: tw, th: th, x: xCumul, y: yCumul})
 
         xCumul += tw
         if (xCumul + tw > width) {
             yCumul += th
             xCumul = 5
         }
-
     }
+
+
+    if (update) {
+        if (simulation) {
+            simulation.stop()
+            simulation = undefined
+        }
+
+    d3.selectAll(".axis").remove()
+        // simulation.stop();
+
+        await d3.select("#viewport").selectAll("image").transition().duration(550)
+            .attr("x", (d, i) => {
+                return tdat[i].x
+            })
+            .attr("y", (d, i) => tdat[i].y).end()
+
+    } else {
+        for (let i = 0; i < data.length; i++) {
+            viewport.append("image")
+                .attr("xlink:href", tdat[i].can.toDataURL("image/png"))
+                .attr("x", tdat[i].xCumul)
+                .attr("y", tdat[i].yCumul)
+                .attr("width", tdat[i].tw)
+                .attr("height", tdat[i].th)
+        }
+    }
+
 
 }
 
-function drawScatter(svg, viewport, data, encodings, order, tmarks) {
+function drawScatter(svg, viewport, data, encodings, order, tmarks,update) {
     let [xScale, yScale] = getScales(svg, data)
     const tdata = data.map(d => ({...d}));
     let size = svg.node().getBoundingClientRect()
     let width = size.width
     let height = size.height
 
+    let maxW = 0
+    let maxH = 0
+    tdata.forEach((d, i) => {
+        d.canvas = makeCollageFromData(encodings, order, tmarks, d);
+
+        if (d.canvas.width > maxW) {
+            maxW = d.canvas.width;
+        }
+
+        if (d.canvas.height > maxH) {
+            maxH = d.canvas.height;
+        }
+    });
+
 
     if (drawLegend) {
 
-
-        let marginH = width * 0.07;
-        let marginV = height * 0.07;
-
+        let marginH = width * 0.05;
+        let marginV = height * 0.09;
 
         xScale.range([marginH, width - marginH]);
-        yScale.range([height - marginV, marginV]);
+        yScale.range([height - marginV, marginV - 25]);
 
         drawAxis(svg, tdata, xScale, yScale, marginH, marginV)
-
-        console.log(xScale.domain());
-
-        /*        svg.append("circle")
-                    .attr("cx", xScale(xScale.domain()[0]))
-                    .attr("cy", height - marginV)
-                    .attr("r", 5)
-                    .attr("fill", "red");*/
+        xScale.range([marginH, width - marginH - maxW]);
+        yScale.range([height - marginV - maxH, marginV]);
 
     }
 
@@ -1298,27 +1330,35 @@ function drawScatter(svg, viewport, data, encodings, order, tmarks) {
     }
 
 
-    tdata.forEach((d, i) => {
-        d.canvas = makeCollageFromData(encodings, order, tmarks, d);
-    });
+    if (!update) {
+        viewport.selectAll("dots")
+            .data(tdata)
+            .enter()
+            .append("image")
+            .attr("xlink:href", d =>
+                d.canvas.toDataURL("image/png"))
+            .attr("x", d => {
+                return scaledX(d) + d.canvas.width / 2
+            })
+            .attr("y", d => {
+                return scaledY(d) - d.canvas.height;
+            })
+    } else {
+        d3.select("#viewport").selectAll("image")
+            .data(tdata).transition().duration(550)
+            .attr("x", d => {
+                return scaledX(d) + d.canvas.width / 2
+            })
+            .attr("y", d => {
+                return scaledY(d) - d.canvas.height;
+            })
 
-    viewport.selectAll("dots")
-        .data(tdata)
-        .enter()
-        .append("image")
-        .attr("xlink:href", d =>
-            d.canvas.toDataURL("image/png"))
-        .attr("x", d => {
-            return scaledX(d)
-        })
-        .attr("y", d => {
-            return scaledY(d);
-        })
+    }
 
 
 }
 
-function drawForce(svg, viewport, data, encodings, order, tmarks) {
+async function drawForce(svg, viewport, data, encodings, order, tmarks, update) {
 
     let size = svg.node().getBoundingClientRect()
 
@@ -1327,7 +1367,7 @@ function drawForce(svg, viewport, data, encodings, order, tmarks) {
     let xAx = chartAxis.x
     let yAx = chartAxis.y
 
-    const tdata = data.map(d => ({...d}));
+    const tdata = deepClone(data).map(d => ({...d}));
 
     if (xAx !== "none" || yAx !== "none") {
         [xScale, yScale] = getScales(svg, tdata)
@@ -1335,28 +1375,55 @@ function drawForce(svg, viewport, data, encodings, order, tmarks) {
     }
 
 
+    let timages
+
     tdata.forEach((d, i) => {
         d.canvas = makeCollageFromData(encodings, order, tmarks, d);
         d.radius = 0.5 * Math.sqrt(d.canvas.width * d.canvas.height);
         d.x = (xScale !== undefined ? xScale(d[xAx]) : (size.width / 2) + 20 * Math.random());
         d.y = (yScale !== undefined ? yScale(d[yAx]) : (size.height / 2) + 20 * Math.random());
     });
-
-    let timages = viewport.selectAll("dots")
-        .data(tdata)
-        .enter()
-        .append("image")
-        .attr("xlink:href", d =>
-            d.canvas.toDataURL("image/png"))
-        .attr("x", (d, i) => {
-            return d.x
-        })
-        .attr("y", (d, i) => {
-            return d.y
-        })
+    if (!update) {
 
 
-    let simulation = d3.forceSimulation(tdata)
+        timages = viewport.selectAll("dots")
+            .data(tdata)
+            .enter()
+            .append("image")
+            .attr("xlink:href", d =>
+                d.canvas.toDataURL("image/png"))
+            .attr("x", (d, i) => {
+                return d.x
+            })
+            .attr("y", (d, i) => {
+                return d.y
+            })
+    } else {
+        if (simulation) {
+            simulation.stop()
+            simulation = undefined
+            console.log(tdata[0].vx);
+            console.log(tdata[60].x);
+        }
+        d3.selectAll(".axis").remove()
+        await d3.select("#viewport").selectAll("image")
+            .data(tdata)
+            .transition().delay(100)
+            .attr("x", (d, i) => {
+                return tdata[i].x
+            })
+            .attr("y", (d, i) => {
+                return tdata[i].y
+            }).end()
+
+
+        timages = d3.select("#viewport").selectAll("image")
+
+        console.log(tdata);
+    }
+
+
+    simulation = d3.forceSimulation(tdata)
         .force("center", d3.forceCenter(size.width / 2, size.height / 2))
         .force("collide", d3.forceCollide(d => {
             return d.radius
@@ -1393,18 +1460,23 @@ function drawForce(svg, viewport, data, encodings, order, tmarks) {
 
 
     function ticked() {
-
-        timages
-            .attr("x", d => clampVal(d.x, 0, size.width))
-            .attr("y", d => clampVal(d.y, 0, size.height))
+        if (layout == "force") {
+            timages
+                .attr("x", d => clampVal(d.x, 0, size.width))
+                .attr("y", d => clampVal(d.y, 0, size.height))
+        }
     }
 
 
 }
 
-async function tdrawRefactor() {
+async function tdrawRefactor(update = false) {
     let svg = d3.select("#fakePreviewSvg")
-    svg.selectAll("*").remove();
+
+    if (!update) {
+        svg.selectAll("*").remove();
+    }
+
     let viewport = svg.append("g")
         .attr("id", "viewport")
 
@@ -1433,11 +1505,11 @@ async function tdrawRefactor() {
 
 
     if (layout === "grid") {
-        drawGrid(svg, viewport, data, encodings, order, tmarks)
+        drawGrid(svg, viewport, data, encodings, order, tmarks, update)
     } else if (layout === "scatterplot") {
-        drawScatter(svg, viewport, data, encodings, order, tmarks)
+        drawScatter(svg, viewport, data, encodings, order, tmarks, update)
     } else if (layout === "force") {
-        drawForce(svg, viewport, data, encodings, order, tmarks)
+        drawForce(svg, viewport, data, encodings, order, tmarks, update)
     }
 
 

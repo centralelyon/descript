@@ -13,7 +13,7 @@ function updateAxis(elem) {
 
     chartAxis[axis] = val
 
-    tdrawRefactor()
+    tdrawRefactor(true)
 }
 
 function fillAxis() {

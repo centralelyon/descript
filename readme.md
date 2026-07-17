@@ -1,6 +1,6 @@
 # Descript: Authoring Visualization from Hand-drawn Marks
 
-Descript is a visualization authoring tool that manipulate images to parametrize, among others, complex not supported by standard Vis toolkits(e.g., D3 or Vega).
+Descript is a visualization authoring tool that manipulate images to parametrize, among others, complex shapes not directly supported by standard Vis toolkits(e.g., D3 or Vega).
 Descript lets you sample regions from hand-drawn or photographed images, curate them into reusable palettes, bind them
 to data, and compose them into data-bound glyphs.
 

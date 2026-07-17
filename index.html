@@ -134,8 +134,8 @@
         <div style="text-align: center">
             <!--            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">-->
             <!--                Composition</p>-->
-            <div class="buttonImg" style="position: absolute;width: 15px;margin-left: 10px" id="anchorBtn">
-                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
+            <div class="buttonImg" style="position: absolute;width: 15px;margin-left: -23px" id="anchorBtn">
+                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px;border: solid 1px #424242"/>
             </div>
             <!--            <svg id="cartesian" width="320" height="320"
                              style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
@@ -154,7 +154,7 @@
         </div>
     </div>
 
-    <div style="width: calc(92% - 650px);border-radius: 14px;margin-top: 32px;position: relative">
+    <div style="width: calc(92.5% - 650px);border-radius: 14px;margin-top: 32px;position: relative">
         <!--        <div style="display: none" id="paletteDetails">
 
                     <div style="position: absolute;width: 18px;height: 18px;right: 65px;top: 13px;cursor: pointer">
@@ -269,9 +269,11 @@
                         </div>-->
                 <div style="position: absolute;margin-top:3px;margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
                     <div class="buttonImg">
-                        <img id="moveBtn" src="assets/images/buttons/move.png" class="lightBorder"
+                        <img id="moveBtn"
+                             src="assets/images/buttons/move.png" class="lightBorder"
                              onclick="switchSampleSelect(this,'move')"
-                             style=""/>
+                             style="display: inline-block"/>
+                        <p style="font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">Hold shift to pan</p>
                     </div>
                     <div class="buttonImg">
                         <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
@@ -336,7 +338,7 @@
 
                 <div style="display: flex;height: 50px" id="settingsSandbox">
                     <div style="font-weight: 600"> Layout:</div>
-                    <div style="margin-left: 5px;margin-right: 5px" id="layoutList">
+                    <div style="margin-left: 5px;overflow: hidden;margin-right: 5px" id="layoutList">
                         <div id="layout-force" onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
                         <div id="layout-grid" onclick="switchLayout(this, 'grid')">Grid</div>
                         <div id="layout-scatterplot" onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
@@ -362,7 +364,7 @@
 
                 </div>
             </div>
-            <div id="newTableContainer" style="width: 97%;overflow-y: auto;height: 200px">
+            <div id="newTableContainer" style="border-radius: 14px;width: 97%;overflow-y: auto;height: 200px">
                 <table id="newDataTable" style="height: 250px;display: table;width: 100%">
                     <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
                 </table>

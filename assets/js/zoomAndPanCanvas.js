@@ -31,7 +31,8 @@ function redraw(canvas,image) {
     let trect = document.getElementById("sampleDisplay").getBoundingClientRect();
 
 
-    ctx.drawImage(image, 0, 0,trect.width, trect.height);
+    // ctx.drawImage(currImg, 0, 0,trect.width, trect.height);
+    ctx.drawImage(currImg, 0, 0, reducedDim[0], reducedDim[1]);
 }
 
 function enableZoomPan(canvas, image) {

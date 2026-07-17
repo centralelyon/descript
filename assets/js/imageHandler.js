@@ -37,6 +37,7 @@ function loadImg(src) {
     };
 
     im.src = src
+    im.decode()
     // addAPalette()
 
 }
