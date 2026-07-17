@@ -334,13 +334,20 @@ async function loadSavedPalette(url) {
 
 
     if (palette.originImg) {
-        console.log("here");
-        const img = new Image();
-        img.src = palette.originImg;
-        palette.originImg = img;
+        if (palette.originImg !== "") {
+            const img = new Image();
+            img.src = palette.originImg;
+            palette.originImg = img;
+        }
     }
-
-    console.log(palette);
+    if (palette.preloadName) {
+        if (palette.preloadName !== "") {
+            palette.originImg = preload[palette.preloadName];
+            console.log("hererezrzerze");
+        }
+    }
+    // console.log(preload[palette.preloadName]);
+    // console.log(palette.originImg);
 
     document.body.appendChild(palette.originImg);
     let n = Object.keys(megaPalettes).length

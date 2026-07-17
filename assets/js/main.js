@@ -44,6 +44,8 @@ const fakePalettes = []
 let palSwitch = false
 
 
+const preload = {}
+
 const sampleImageList = [
     "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_26%2Bback.jpg",
     "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg",
@@ -206,6 +208,8 @@ async function init() {
     // let authorRef = author === "giorgia" ? 0 : 1;
     // loadExamples(week);
 
+
+    await preloadBgImg()
     if (urlParams.has("state")) {
         let name = urlParams.get("state");
 
@@ -1279,3 +1283,37 @@ function initState(state) {
 
 }
 
+async function preloadBgImg() {
+    const preloadList = ['week05', 'week15']
+    const preloadUrl = [
+        "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_05%2Bback.jpg",
+        "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg"
+       ]
+    for (let i = 0; i < preloadList.length; i++) {
+        preload[preloadList[i]] = await getImage(preloadUrl[i])
+
+    }
+}
+
+function getImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = document.createElement('img');
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+
+        img.src = url;
+    });
+}
+
+async function tempFixSavedPalette(file, preloadName) {
+
+    let json = await loadStateFromJson(`assets/tempData/palettes/${file}`)
+
+
+    json.originImg = ""
+    json.preloadName = preloadName;
+    console.log(json);
+
+    download(dumpObject(json), file, "text/json");
+
+}
