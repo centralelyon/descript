@@ -1,4 +1,4 @@
-let dataList = ["week15.csv", "week26.csv", "pinguins.csv"]
+let dataList = ["week15.csv", "week26.csv", "pinguins.csv", 'iris.csv', 'titanic.csv', 'tips.csv']
 
 
 Array.prototype.sample = function () {
@@ -42,8 +42,8 @@ async function updateDataset() {
     let dataset = document.getElementById("availableData").value
 
     chartDataset.name = dataset
-    if (dataset === "pinguins.csv") {
-        await loadDataset("assets/tempData/datasets/penguins.csv")
+    if (dataset === "pinguins.csv"|| dataset === "titanic.csv"|| dataset === "tips.csv" || dataset === "iris.csv") {
+        await loadDataset(`assets/tempData/datasets/${dataset}`)
     } else if (dataset === "week15.csv") {
         chartDataset.data = fakeWeek15()
     } else if (dataset === "week26.csv") {
@@ -56,6 +56,7 @@ async function updateDataset() {
     updateShapeOptions()
 
     d3.selectAll(".dataBindingContainer").selectAll("*").remove()
+
     tdrawRefactor()
 }
 

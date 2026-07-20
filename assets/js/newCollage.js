@@ -2,7 +2,7 @@ let drawnMarks = {}
 const spiralOptions = {
     padding: 30,
     step: 12,
-    maxRadius: 150,
+    maxRadius: 190,
 };
 
 let tFrom, tTo = {}
@@ -67,7 +67,8 @@ function showExample() {
     for (let i = 0; i < n; i++) {
         let can = makeCollageFromData(encodings, order, tmarks, data[(Math.random() * data.length) | 0], cart[i])
 
-        let coords = getGridLayout(trect.width, trect.height, n,i, size)
+        console.log(cart[i]);
+        let coords = getGridLayout(trect.width, trect.height, n, i, size)
 
         svg.append("image")
             .attr("xlink:href", can.toDataURL("image/png"))
@@ -76,10 +77,35 @@ function showExample() {
             .attr("width", coords.itemSize)
             .attr("height", coords.itemSize)
             .datum(cart[i])
+            .on("mouseover", function (e, d) {
+                for (const [name, mark] of Object.entries(d)) {
+
+                    bordercan(name, mark, true)
+                }
+            })
+            .on("mouseout", function (e, d) {
+                for (const [name, mark] of Object.entries(d)) {
+
+                    bordercan(name, mark, false)
+                }
+            })
 
 
     }
 
+
+}
+
+function bordercan(name, mark, highlight) {
+    let can = document.getElementById(`canvas_${name}_${mark}`)
+
+    if (highlight) {
+        can.style.border = "1px solid red"
+        can.style.backgroundColor = "rgba(255,78,78,0.63)"
+    } else {
+        can.style.border = "1px solid #424242"
+        can.style.backgroundColor = ""
+    }
 
 }
 
@@ -124,7 +150,7 @@ function placeMark() {
 
     let rects = Object.keys(drawnMarks).map(d => drawnMarks[d])
     if (Object.keys(drawnMarks).length === 0) {
-        return {x: 125 - 30, y: 125 - 30, w: 60, h: 60};
+        return {x: 200 - 30, y: 200 - 30, w: 60, h: 60};
     } else {
         return placeRectangleSpiral(rects,
             {w: 60, h: 60}, spiralOptions
@@ -647,7 +673,7 @@ function displayPalette(name) {
         e.preventDefault()
         if (mode !== "anchor") {
             if (e.target.matches("canvas")) {
-                editPalette(this)
+                // editPalette(this)
             }
         } else {
             //TODO: Set for CATA and other primitive

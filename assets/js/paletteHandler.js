@@ -12,6 +12,16 @@ let paletteOrigin = {x: 0, y: 0};
 const paletteInitCoords = {x: 0, y: 0};
 let paletteTempCan
 
+let isPalettePanning = false
+let palettePanLast = {x: 0, y: 0}
+
+let paletteUndoStack = []
+let paletteRedoStack = []
+const PALETTE_UNDO_LIMIT = 20
+
+let paletteInkMode = false
+let palettePrevMoveTime = 0
+
 let stColor = '#333'
 let primRot
 
@@ -28,7 +38,7 @@ let nSelPaltette;
 let nSelMark;
 let nSelType;
 
-function addAPalette() {
+/*function addAPalette() {
 
     megaPalettes["temp" + palIt] = {
         displayType: "range",
@@ -62,13 +72,13 @@ function fillPalette(reset = false) {
     const container = document.getElementById("paletteCont")
     container.innerHTML = ""
 
-    /*    const anchorCont = document.createElement("div")
+    /!*    const anchorCont = document.createElement("div")
         anchorCont.className = "paletteMarks"
         // const anchorBlock = document.createElement("div")
 
         anchorCont.innerHTML = '' +
-            '<h4 style="display: inline-block">Anchors</h4>'*/
-    /*
+            '<h4 style="display: inline-block">Anchors</h4>'*!/
+    /!*
 
         let anchorsDiv = document.getElementById("anchorsContainer")
         if (anchorsDiv === null) {
@@ -86,7 +96,7 @@ function fillPalette(reset = false) {
             '<img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style=""/>' +
             '</div>'
         container.appendChild(anchorCont)
-    */
+    *!/
 
 
     const mess = getOptions()
@@ -217,36 +227,6 @@ function fillPalette(reset = false) {
             // makeRangeMark(range, key, tdiv, value, typesDisplay)
         }
 
-        /*        const div1 = document.createElement("div")
-                const div2 = document.createElement("div")
-                const div3 = document.createElement("div")
-
-                div1.className = "primitiveData"
-                div2.className = "primitiveData"
-                div3.className = "primitiveData"
-
-                div1.innerHTML = "<p class='primitiveLabel'> Linked to Palette </p>" +
-                    "<select id='" + key + "_markLinkedToPalette' class='palettelinkedTo'>" +
-                    "<option selected>None</option>" +
-                    +"" + allPalName +
-                    "</select>"
-
-                div2.innerHTML =
-                    "<p class='primitiveLabel'> On Anchor </p>" +
-                    "<select id='" + key + "_markLinkedTo' class='anchorLinkTo'>" +
-                    "<option selected>None</option>" +
-                    +mess +
-                    "</select>"
-
-
-                div3.innerHTML =
-                    "<p class='primitiveLabel'>Scale </p>" +
-                    "<input type='range' min='0.5' max='3' step='0.1' value='1' id='" + key + "_markScale' class='scaleMarks'>"
-
-
-                tdiv.appendChild(div1)
-                tdiv.appendChild(div2)
-                tdiv.appendChild(div3)*/
 
 
         container.appendChild(tdiv)
@@ -258,10 +238,6 @@ function fillPalette(reset = false) {
             savePalette2(key)
         }
 
-        /*        document.querySelectorAll("#" + key + "_displayTypes option").forEach(option => {
-                    if (option.value === value.displayType)
-                        option.setAttribute("selected", "true")
-                })*/
 
 
     }
@@ -283,7 +259,7 @@ function fillPalette(reset = false) {
     // populateSelect()
     // updateLink2Palette()
     updateSvg()
-}
+}*/
 
 
 function editPalette(e) {
@@ -332,6 +308,8 @@ function editPalette(e) {
 
     can.width = trec.width;
     can.height = trec.height;
+
+    applyPaletteCheckerboard(can)
 
     let w = trec.width
     let h = trec.height
@@ -404,13 +382,34 @@ function editPalette(e) {
     console.log(can);
     tcon.drawImage(can, 0, 0)
 
+    paletteUndoStack = []
+    paletteRedoStack = []
+
     can.addEventListener("mousewheel", paletteZoom, false);
     can.addEventListener("DOMMouseScroll", paletteZoom, false);
+    can.addEventListener("wheel", paletteZoom, {passive: false});
     // can.addEventListener("mousewheel", zoom, false);
     // can.addEventListener("DOMMouseScroll", zoom, false);
+
+    window.removeEventListener("keydown", paletteKeyHandler)
+    window.addEventListener("keydown", paletteKeyHandler)
+}
+
+function applyPaletteCheckerboard(can) {
+    can.style.backgroundImage =
+        "linear-gradient(45deg, rgba(128,128,128,0.18) 25%, transparent 25%)," +
+        "linear-gradient(-45deg, rgba(128,128,128,0.18) 25%, transparent 25%)," +
+        "linear-gradient(45deg, transparent 75%, rgba(128,128,128,0.18) 75%)," +
+        "linear-gradient(-45deg, transparent 75%, rgba(128,128,128,0.18) 75%)"
+    can.style.backgroundSize = "16px 16px"
+    can.style.backgroundPosition = "0 0, 0 8px, 8px -8px, -8px 0px"
 }
 
 function onClickPalette(e) {
+    if (e.shiftKey) {
+        return
+    }
+
     if (mode === "anchor") {
         let xy = getMousePos(e);
         xy = toWorld(xy, paletteOrigin, paletteScale)
@@ -471,7 +470,10 @@ function onClickPalette(e) {
 
         const range = 20
 
+        pushPaletteUndoSnapshot()
         removeColor(r, g, b, paletteTempCan, range)
+        paletteRedraw()
+        // syncPaletteThumbnail()
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source, range)
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].proto.canvas, range)
 
@@ -512,15 +514,43 @@ function updateAnchorCont(container) {
 
 function displayCircle(xy) {
 
+    const toolColors = {
+        stroke: stColor,
+        erase: "#e5484d",
+        eraseColor: "#f2994a",
+        anchor: "#2f80ed",
+    }
 
     let can = document.getElementById('paletteEdit');
     let cont = can.getContext('2d');
     cont.save()
-    cont.beginPath();
-    cont.lineWidth = 1
-    cont.arc(xy.x, xy.y, stWidth, 0, 2 * Math.PI);
-    cont.stroke();
-    cont.closePath();
+    cont.strokeStyle = toolColors[mode] || "#333"
+    cont.lineWidth = 1 / (paletteScale || 1)
+
+    if (mode === "eraseColor") {
+        // This tool samples a single pixel and floods by color tolerance —
+        // brush width is irrelevant, so show a crosshair/target instead of a
+        // size ring that would otherwise imply a brush-shaped effect.
+        const r = 6 / (paletteScale || 1)
+        cont.beginPath();
+        cont.arc(xy.x, xy.y, r, 0, 2 * Math.PI);
+        cont.moveTo(xy.x - r * 1.8, xy.y);
+        cont.lineTo(xy.x - r * 0.6, xy.y);
+        cont.moveTo(xy.x + r * 0.6, xy.y);
+        cont.lineTo(xy.x + r * 1.8, xy.y);
+        cont.moveTo(xy.x, xy.y - r * 1.8);
+        cont.lineTo(xy.x, xy.y - r * 0.6);
+        cont.moveTo(xy.x, xy.y + r * 0.6);
+        cont.lineTo(xy.x, xy.y + r * 1.8);
+        cont.stroke();
+        cont.closePath();
+    } else {
+        cont.beginPath();
+        cont.arc(xy.x, xy.y, stWidth, 0, 2 * Math.PI);
+        cont.stroke();
+        cont.closePath();
+    }
+
     cont.restore()
 }
 
@@ -534,12 +564,25 @@ function paletteResetZoom() {
     paletteOrigin.y = 0
 }
 
-function onMouseUpPalette() {
+function onMouseUpPalette(e) {
+    if (isPalettePanning) {
+        isPalettePanning = false
+        if (e && e.target && e.target.releasePointerCapture && e.pointerId !== undefined) {
+            e.target.releasePointerCapture(e.pointerId)
+        }
+        let can = document.getElementById("paletteEdit")
+        if (can) can.style.cursor = ""
+        return
+    }
+
+    const hadStroke = mouseDown === 1
     mouseDown = 0
 
     stroke = []
 
-
+    if (hadStroke) {
+        // syncPaletteThumbnail()
+    }
 
 }
 
@@ -548,13 +591,26 @@ function drawPalette(cont, x, y, w, type, can) {
     if (type === "erase")
         cont.globalCompositeOperation = 'destination-out';
 
+    const rawPrev = stroke.length ? stroke[stroke.length - 1] : null
+
+    // Local copies only — never mutate strokePoint/prevPoint in place, or the
+    // next call (and the stroke history pushed in onMouseMovePalette) would
+    // see an already-shifted value and end up drawing in the wrong frame,
+    // which is what turned rotated strokes into jagged shapes.
+    let start = [strokePoint[0], strokePoint[1]]
+    let end = [x, y]
+    let prev = rawPrev ? [rawPrev[0], rawPrev[1]] : null
+
     if (primRot) {
-        cont.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
+        const cx = paletteTempCan.width / 2
+        const cy = paletteTempCan.height / 2
+        cont.translate(cx, cy);
         cont.rotate(toRad(-primRot));
-        strokePoint[0] = -paletteTempCan.width / 2 + strokePoint[0]
-        strokePoint[1] = -paletteTempCan.height / 2 + strokePoint[1]
-        x = -paletteTempCan.width / 2 + x
-        y = -paletteTempCan.height / 2 + y
+        start = [start[0] - cx, start[1] - cy]
+        end = [end[0] - cx, end[1] - cy]
+        if (prev) {
+            prev = [prev[0] - cx, prev[1] - cy]
+        }
     }
 
 
@@ -564,8 +620,19 @@ function drawPalette(cont, x, y, w, type, can) {
     // cont.strokeStyle = "#333"
     cont.strokeStyle = stColor
     cont.lineWidth = w
-    cont.moveTo(...strokePoint);
-    cont.lineTo(x, y);
+
+    if (prev) {
+        // Quadratic-smooth through the last three points instead of a straight
+        // segment, so fast strokes don't come out faceted.
+        const midPrev = [(prev[0] + start[0]) / 2, (prev[1] + start[1]) / 2]
+        const midCurr = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2]
+        cont.moveTo(midPrev[0], midPrev[1])
+        cont.quadraticCurveTo(start[0], start[1], midCurr[0], midCurr[1])
+    } else {
+        cont.moveTo(start[0], start[1]);
+        cont.lineTo(end[0], end[1]);
+    }
+
     cont.stroke()
     cont.closePath();
     cont.restore()
@@ -576,26 +643,81 @@ function drawPalette(cont, x, y, w, type, can) {
     tcon.drawImage(cont.canvas, 0, 0)
 }
 
+function getPaletteInkWidth(e, xy) {
+    // Real stylus/touch pressure when available; mice report 0 or undefined,
+    // so fall back to a neutral mid-pressure in that case.
+    const pressure = (e.pressure && e.pressure > 0) ? e.pressure : 0.5
+
+    const now = performance.now()
+    const dt = Math.max(now - palettePrevMoveTime, 1)
+    palettePrevMoveTime = now
+
+    const dx = xy.x - strokePoint[0]
+    const dy = xy.y - strokePoint[1]
+    const dist = Math.hypot(dx, dy)
+    const speed = dist / dt // px per ms
+
+    // Faster movement -> thinner line, slower -> thicker, mimicking how a
+    // real pen lays down more ink when it lingers.
+    const speedFactor = clampVal(1.15 - speed * 1.5, 0.35, 1.15)
+
+    return Math.max(1, stWidth * pressure * speedFactor)
+}
+
 function onMouseDownPalette(e) {
+    if (e.shiftKey) {
+        isPalettePanning = true
+        palettePanLast = {x: e.offsetX, y: e.offsetY}
+        if (e.target && e.target.setPointerCapture && e.pointerId !== undefined) {
+            e.target.setPointerCapture(e.pointerId)
+        }
+        e.target.style.cursor = "grabbing"
+        e.preventDefault()
+        return
+    }
+
     let xy = getMousePos(e);
     xy = toWorld(xy, paletteOrigin, paletteScale)
     strokePoint = [xy.x, xy.y];
     mouseDown = 1;
+    palettePrevMoveTime = performance.now()
+
+    pushPaletteUndoSnapshot()
 }
 
 
 function onMouseMovePalette(e) {
+    if (isPalettePanning) {
+        e.preventDefault()
+        const dx = e.offsetX - palettePanLast.x
+        const dy = e.offsetY - palettePanLast.y
+        palettePanLast = {x: e.offsetX, y: e.offsetY}
+
+        paletteOrigin.x += dx
+        paletteOrigin.y += dy
+
+        paletteRedraw()
+        return
+    }
+
     let xy = getMousePos(e);
 
     xy = toWorld(xy, paletteOrigin, paletteScale)
     let can = document.getElementById("paletteEdit")
+    can.style.cursor = e.shiftKey ? "grab" : ""
+
     if (mouseDown === 1) {
 
         // let cont = can.getContext('2d');
         e.preventDefault()
 
+        let w = stWidth
+        if (paletteInkMode && mode === "stroke") {
+            w = getPaletteInkWidth(e, xy)
+        }
+
         let cont = paletteTempCan.getContext('2d')
-        drawPalette(cont, xy.x, xy.y, stWidth, mode, can);
+        drawPalette(cont, xy.x, xy.y, w, mode, can);
         stroke.push([...strokePoint])
         strokePoint = [xy.x, xy.y];
     }
@@ -660,6 +782,9 @@ function loadbg(bg) {
         let pcont = paletteTempCan.getContext("2d");
 
         pcont.drawImage(can, 0, 0, can.width, can.height)
+
+        paletteUndoStack = []
+        paletteRedoStack = []
     }
 }
 
@@ -683,6 +808,10 @@ function switchmod(val) {
     mode = val
 }
 
+function togglePaletteInk(enabled) {
+    paletteInkMode = !!enabled
+}
+
 function paletteRotate(angle) {
     let tcan = document.getElementById('paletteEdit');
     let tcont = tcan.getContext('2d');
@@ -702,15 +831,19 @@ function paletteRotate(angle) {
 
 
 function paletteZoom(e) {
-    let can = document.getElementById('paletteEdit');
-    let cont = can.getContext('2d');
-
     e.preventDefault();
     let zoomStep = 1.1
 
     let x = e.offsetX;
     let y = e.offsetY;
-    const delta = e.type === "mousewheel" ? e.wheelDelta : -e.detail;
+    let delta
+    if (e.type === "mousewheel") {
+        delta = e.wheelDelta
+    } else if (e.type === "wheel") {
+        delta = -e.deltaY
+    } else {
+        delta = -e.detail
+    }
 
     if (delta > 0) {
         paletteScaleAt(x, y, zoomStep);
@@ -718,9 +851,15 @@ function paletteZoom(e) {
         paletteScaleAt(x, y, 1 / zoomStep);
     }
 
+    paletteRedraw();
+}
+
+function paletteRedraw() {
+    let can = document.getElementById('paletteEdit');
+    let cont = can.getContext('2d');
+
     cont.clearRect(0, 0, can.width, can.height);
     cont.setTransform(paletteScale, 0, 0, paletteScale, paletteOrigin.x, paletteOrigin.y);
-
 
     cont.save()
     cont.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
@@ -729,6 +868,91 @@ function paletteZoom(e) {
     cont.restore();
     // cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
 }
+
+function paletteSnapshotCanvas(source) {
+    const snap = document.createElement("canvas")
+    snap.width = source.width
+    snap.height = source.height
+    snap.getContext("2d").drawImage(source, 0, 0)
+    return snap
+}
+
+function pushPaletteUndoSnapshot() {
+    if (!paletteTempCan) return
+    try {
+        paletteUndoStack.push(paletteSnapshotCanvas(paletteTempCan))
+        if (paletteUndoStack.length > PALETTE_UNDO_LIMIT) {
+            paletteUndoStack.shift()
+        }
+        paletteRedoStack = []
+    } catch (err) {
+        console.error("Palette undo snapshot failed", err)
+    }
+}
+
+function paletteRestoreSnapshot(snap) {
+    paletteTempCan.width = snap.width
+    paletteTempCan.height = snap.height
+    paletteTempCan.getContext("2d").drawImage(snap, 0, 0)
+
+    paletteRedraw()
+    // syncPaletteThumbnail()
+}
+
+function palettePerformUndo() {
+    if (!paletteUndoStack.length || !paletteTempCan) return
+    paletteRedoStack.push(paletteSnapshotCanvas(paletteTempCan))
+    paletteRestoreSnapshot(paletteUndoStack.pop())
+}
+
+function palettePerformRedo() {
+    if (!paletteRedoStack.length || !paletteTempCan) return
+    paletteUndoStack.push(paletteSnapshotCanvas(paletteTempCan))
+    paletteRestoreSnapshot(paletteRedoStack.pop())
+}
+
+function paletteKeyHandler(e) {
+    const paletteContainer = document.getElementById("paletteContainer")
+    if (!paletteContainer || paletteContainer.style.display !== "block") return
+
+    const active = document.activeElement
+    if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return
+
+    const ctrlOrCmd = e.ctrlKey || e.metaKey
+    if (!ctrlOrCmd) return
+
+    const key = e.key.toLowerCase()
+
+    if (key === "z" && e.shiftKey) {
+        e.preventDefault()
+        palettePerformRedo()
+    } else if (key === "z") {
+        e.preventDefault()
+        palettePerformUndo()
+    } else if (key === "y") {
+        e.preventDefault()
+        palettePerformRedo()
+    }
+}
+
+/*
+function syncPaletteThumbnail() {
+    if (!selectedPalette || !paletteTempCan) return
+
+    const [key, num] = selectedPalette
+    const thumbId = num ? "canvas_" + key + "_" + num : "canvas_" + key
+    const thumb = document.getElementById(thumbId)
+    if (!thumb) return
+
+    try {
+        const tctx = thumb.getContext("2d")
+        tctx.clearRect(0, 0, thumb.width, thumb.height)
+        tctx.drawImage(paletteTempCan, 0, 0, paletteTempCan.width, paletteTempCan.height, 0, 0, thumb.width, thumb.height)
+    } catch (err) {
+        console.error("Palette thumbnail sync failed", err)
+    }
+}
+*/
 
 
 function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scaleBy
@@ -770,9 +994,14 @@ function savePalette() {
 
 
     resCont.clearRect(0, 0, 999, 999)
+
+
+
     resCont.save()
     resCont.translate(resCan.width / 2, resCan.height / 2);
 
+
+    console.log(resCan);
     if (primRot !== undefined)
         resCont.rotate(toRad(primRot));
 
@@ -787,6 +1016,15 @@ function savePalette() {
     }
 
 
+    console.log( corn.x,
+        corn.y,
+        corn.width,
+        corn.height,
+        -(tw / factor),
+        -(th / factor),
+        tw,
+        th)
+
     resCont.drawImage(paletteTempCan,
         corn.x,
         corn.y,
@@ -798,15 +1036,24 @@ function savePalette() {
         th
     )
 
+/*    resCont.fillRect(
+        -(tw / factor),
+        -(th / factor),
+        tw,
+        th
+    )*/
+
+
+
 
     if (selectedPalette) {
-        let oldCan = document.getElementById("canvas_" + selectedPalette[0] + "_" + selectedPalette[1])
+/*        let oldCan = document.getElementById("canvas_" + selectedPalette[0] + "_" + selectedPalette[1])
         oldCan.width = tw
         oldCan.height = th
 
         let oldCon = oldCan.getContext('2d')
 
-        oldCon.drawImage(resCan, 0, 0, tw, th)
+        oldCon.drawImage(resCan, 0, 0, tw, th)*/
         if (selectedPalette[2] === "mark" && !palSwitch) {
             if (selectedPalette[1]) {
 
@@ -890,200 +1137,6 @@ function setAnchor() {
 }
 
 
-function setPrimitveEvents(type, key) { //TODO: key is out of scope
-
-    document.getElementById(key + "_primitiveAngle").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        primitive[key].angle = this.value
-    }
-
-    document.getElementById(key + "_primitiveWidth").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        primitive[key].stroke_width = this.value
-    }
-
-    document.getElementById(key + "_primitiveColor").oninput = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        primitive[key].color = this.value
-    }
-
-    document.getElementById(key + "_primitiveAnchor").onchange = function () {
-        const key = this.getAttribute("id").split("_")[0];
-        primitive[key].anchor_type = this.value
-    }
-
-
-    document.getElementById(key + "_primitiveAnchors").onchange = function () {
-
-        // currAnchor = this.value
-        const key = this.getAttribute("id").split("_")[0];
-
-        const val = +document.getElementById(key + "_primitiveAnchorLocation").value
-
-
-        if (primitive[key].anchors) {
-            primitive[key].anchors[this.value] = {percent: val}
-
-        } else {
-            primitive[key].anchors = {}
-            primitive[key].anchors[this.value] = {percent: val}
-        }
-
-        global_anchors[this.value] = {
-            from:
-                {
-                    data: {percent: val, type: "line"},
-                    key: key,
-                    type: "primitive",
-                }
-        }
-
-
-        // primitive[key].anchor_type = this.value
-    }
-
-    /*
-        document.getElementById(key + "_primitivelinkedTo").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            // primitive[key].anchor_type = this.value
-            primitive[key].linkTo = this.value
-        }
-    */
-
-    /*    document.getElementById(key + "_primitivelinkedToPalette").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            // primitive[key].anchor_type = this.value
-            primitive[key].apply = this.value
-        }*/
-
-
-    /*    document.getElementById(key + "_primitiveAnchorLocation").onchange = function () {
-
-            const key = this.getAttribute("id").split("_")[0];
-            let anchor = document.getElementById(key + "_primitiveAnchors").value
-
-            if (anchor === "None") {
-                anchor = currAnchor
-            }
-
-            const val = +this.value
-            if (primitive[key].anchors) {
-                primitive[key].anchors[anchor] = {percent: val}
-
-            } else {
-                primitive[key].anchors = {}
-                primitive[key].anchors[anchor] = {percent: val}
-            }
-
-            global_anchors[anchor] = {
-                from:
-                    {
-                        data: {percent: val, type: "line"},
-                        key: key,
-                        type: "primitive",
-                    }
-            }
-
-            document.getElementById(key + "_primitivelinkedTo").onchange = function () {
-                const key = this.getAttribute("id").split("_")[0];
-                primitive[key].apply = this.value
-            }
-
-            // primitive[key].anchors = this.value
-
-        }*/
-
-    /*    document.getElementById(key + "_primitiveGrowth").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            primitive[key].growth = this.value
-        }*/
-}
-
-
-function setCatEvents(type, key) {
-
-    document.getElementById(key + "_catStyle").oninput = function (e) {
-        const key = this.getAttribute("id").split("_")[0];
-        palette_cat[key].styleText = this.value
-    }
-
-    if (palette_cat[key].proto === undefined) {
-
-        document.getElementById(key + "_catColorOn").oninput = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].colorOn = +this.value === 1
-        }
-
-        document.getElementById(key + "_catColor").oninput = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].color = this.value
-        }
-
-        document.getElementById(key + "_catlinkedToMark").oninput = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].apply = this.value
-        }
-
-    } else {
-
-        document.getElementById(key + "_catlinkedTo").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].linkTo = this.value
-        }
-
-        document.getElementById(key + "_catlinkedToPalette").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            palette_cat[key].apply = this.value
-        }
-    }
-}
-
-function hidePaletteContainer() {
-
-    document.getElementById("paletteContainer").style.display = "none";
-    selectedPalette = undefined
-}
-
-function updateLinkTo() {
-
-    const mess = getOptions()
-
-    const selects = document.querySelectorAll(".primitiveLinkTo")
-    selects.forEach(select => {
-
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-
-
-    let selects2 = document.querySelectorAll(".primitiveAnchors")
-    selects2.forEach(select => {
-
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-
-    let selectsCat = document.querySelectorAll(".catLinkToProto")
-
-    selectsCat.forEach(select => {
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-
-    let selectsanchs = document.querySelectorAll(".anchorLinkTo")
-
-    selectsanchs.forEach(select => {
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-
-
-    document.querySelectorAll(".markRepeatFrom").forEach(select => {
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-
-    document.querySelectorAll(".markRepeatTo").forEach(select => {
-        select.innerHTML = "<option selected>None</option>" + mess
-    })
-}
-
-
 function getOptions() {
     let ancres = Object.keys(global_anchors)
 
@@ -1099,305 +1152,193 @@ function getOptions() {
 }
 
 
-function addAnchor() {
-
-    let nb = Object.keys(global_anchors).length
-
-    global_anchors[nb] = {}
-
-    currAnchor = nb
-
-    let el = document.getElementById("anchorsContainer")
-    updateAnchorCont(el)
-    updateLinkTo()
-
-
-}
-
-
 function clampVal(val, min, max) {
 
     return Math.max(Math.min(val, max), min)
 }
+//
+// function setAnchorOnProto(e, el) {
+//
+//     if (e.target.matches("canvas")) {
+//         const xy = getMousePos(e)
+//
+//
+//         let tcan = e.target
+//         let trect = tcan.getBoundingClientRect()
+//         let key = el.getAttribute("key")
+//         let type = el.getAttribute("type")
+//         let num = el.getAttribute("number")
+//
+//
+//         let selProto
+//         let source
+//         let scale = 1
+//
+//         if (type === "range") {
+//             selProto = megaPalettes[key].encodings.range.marks[num].proto
+//             source = megaPalettes[key].encodings.range.marks[num].source
+//             if (megaPalettes[key].encodings.range.scale) {
+//                 scale = megaPalettes[key].encodings.range.scale
+//             }
+//
+//         } else if (type === "morph") {
+//             selProto = megaPalettes[key].encodings.morph[num].proto
+//             source = megaPalettes[key].encodings.morph[num].source
+//             if (megaPalettes[key].scale) {
+//                 scale = megaPalettes[key].encodings.morph.scale
+//             }
+//         }
+//
+//
+//         let tw = selProto.corners[1][0] - selProto.corners[0][0]
+//         let th = selProto.corners[1][1] - selProto.corners[0][1]
+//
+//
+//         let tx = xy.x
+//         let ty = xy.y
+//
+//         if (source) {
+//
+//             if (source.width * scale < tw && source.height * scale < th) {
+//
+//                 tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
+//                 ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
+//                 // tx = (xy.x *source.width) / tw
+//                 // ty = (xy.y *source.height) / th
+//
+//             } else {
+//
+//                 // tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
+//                 // ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
+//
+//
+//                 tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
+//                 ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
+//             }
+//             tw = source.width * scale
+//             th = source.height * scale
+//         }
+//
+//
+//         if (selProto.anchors === undefined) {
+//             selProto.anchors = {}
+//         }
+//         selProto.anchors[currAnchor] = {
+//             x: tx,
+//             y: ty,
+//             rx: tx / tw,
+//             ry: ty / th,
+//
+//
+//             // px: (tx - tw / 2),
+//             // py: (ty - th / 2),
+//             // prx: (tx - tw / 2) / tw,
+//             // pry: (ty - th / 2) / th,
+//         }
+//
+//
+//         console.log(selProto.anchors[currAnchor]);
+//         console.log(source.width, source.height);
+//
+//         let cont = source.getContext("2d")
+//         cont.beginPath();
+//         cont.arc(selProto.anchors[currAnchor].x, selProto.anchors[currAnchor].y, 3, 0, 2 * Math.PI);
+//         cont.closePath()
+//         cont.fill();
+//
+//
+//         // if (type === "mark") {
+//         if (global_anchors[currAnchor] === undefined) {
+//             global_anchors[currAnchor] = {}
+//         }
+//
+//         global_anchors[currAnchor].from = {
+//             type: type,
+//             key: key,
+//             number: num,
+//             data: selProto.anchors[currAnchor]
+//         }
+//
+//         // }
+//         /*        else if (type === "cat") {
+//                     if (global_anchors[currAnchor] === undefined) {
+//                         global_anchors[currAnchor] = {}
+//                     }
+//                     palette_cat[key].apply = global_anchors[currAnchor].from
+//
+//                     global_anchors[currAnchor].to = {
+//                         type: type,
+//                         key: key,
+//                         data: selProto.anchors[currAnchor]
+//                     }
+//
+//                 }*/
+//
+//         // updateAnchorCont()
+//         updateLinkTo()
+//     }
+// }
+
+
+// function exportPalette(key, type) {
+//     const elem = "";
+//     let tdat
+//     if (type === "mark") {
+//         tdat = marks[key]
+//     }
+//
+//     if (type === "primitive") {
+//         tdat = primitive[key]
+//     }
+//     if (type === "category") {
+//         tdat = palette_cat[key]
+//     }
+//
+//     for (const [key, value] of Object.entries(tdat)) {
+//
+//         const tval = {...value}
+//         if (tval?.proto?.canvas) {
+//             tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
+//         }
+//         tdat[key] = tval
+//     }
+//
+//     const res = {
+//         type: type,
+//         data: tdat,
+//         name: key
+//     }
+//
+//     download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
+// }
+//
+// function importPalette(e) {
+//     const reader = new FileReader();
+//
+//     reader.onload = async function (e) {
+//         let jsonObj = JSON.parse(e.target.result);
+//
+//         for (const [key, value] of Object.entries(jsonObj.encodings.range.marks)) {
+//             if (value.proto) {
+//                 value.proto.canvas = await convertToCanvas(value.proto.canvas)
+//             }
+//
+//             if (value.source) {
+//                 value.source = await convertToCanvas(value.source)
+//             }
+//         }
+//
+//
+//         let n = Object.keys(megaPalettes).length
+//
+//         megaPalettes[`temp${n}`] = jsonObj
+//
+//
+//         fillPalette(false)
+//     }
+//     reader.readAsText(e.target.files[0]);
+// }
 
-function setAnchorOnProto(e, el) {
-
-    if (e.target.matches("canvas")) {
-        const xy = getMousePos(e)
-
-
-        let tcan = e.target
-        let trect = tcan.getBoundingClientRect()
-        let key = el.getAttribute("key")
-        let type = el.getAttribute("type")
-        let num = el.getAttribute("number")
-
-
-        let selProto
-        let source
-        let scale = 1
-
-        if (type === "range") {
-            selProto = megaPalettes[key].encodings.range.marks[num].proto
-            source = megaPalettes[key].encodings.range.marks[num].source
-            if (megaPalettes[key].encodings.range.scale) {
-                scale = megaPalettes[key].encodings.range.scale
-            }
-
-        } else if (type === "morph") {
-            selProto = megaPalettes[key].encodings.morph[num].proto
-            source = megaPalettes[key].encodings.morph[num].source
-            if (megaPalettes[key].scale) {
-                scale = megaPalettes[key].encodings.morph.scale
-            }
-        }
-
-
-        let tw = selProto.corners[1][0] - selProto.corners[0][0]
-        let th = selProto.corners[1][1] - selProto.corners[0][1]
-
-
-        let tx = xy.x
-        let ty = xy.y
-
-        if (source) {
-
-            if (source.width * scale < tw && source.height * scale < th) {
-
-                tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-                ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-                // tx = (xy.x *source.width) / tw
-                // ty = (xy.y *source.height) / th
-
-            } else {
-
-                // tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-                // ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-
-
-                tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-                ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-            }
-            tw = source.width * scale
-            th = source.height * scale
-        }
-
-
-        if (selProto.anchors === undefined) {
-            selProto.anchors = {}
-        }
-        selProto.anchors[currAnchor] = {
-            x: tx,
-            y: ty,
-            rx: tx / tw,
-            ry: ty / th,
-
-
-            // px: (tx - tw / 2),
-            // py: (ty - th / 2),
-            // prx: (tx - tw / 2) / tw,
-            // pry: (ty - th / 2) / th,
-        }
-
-
-        console.log(selProto.anchors[currAnchor]);
-        console.log(source.width, source.height);
-
-        let cont = source.getContext("2d")
-        cont.beginPath();
-        cont.arc(selProto.anchors[currAnchor].x, selProto.anchors[currAnchor].y, 3, 0, 2 * Math.PI);
-        cont.closePath()
-        cont.fill();
-
-
-        // if (type === "mark") {
-        if (global_anchors[currAnchor] === undefined) {
-            global_anchors[currAnchor] = {}
-        }
-
-        global_anchors[currAnchor].from = {
-            type: type,
-            key: key,
-            number: num,
-            data: selProto.anchors[currAnchor]
-        }
-
-        // }
-        /*        else if (type === "cat") {
-                    if (global_anchors[currAnchor] === undefined) {
-                        global_anchors[currAnchor] = {}
-                    }
-                    palette_cat[key].apply = global_anchors[currAnchor].from
-
-                    global_anchors[currAnchor].to = {
-                        type: type,
-                        key: key,
-                        data: selProto.anchors[currAnchor]
-                    }
-
-                }*/
-
-        // updateAnchorCont()
-        updateLinkTo()
-    }
-}
-
-
-function exportPalette(key, type) {
-    const elem = "";
-    let tdat
-    if (type === "mark") {
-        tdat = marks[key]
-    }
-
-    if (type === "primitive") {
-        tdat = primitive[key]
-    }
-    if (type === "category") {
-        tdat = palette_cat[key]
-    }
-
-    for (const [key, value] of Object.entries(tdat)) {
-
-        const tval = {...value}
-        if (tval?.proto?.canvas) {
-            tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
-        }
-        tdat[key] = tval
-    }
-
-    const res = {
-        type: type,
-        data: tdat,
-        name: key
-    }
-
-    download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
-}
-
-function importPalette(e) {
-    const reader = new FileReader();
-
-    reader.onload = async function (e) {
-        let jsonObj = JSON.parse(e.target.result);
-
-        for (const [key, value] of Object.entries(jsonObj.encodings.range.marks)) {
-            if (value.proto) {
-                value.proto.canvas = await convertToCanvas(value.proto.canvas)
-            }
-
-            if (value.source) {
-                value.source = await convertToCanvas(value.source)
-            }
-        }
-
-
-        let n = Object.keys(megaPalettes).length
-
-        megaPalettes[`temp${n}`] = jsonObj
-
-
-        fillPalette(false)
-    }
-    reader.readAsText(e.target.files[0]);
-}
-
-function updateLink2Palette() {
-
-    let list = []
-
-    for (const [key, value] of Object.entries(marks)) {
-        list.push(key)
-    }
-
-    for (const [key, value] of Object.entries(palette_cat)) {
-        if (value.proto)
-            list.push(key)
-    }
-
-    for (const [key, value] of Object.entries(primitive)) {
-        list.push(key)
-    }
-
-
-    let mess = ""
-
-    for (let i = 0; i < list.length; i++) {
-        mess += "<option> " + list[i] + "</option>"
-    }
-
-    document.querySelectorAll(".palettelinkedTo").forEach(d => {
-
-
-        d.innerHTML = "<option> none</option>" + mess
-
-    })
-
-}
-
-function setMarkEvent(key, type) {
-
-    if (type === "repeat") {
-        document.getElementById(key + "_markRepeatFrom").onchange = function (e) {
-            const key = this.getAttribute("id").split("_")[0];
-            // marks[key].repeatFrom = this.value
-            megaPalettes[key].repeatFrom = this.value
-        }
-        document.getElementById(key + "_markRepeatTo").onchange = function (e) {
-            const key = this.getAttribute("id").split("_")[0];
-            // marks[key].repeatTo = this.value
-            megaPalettes[key].repeatTo = this.value
-        }
-    }
-
-    /*
-        document.getElementById(key + "_markScale").onchange = function (e) {
-
-            const key = this.getAttribute("id").split("_")[0];
-            megaPalettes[key].encodings.range.scale = +this.value
-
-            for (const [tkey, value] of Object.entries(megaPalettes[key].encodings[type].marks)) {
-                if (value.source)
-                    drawCanvasWithScale(value.source, value.proto.canvas, megaPalettes[key].encodings[type].scale)
-            }
-
-
-            drawSvg()
-
-
-        }
-
-        document.getElementById(key + "_markLinkedToPalette").onchange = function (e) {
-
-            const key = this.getAttribute("id").split("_")[0];
-            // primitive[key].anchor_type = this.value
-            megaPalettes[key].apply = this.value
-            //
-            // for (const [key, value] of Object.entries(megaPalettes)) {
-            //     value.apply = this.value
-            // }
-        }
-
-
-        document.getElementById(key + "_displayTypes").onchange = function (e) {
-
-            const key = this.getAttribute("id").split("_")[0];
-
-            megaPalettes[key].displayType = this.value
-
-            // #TODO: Here fill 2 canvases for morph
-            fillPalette()
-        }
-
-        document.getElementById(key + "_markLinkedTo").onchange = function () {
-            const key = this.getAttribute("id").split("_")[0];
-            // primitive[key].anchor_type = this.value
-            for (const [key, value] of Object.entries(megaPalettes)) {
-                value.linkTo = this.value
-            }
-        }*/
-
-}
 
 
 function updateMarksBindingDisplay(palette) {
@@ -1410,6 +1351,12 @@ function updateMarksBindingDisplay(palette) {
     }
 
 
+}
+
+function hidePaletteContainer() {
+
+    document.getElementById("paletteContainer").style.display = "none";
+    selectedPalette = undefined
 }
 
 function makeRangeMark(key, tdiv, value, typesDisplay) {

@@ -498,9 +498,21 @@ function appendSingle(palette, name) {
     tdiv.innerHTML = `<p>${name}</p>`;
     canContainer.className = "canPreview";
 
+
+
+    let arrowDiv = document.createElement("div");
+
+    arrowDiv.className = "paletteArrowDiv";
+    arrowDiv.innerHTML = `
+              <img src ="assets/images/buttons/show.png" style="position: absolute;top: -23px;right: -2px;width: 18px;height: auto;cursor: pointer" onclick="showThisPalette('${name}',${palSources.length-1})" >
+            <img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${name}',${palSources.length-1})" >`
+
     tdiv.appendChild(canContainer);
-    console.log(container.getElementsByTagName('div')[2]);
+    tdiv.appendChild(arrowDiv);
+
+
     container.insertBefore(tdiv, container.firstChild.nextSibling);
+
 
     // container.appendChild(tdiv);
 

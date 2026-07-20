@@ -211,7 +211,7 @@ async function addRectSample(x, y, width, height) {
     dragElement4(tdiv)
 
 
-    tdiv.onclick = editSample
+    // tdiv.onclick = editSample
 
     // sampleData.push(tres)
     /*
@@ -573,6 +573,8 @@ function movePalette2Available() {
                 }
             }
         }
+
+        console.log(tpal);
 
         appendSingle(tpal, name)
         currSampleList = {}

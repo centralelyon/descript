@@ -311,8 +311,9 @@ canvas {
 .buttonImg img {
     width: 24px;
     display: inline-block;
-    padding: 1px;
+    padding: 2px;
     background-color: #fff;
+    border-radius: 6px;
 }
 
 
@@ -348,7 +349,7 @@ canvas {
 }
 
 .buttonImg img:hover {
-    width: 32px;
+    /*width: 32px;*/
     display: inline-block;
     opacity: 0.6;
     cursor: pointer;
@@ -441,8 +442,8 @@ canvas {
 }
 
 #closePaletteContainer {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     position: absolute;
     top: 1px;
     right: 1px;
@@ -450,8 +451,8 @@ canvas {
 }
 
 #closePaletteContainer:hover {
-    width: 23px;
-    height: 23px;
+    width: 26px;
+    height: 26px;
 }
 
 .primitiveDataButton {
@@ -1166,6 +1167,7 @@ p, h3, h4, h5, img {
 
 #newDataTable tr:first-child {
     height: 20px;
+    z-index: 99;
 }
 
 #newDataTable th {
@@ -1182,7 +1184,7 @@ p, h3, h4, h5, img {
 
 #newDataTable th:hover {
     /*border: dashed 3px #F1F1F1 !important;*/
-    background: #42424254;
+    background: #8c8c8c;
     color: #000;
 }
 
@@ -1398,4 +1400,16 @@ p, h3, h4, h5, img {
     border: solid #555 1px;
     border-radius: 14px;
     height: 75%;
+}
+
+.basicButton img {
+    width: 22px;
+    border-radius: 6px;
+}
+
+.basicButton {
+    display: inline-block;
+    background: #f1f1f1;
+    border: solid 1px #424242;
+    height: 21px;
 }

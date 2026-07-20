@@ -919,7 +919,7 @@ docReady(function () {
 })
 
 
-async function fillAllPalette() {
+/*async function fillAllPalette() {
 
 
     let tdat = []
@@ -961,7 +961,7 @@ async function fillAllPalette() {
 
     }
 
-}
+}*/
 
 
 function displaySample() {

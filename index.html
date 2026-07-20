@@ -135,14 +135,15 @@
             <!--            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">-->
             <!--                Composition</p>-->
             <div class="buttonImg" style="position: absolute;width: 15px;margin-left: -23px" id="anchorBtn">
-                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px;border: solid 1px #424242"/>
+                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()"
+                     style="width: 25px;border: solid 1px #424242"/>
             </div>
             <!--            <svg id="cartesian" width="320" height="320"
                              style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
 
 
                         </svg>-->
-            <svg id="composition" width="320" height="320"
+            <svg id="composition" width="400" height="400"
                  style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
 
 
@@ -183,26 +184,8 @@
 
         <div>
             <div class="" style="display: none" id="paletteContainer">
-                <div style="height: 350px;display: inline-block;background: rgba(250,250,250,0.25);padding: 10px;border: 1px solid #fff;">
-                    <canvas style="height: 100%;width: 400px" id="paletteEdit"></canvas>
-                    <div style="display: flex;margin-top:10px ">
-                        <p style="font-weight: 600;display: inline-block;margin-bottom: 0;margin-right: 10px">
-                            Orientation:</p>
-                        <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
-                        <!--              <div style="display: inline-block">
-                                            <p style="font-weight: 600;display: inline-block">Anchors</p>
-                                            <div id="anchorsContainer" style="display: inline-block"></div>
 
-                                            <div id="plusAnchor" onclick="addAnchor()">
-                                                <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
-                                            </div> -->
-                    </div>
-                </div>
-                <div id="closePaletteContainer" style="">
-                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()"
-                         src="assets/images/buttons/cross.png">
-                </div>
-                <div style="display: inline-block;width: 40px;position: absolute;top:83px;margin-left:5px "
+                <div style="display: flex;width: 100%;margin-left:0px;border-bottom: solid 1px rgba(241,241,241,0.68);margin-top:-14px "
                      id="editControl">
 
                     <div class="buttonImg">
@@ -223,17 +206,68 @@
                     <div id="selectedButton2" class="buttonImg selectablePallete">
                         <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" style=""/>
                     </div>
-                    <div class="buttonImg ">
-                        <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
+
+
+                    <div>
+                        <div style="display: flex;margin-left:42px ">
+                            <div class="buttonImg">
+                                <img src="assets/images/buttons/right.png"
+                                     onclick="paletteRestoreSnapshot(paletteUndoStack.pop())"
+
+                                     style="transform: scaleX(-1)"/>
+                            </div>
+                            <div class="buttonImg">
+                                <img src="assets/images/buttons/right.png" onclick=""
+                                     style=""/>
+                            </div>
+                        </div>
+
 
                     </div>
-                    <div class="buttonImg">
-                        <input style="width: 35px;margin-top:-10px " type="color" value="#000000" id="strokecolor">
-                    </div>
-                    <div style="margin-top: -10px" class="buttonImg">
-                        <img src="assets/images/buttons/disk.png" onclick="savePalette()" style=""/>
+                    <div style="display: flex;margin-left:42px ">
+                        <div style="" class="buttonImg">
+                            <img src="assets/images/buttons/disk.png" onclick="savePalette()" style=""/>
+                        </div>
                     </div>
                 </div>
+                <div style="display: flex;width: 90%;margin-left:5px;justify-content: space-evenly; ">
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;;margin-right: 5px;margin-top: 3px;font-weight: 550">Size: </p>
+                        <input type="range" min="1" max="10" style="width: 120px;margin-bottom: 0" value="1"
+                               id="strokewidth">
+
+                    </div>
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;margin-right: 5px;margin-top: 3px;font-weight: 550">Color: </p>
+                        <input style="width: 25px;border-radius:8px;padding: 0;border: solid 1px #f1f1f1;margin-top: 4px;margin-bottom: 3px;height: 25px; "
+                               type="color" value="#000000" id="strokecolor">
+                    </div>
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;margin-right: 5px;margin-top: 3px;font-weight: 550">Hand-style: </p>
+                    <input type="checkbox" onchange="togglePaletteInk(this.checked)">
+                    </div>
+                </div>
+                <div style="height: 475px;display: inline-block;background: rgba(250,250,250,0.05);padding: 1px;border-radius: 9px;border: 1px solid #f1f1f1;">
+                    <canvas style="height: 100%;width: 550px" id="paletteEdit"></canvas>
+                    <div style="display: flex;margin-top:10px ">
+                        <p style="font-weight: 600;display: inline-block;margin-bottom: 0;margin-right: 10px">
+                            Rotation:</p>
+                        <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
+                        <!--              <div style="display: inline-block">
+                                            <p style="font-weight: 600;display: inline-block">Anchors</p>
+                                            <div id="anchorsContainer" style="display: inline-block"></div>
+
+                                            <div id="plusAnchor" onclick="addAnchor()">
+                                                <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
+                                            </div> -->
+                    </div>
+                </div>
+                <div id="closePaletteContainer" style="">
+                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()"
+                         src="assets/images/buttons/cross.png">
+                </div>
+
+
             </div>
         </div>
         <div id="canvasContainer" style="display: none;width: 100%;z-index: 2;margin-top: -50px;margin-left: -19px">
@@ -273,7 +307,8 @@
                              src="assets/images/buttons/move.png" class="lightBorder"
                              onclick="switchSampleSelect(this,'move')"
                              style="display: inline-block"/>
-                        <p style="font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">Hold shift to pan</p>
+                        <p style="font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">
+                            Hold shift to pan</p>
                     </div>
                     <div class="buttonImg">
                         <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
@@ -314,9 +349,10 @@
                         <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
                              style="width: 20px;cursor: pointer" id="exportPalette"/>
                     </div>
-                    <p style="font-weight: 600;margin-left: 10px"> Name: </p><input style="height: 22px;margin-left: 10px" oninput="updateName(this)" type="text"
-                                                                   id="newPaletteName"
-                                                                   placeholder="Type a name here...">
+                    <p style="font-weight: 600;margin-left: 10px"> Name: </p><input
+                        style="height: 22px;margin-left: 10px" oninput="updateName(this)" type="text"
+                        id="newPaletteName"
+                        placeholder="Type a name here...">
 
                 </div>
                 <div id="marksHolder"
@@ -364,8 +400,8 @@
 
                 </div>
             </div>
-            <div id="newTableContainer" style="border-radius: 14px;width: 97%;overflow-y: auto;height: 200px">
-                <table id="newDataTable" style="height: 250px;display: table;width: 100%">
+            <div id="newTableContainer" style="border-radius: 14px;width: 97%;overflow-y: auto;height: 261px">
+                <table id="newDataTable" style="height: 260px;display: table;width: 100%">
                     <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
                 </table>
             </div>

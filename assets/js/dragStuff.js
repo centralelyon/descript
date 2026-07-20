@@ -41,6 +41,8 @@ function dragElement(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+
+        if (!e.target.matches("img"))
         tsvg.classList.add("dropArea")
     }
 
@@ -855,8 +857,9 @@ function dragElement4(elmnt) {
         } else {
 
             if (!e.target.matches("img")) {
+
+                console.log(e.target);
                 let newCan = elmnt.querySelector('canvas');
-                console.log("dasdsada");
                 currSampleEdited = newCan
                 editPalette(newCan)
             }

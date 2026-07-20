@@ -68,7 +68,6 @@ defaultCont.fillRect(0, 0, 30, 30)
 
 async function loadDataset(url) {
     let data = await loadCsv(url).then(r => r)
-    console.log(data);
     if (url.includes("pinguin")) { //TODO: too unfazed to bother with NONE stuff
         data.splice(3, 1)
         data.splice(338, 1)
@@ -78,12 +77,21 @@ async function loadDataset(url) {
 }
 
 
+function isNumeric(str) {
+    if (typeof str != "string") return false
+    return !isNaN(str) &&
+        !isNaN(parseFloat(str))
+}
+
 function isCont(data, column) {
     let allVals = [...new Set(data.map(d => d[column]))]
 
     if (allVals.length > data.length * 0.1) {
-        return true
+        let tn = allVals.map(d => isNumeric(d)).filter(d => d).length
+        return tn >= data.length * 0.7;
+
     } else {
+
         return false
     }
 }
@@ -1258,7 +1266,7 @@ async function drawGrid(svg, viewport, data, encodings, order, tmarks, update) {
             simulation = undefined
         }
 
-    d3.selectAll(".axis").remove()
+        d3.selectAll(".axis").remove()
         // simulation.stop();
 
         await d3.select("#viewport").selectAll("image").transition().duration(550)
@@ -1281,7 +1289,7 @@ async function drawGrid(svg, viewport, data, encodings, order, tmarks, update) {
 
 }
 
-function drawScatter(svg, viewport, data, encodings, order, tmarks,update) {
+function drawScatter(svg, viewport, data, encodings, order, tmarks, update) {
     let [xScale, yScale] = getScales(svg, data)
     const tdata = data.map(d => ({...d}));
     let size = svg.node().getBoundingClientRect()
