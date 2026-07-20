@@ -478,7 +478,6 @@ function onClickPalette(e) {
         pushPaletteUndoSnapshot()
         removeColor(r, g, b, paletteTempCan, range)
         paletteRedraw()
-        // syncPaletteThumbnail()
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source, range)
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].proto.canvas, range)
 
@@ -493,10 +492,32 @@ function onClickPalette(e) {
         pushPaletteUndoSnapshot()
         floodFillPaletteCanvas(paletteTempCan, canvasXY.x, canvasXY.y, stColor, tolerance)
         paletteRedraw()
-        // syncPaletteThumbnail()
+
+    } else if (mode === "eyedropper") {
+        let xy = getMousePos(e);
+        xy = toWorld(xy, paletteOrigin, paletteScale)
+
+        const canvasXY = paletteToCanvasSpace(xy)
+
+        let cont = paletteTempCan.getContext("2d")
+        const [r, g, b, a] = cont.getImageData(canvasXY.x, canvasXY.y, 1, 1).data;
+
+        if (a === 0) return // nothing drawn here to sample
+
+        const hex = rgbToHex(r, g, b)
+        stColor = hex
+
+        const colorInput = document.getElementById('strokecolor')
+        if (colorInput) colorInput.value = hex
     }
 }
 
+
+function hidePaletteContainer() {
+
+    document.getElementById("paletteContainer").style.display = "none";
+    selectedPalette = undefined
+}
 
 function updateAnchorCont(container) {
 
@@ -536,6 +557,7 @@ function displayCircle(xy) {
         erase: "#e5484d",
         eraseColor: "#f2994a",
         fill: "#27ae60",
+        eyedropper: "#9b59b6",
         anchor: "#2f80ed",
     }
 
@@ -545,9 +567,9 @@ function displayCircle(xy) {
     cont.strokeStyle = toolColors[mode] || "#333"
     cont.lineWidth = 1 / (paletteScale || 1)
 
-    if (mode === "eraseColor" || mode === "fill") {
-        // Both tools sample a point and act on the region around it by color
-        // similarity — brush width is irrelevant, so show a crosshair/target
+    if (mode === "eraseColor" || mode === "fill" || mode === "eyedropper") {
+        // All three sample a point rather than paint with a given width —
+        // brush width is irrelevant, so show a crosshair/target
         // instead of a size ring that would otherwise imply a brush effect.
         const r = 6 / (paletteScale || 1)
         cont.beginPath();
@@ -593,13 +615,9 @@ function onMouseUpPalette(e) {
         return
     }
 
-    const hadStroke = mouseDown === 1
     mouseDown = 0
 
     stroke = []
-
-
-
 }
 
 function drawPalette(cont, x, y, w, type, can) {
@@ -916,6 +934,11 @@ function hexToRgb(hex) {
     return [(num >> 16) & 255, (num >> 8) & 255, num & 255]
 }
 
+function rgbToHex(r, g, b) {
+    const toHexPart = (v) => clampVal(Math.round(v), 0, 255).toString(16).padStart(2, '0')
+    return '#' + toHexPart(r) + toHexPart(g) + toHexPart(b)
+}
+
 function floodFillPaletteCanvas(canvas, startX, startY, fillHex, tolerance) {
     const w = canvas.width
     const h = canvas.height
@@ -1001,7 +1024,6 @@ function paletteRestoreSnapshot(snap) {
     paletteTempCan.getContext("2d").drawImage(snap, 0, 0)
 
     paletteRedraw()
-    // syncPaletteThumbnail()
 }
 
 function palettePerformUndo() {
@@ -1037,23 +1059,6 @@ function paletteKeyHandler(e) {
     } else if (key === "y") {
         e.preventDefault()
         palettePerformRedo()
-    }
-}
-
-function syncPaletteThumbnail() {
-    if (!selectedPalette || !paletteTempCan) return
-
-    const [key, num] = selectedPalette
-    const thumbId = num ? "canvas_" + key + "_" + num : "canvas_" + key
-    const thumb = document.getElementById(thumbId)
-    if (!thumb) return
-
-    try {
-        const tctx = thumb.getContext("2d")
-        tctx.clearRect(0, 0, thumb.width, thumb.height)
-        tctx.drawImage(paletteTempCan, 0, 0, paletteTempCan.width, paletteTempCan.height, 0, 0, thumb.width, thumb.height)
-    } catch (err) {
-        console.error("Palette thumbnail sync failed", err)
     }
 }
 
