@@ -461,12 +461,17 @@ function onClickPalette(e) {
         let xy = getMousePos(e);
         xy = toWorld(xy, paletteOrigin, paletteScale)
 
+        // Rotate the click back into paletteTempCan's own (unrotated) pixel
+        // space before sampling — otherwise this samples the wrong pixel
+        // whenever the canvas preview is rotated.
+        const canvasXY = paletteToCanvasSpace(xy)
+
         let tcan = paletteTempCan
 
 
         let cont = tcan.getContext("2d")
         // const [r, g, b, a] = cont.getImageData(tx, ty, 1, 1).data;
-        const [r, g, b, a] = cont.getImageData(xy.x, xy.y, 1, 1).data;
+        const [r, g, b, a] = cont.getImageData(canvasXY.x, canvasXY.y, 1, 1).data;
 
         const range = 20
 
@@ -477,6 +482,18 @@ function onClickPalette(e) {
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source, range)
         // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].proto.canvas, range)
 
+    } else if (mode === "fill") {
+        let xy = getMousePos(e);
+        xy = toWorld(xy, paletteOrigin, paletteScale)
+
+        const canvasXY = paletteToCanvasSpace(xy)
+
+        const tolerance = 20
+
+        pushPaletteUndoSnapshot()
+        floodFillPaletteCanvas(paletteTempCan, canvasXY.x, canvasXY.y, stColor, tolerance)
+        paletteRedraw()
+        // syncPaletteThumbnail()
     }
 }
 
@@ -518,6 +535,7 @@ function displayCircle(xy) {
         stroke: stColor,
         erase: "#e5484d",
         eraseColor: "#f2994a",
+        fill: "#27ae60",
         anchor: "#2f80ed",
     }
 
@@ -527,10 +545,10 @@ function displayCircle(xy) {
     cont.strokeStyle = toolColors[mode] || "#333"
     cont.lineWidth = 1 / (paletteScale || 1)
 
-    if (mode === "eraseColor") {
-        // This tool samples a single pixel and floods by color tolerance —
-        // brush width is irrelevant, so show a crosshair/target instead of a
-        // size ring that would otherwise imply a brush-shaped effect.
+    if (mode === "eraseColor" || mode === "fill") {
+        // Both tools sample a point and act on the region around it by color
+        // similarity — brush width is irrelevant, so show a crosshair/target
+        // instead of a size ring that would otherwise imply a brush effect.
         const r = 6 / (paletteScale || 1)
         cont.beginPath();
         cont.arc(xy.x, xy.y, r, 0, 2 * Math.PI);
@@ -580,9 +598,7 @@ function onMouseUpPalette(e) {
 
     stroke = []
 
-    if (hadStroke) {
-        // syncPaletteThumbnail()
-    }
+
 
 }
 
@@ -869,6 +885,95 @@ function paletteRedraw() {
     // cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
 }
 
+function paletteToCanvasSpace(xy) {
+    // xy is in the (possibly visually rotated) display frame produced by
+    // paletteRedraw. paletteTempCan's own pixel data is never rotated, so a
+    // click needs to be rotated back around the canvas center before it can
+    // be used to index into it directly (getImageData/putImageData), the
+    // same compensation drawPalette applies via the context transform.
+    if (!primRot) return {x: xy.x, y: xy.y}
+
+    const cx = paletteTempCan.width / 2
+    const cy = paletteTempCan.height / 2
+    const rad = toRad(-primRot)
+    const dx = xy.x - cx
+    const dy = xy.y - cy
+    const cos = Math.cos(rad)
+    const sin = Math.sin(rad)
+
+    return {
+        x: cx + (dx * cos - dy * sin),
+        y: cy + (dx * sin + dy * cos)
+    }
+}
+
+function hexToRgb(hex) {
+    hex = hex.replace('#', '')
+    if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('')
+    }
+    const num = parseInt(hex, 16)
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255]
+}
+
+function floodFillPaletteCanvas(canvas, startX, startY, fillHex, tolerance) {
+    const w = canvas.width
+    const h = canvas.height
+    startX = Math.round(startX)
+    startY = Math.round(startY)
+    if (startX < 0 || startY < 0 || startX >= w || startY >= h) return
+
+    const ctx = canvas.getContext("2d")
+    const imageData = ctx.getImageData(0, 0, w, h)
+    const data = imageData.data
+    const idx = (x, y) => (y * w + x) * 4
+
+    const startIdx = idx(startX, startY)
+    const targetR = data[startIdx]
+    const targetG = data[startIdx + 1]
+    const targetB = data[startIdx + 2]
+    const targetA = data[startIdx + 3]
+
+    const [fr, fg, fb] = hexToRgb(fillHex)
+    const fa = 255
+
+    // Already the fill color (within tolerance)? Nothing to do.
+    if (Math.abs(targetR - fr) <= tolerance && Math.abs(targetG - fg) <= tolerance &&
+        Math.abs(targetB - fb) <= tolerance && Math.abs(targetA - fa) <= tolerance) {
+        return
+    }
+
+    const matches = (i) =>
+        Math.abs(data[i] - targetR) <= tolerance &&
+        Math.abs(data[i + 1] - targetG) <= tolerance &&
+        Math.abs(data[i + 2] - targetB) <= tolerance &&
+        Math.abs(data[i + 3] - targetA) <= tolerance
+
+    const visited = new Uint8Array(w * h)
+    const stack = [[startX, startY]]
+
+    while (stack.length) {
+        const [x, y] = stack.pop()
+        if (x < 0 || y < 0 || x >= w || y >= h) continue
+
+        const vIdx = y * w + x
+        if (visited[vIdx]) continue
+
+        const pIdx = idx(x, y)
+        if (!matches(pIdx)) continue
+
+        visited[vIdx] = 1
+        data[pIdx] = fr
+        data[pIdx + 1] = fg
+        data[pIdx + 2] = fb
+        data[pIdx + 3] = fa
+
+        stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
+    }
+
+    ctx.putImageData(imageData, 0, 0)
+}
+
 function paletteSnapshotCanvas(source) {
     const snap = document.createElement("canvas")
     snap.width = source.width
@@ -935,7 +1040,6 @@ function paletteKeyHandler(e) {
     }
 }
 
-/*
 function syncPaletteThumbnail() {
     if (!selectedPalette || !paletteTempCan) return
 
@@ -952,7 +1056,6 @@ function syncPaletteThumbnail() {
         console.error("Palette thumbnail sync failed", err)
     }
 }
-*/
 
 
 function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scaleBy
@@ -994,14 +1097,9 @@ function savePalette() {
 
 
     resCont.clearRect(0, 0, 999, 999)
-
-
-
     resCont.save()
     resCont.translate(resCan.width / 2, resCan.height / 2);
 
-
-    console.log(resCan);
     if (primRot !== undefined)
         resCont.rotate(toRad(primRot));
 
@@ -1016,15 +1114,6 @@ function savePalette() {
     }
 
 
-    console.log( corn.x,
-        corn.y,
-        corn.width,
-        corn.height,
-        -(tw / factor),
-        -(th / factor),
-        tw,
-        th)
-
     resCont.drawImage(paletteTempCan,
         corn.x,
         corn.y,
@@ -1035,15 +1124,6 @@ function savePalette() {
         tw,
         th
     )
-
-/*    resCont.fillRect(
-        -(tw / factor),
-        -(th / factor),
-        tw,
-        th
-    )*/
-
-
 
 
     if (selectedPalette) {
@@ -1351,12 +1431,6 @@ function updateMarksBindingDisplay(palette) {
     }
 
 
-}
-
-function hidePaletteContainer() {
-
-    document.getElementById("paletteContainer").style.display = "none";
-    selectedPalette = undefined
 }
 
 function makeRangeMark(key, tdiv, value, typesDisplay) {
