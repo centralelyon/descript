@@ -501,7 +501,7 @@ function dragElement3(elmnt) {
     let placeholder = document.createElement("div");
     placeholder.classList.add("placeholder");
 
-    let gap =document.createElement("div");
+    let gap = document.createElement("div");
     gap.classList.add("gapHolder");
 
     let inserted = false
@@ -538,18 +538,16 @@ function dragElement3(elmnt) {
             let rect = elmnt.getBoundingClientRect();
             elmnt.style.position = "absolute";
             gap.style.height = rect.height + "px"
-            gap.style.width = rect.width+ "px"
+            gap.style.width = rect.width + "px"
             container.insertBefore(gap, elmnt);
 
         }
 
 
-
-
         let parentRect = elmnt.parentElement.getBoundingClientRect()
 
         elmnt.style.top =
-            ((e.pageY - offsetY ) - (parentRect.top )) + "px";
+            ((e.pageY - offsetY) - (parentRect.top)) + "px";
 
         let tt = getInsertionPoint(container, e.clientY, placeholder)
 
@@ -716,29 +714,32 @@ function dragElement4(elmnt) {
     function dragMouseDown(e) {
         e = e || window.event;
 
-        const rect = elmnt.getBoundingClientRect();
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-
-        // instead of reparenting, just let the parent stop clipping for now
-        scrollParent = elmnt.parentElement;
-        prevOverflow = scrollParent.style.overflow;
-        scrollParent.style.overflow = "visible";
-
-        startLeft = rect.left;
-        startTop = rect.top;
         hasDragged = false;
+        if (!e.target.matches("img")) {
+            const rect = elmnt.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
 
-        elmnt.style.position = "fixed";
-        elmnt.style.top = startTop + "px";
-        elmnt.style.left = startLeft + "px";
-        elmnt.style.margin = "0";
-        elmnt.style.pointerEvents = "none";
-        // no appendChild — elmnt never leaves its original spot in the DOM
+            // instead of reparenting, just let the parent stop clipping for now
+            scrollParent = elmnt.parentElement;
+            prevOverflow = scrollParent.style.overflow;
+            scrollParent.style.overflow = "visible";
 
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-        elmnt.classList.add("draggingSample");
+            startLeft = rect.left;
+            startTop = rect.top;
+            // hasDragged = false;
+
+            elmnt.style.position = "fixed";
+            elmnt.style.top = startTop + "px";
+            elmnt.style.left = startLeft + "px";
+            elmnt.style.margin = "0";
+            elmnt.style.pointerEvents = "none";
+            // no appendChild — elmnt never leaves its original spot in the DOM
+
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            elmnt.classList.add("draggingSample");
+        }
     }
 
     function elementDrag(e) {
@@ -793,11 +794,9 @@ function dragElement4(elmnt) {
             cancelAnimationFrame(rafId);
             rafId = null;
         }
-
         if (currentHoverTarget) {
             currentHoverTarget.classList.remove("drag-hover");
         }
-
 
         elmnt.style.transform = "";
         elmnt.style.pointerEvents = "";
@@ -828,13 +827,13 @@ function dragElement4(elmnt) {
                 let tw = 60
 
                 console.log(newCan.width, newCan.height)
-                if (newCan.height > th){
+                if (newCan.height > th) {
                     tw = (th * newCan.width) / newCan.height
                 } else {
                     // th = newCan.height
                 }
 
-                if (newCan.width > tw && th > 60){
+                if (newCan.width > tw && th > 60) {
                     th = (tw * newCan.height) / newCan.width
                 } else if (tw > 60) {
 
@@ -842,23 +841,24 @@ function dragElement4(elmnt) {
                     // tw = newCan.width
                 }
 
-
-
                 tcan.with = tw
                 tcan.height = th
 
                 let tcon = tcan.getContext("2d")
-                console.log(newCan.height);
 
+                tcon.drawImage(newCan, 0, 0, tw, th)
 
-                tcon.drawImage(newCan,0,0,tw,th)
-
-                console.log(key);
-                console.log(number);
-                console.log(megaPalettes[key].encodings.range.marks[number]);
                 megaPalettes[key].encodings.range.marks[number].proto.canvas = cloneCanvas(newCan)
                 megaPalettes[key].encodings.range.marks[number].source = cloneCanvas(newCan)
                 updateSvg();
+            }
+        } else {
+
+            if (!e.target.matches("img")) {
+                let newCan = elmnt.querySelector('canvas');
+                console.log("dasdsada");
+                currSampleEdited = newCan
+                editPalette(newCan)
             }
         }
     }

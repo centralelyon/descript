@@ -291,22 +291,30 @@ function editPalette(e) {
 
     document.getElementById("paletteContainer").style.display = "block";
     primRot = undefined
-    let num = el.getAttribute("number")
-    let key = el.getAttribute("key")
-    let type = el.getAttribute("id").split("_")[0]
 
-    if (type === "canvas") {
-        type = el.getAttribute("type")
-        key = el.getAttribute("id").split("_")[1]
+    let type = "markCan"
+    let num = ""
+    let key = ""
+    if (!el.matches("canvas")) {
+        num = el.getAttribute("number")
+        key = el.getAttribute("key")
+        type = el.getAttribute("id").split("_")[0]
+
+        if (type === "canvas") {
+            type = el.getAttribute("type")
+            key = el.getAttribute("id").split("_")[1]
+
+        }
+        selectedPalette = [key, num, type]
+
 
     }
 
     let trange = document.getElementById("strokewidth")
     trange.onchange = function (e) {
-        console.log("dsdsadas");
         const val = parseInt(document.getElementById("strokewidth").value);
         stWidth = val
-        console.log("dsdsadas");
+
     }
 
     document.getElementById('strokecolor').onchange = function () {
@@ -314,10 +322,6 @@ function editPalette(e) {
         stColor = this.value
     }
 
-
-    selectedPalette = [key, num, type]
-
-    console.log(selectedPalette);
 
     paletteResetZoom()
 
@@ -335,18 +339,15 @@ function editPalette(e) {
     let proto
 
     if (type === "mark") {
-        if (num) {
-            proto = megaPalettes[key].encodings.range.marks[num].proto
-        } else {
-            proto = marks[key].proto
-        }
+
+        proto = megaPalettes[key].encodings.range.marks[num].proto
 
 
-    } else if (type === "cat") {
-        proto = palette_cat[key].proto
+    } else {
+        proto = {canvas: el, corners: [[0, 0], [el.width, el.height]]}
     }
 
-    // corners[1][0] - corners[0][0]
+
     let tw = proto.canvas.width
     let th = proto.canvas.height
     if (proto.corners) {
@@ -456,41 +457,23 @@ function onClickPalette(e) {
             data_from: selProto.anchors[currAnchor]
         }
 
-        // let el = document.getElementById("anchorsContainer")
-        // updateAnchorCont(el)
 
-        // updateLinkTo()
-
-        // mode = "stroke"
-
-        // document.getElementById("selectedButton2").removeAttribute("id")
-        // doc
-        // el.setAttribute("id", "selectedButton2")
     } else if (mode === "eraseColor") {
         let xy = getMousePos(e);
         xy = toWorld(xy, paletteOrigin, paletteScale)
-        console.log(xy);
 
-
-        // let tcan = megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source
         let tcan = paletteTempCan
 
-        let tw = 60
-        let th = 60
-
-        // let tx = (xy.x - paletteTempCan.width / 2 + tw / 2)
-        // let ty = (xy.y - paletteTempCan.height / 2 + th / 2)
 
         let cont = tcan.getContext("2d")
         // const [r, g, b, a] = cont.getImageData(tx, ty, 1, 1).data;
         const [r, g, b, a] = cont.getImageData(xy.x, xy.y, 1, 1).data;
-        console.log(r, g, b, a);
 
         const range = 20
 
         removeColor(r, g, b, paletteTempCan, range)
-        removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source, range)
-        removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].proto.canvas, range)
+        // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].source, range)
+        // removeColor(r, g, b, megaPalettes[nSelPaltette].encodings.range.marks[nSelMark].proto.canvas, range)
 
     }
 }
@@ -498,7 +481,7 @@ function onClickPalette(e) {
 
 function updateAnchorCont(container) {
 
-    // let container = document.getElementById('anchorsContainer')
+
 
     container.innerHTML = ''
 
@@ -549,22 +532,13 @@ function paletteResetZoom() {
     paletteScale = 1
     paletteOrigin.x = 0
     paletteOrigin.y = 0
-    //
-    // paletteTempCan = document.createElement("canvas");
-    // paletteTempCan.width = can.width;
-    // paletteTempCan.height = can.height;
-
-
-    // cont.drawImage(paletteTempCan, paletteInitCoords.x, paletteInitCoords.y);
-    // resetCan()
 }
 
 function onMouseUpPalette() {
     mouseDown = 0
-    // addFreeSample(stroke)
-    // console.log(stroke);
+
     stroke = []
-    // drawImage()
+
 
 
 }
@@ -599,17 +573,7 @@ function drawPalette(cont, x, y, w, type, can) {
     let tcon = can.getContext('2d')
     tcon.clearRect(0, 0, 9000, 9000);
 
-    // if (primRot) {
-    //     tcon.save()
-    //     tcon.translate(paletteTempCan.width / 2, paletteTempCan.height / 2);
-    //     tcon.rotate(toRad(primRot));
-    //     tcon.drawImage(paletteTempCan, -paletteTempCan.width / 2, -paletteTempCan.height / 2, paletteTempCan.width, paletteTempCan.height);
-    //     tcon.restore();
-    // } else {
     tcon.drawImage(cont.canvas, 0, 0)
-    // }
-
-    //
 }
 
 function onMouseDownPalette(e) {
@@ -741,13 +705,6 @@ function paletteZoom(e) {
     let can = document.getElementById('paletteEdit');
     let cont = can.getContext('2d');
 
-    // paletteTempCan = document.createElement("canvas");
-    // paletteTempCan.width = can.width;
-    // paletteTempCan.height = can.height;
-
-    // let pcont = paletteTempCan.getContext("2d");
-    //
-    // pcont.drawImage(can, 0, 0, can.width, can.height, 0, 0, 0, 0)
     e.preventDefault();
     let zoomStep = 1.1
 
@@ -862,6 +819,7 @@ function savePalette() {
 
 
         }
+        updateSvg()
     }
     document.getElementById("paletteContainer").style.display = "none";
 
@@ -869,7 +827,7 @@ function savePalette() {
 
     selectedPalette = undefined
 
-    updateSvg()
+
 }
 
 

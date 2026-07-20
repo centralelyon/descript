@@ -28,6 +28,7 @@ function switchMode(type) {
 
         can.onpointerdown = e => {
             if (isDragging) return
+            document.getElementById("sampleDisplay").style.display = "none"
             origin = {x: e.offsetX, y: e.offsetY};
             sampling = true
 

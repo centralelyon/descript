@@ -154,6 +154,28 @@ function setAddNewMenu() {
 }
 
 
+async function showThisPalette(name, num) {
+    console.log(num);
+    console.log(allPalettes[num].originImg);
+
+    let tab = document.querySelector(`.tab[num="2"]`);
+
+    tab.click()
+
+    if (allPalettes[num].originImg) {
+        let tcan = document.getElementById("inVis")
+        // await allPalettes[num].originImg.decode()
+
+        resetView(tcan, allPalettes[num].originImg)
+
+
+        displayAllMarksInSvg(allPalettes[num].sampling)
+    }
+
+
+}
+
+
 function selectThisPalette(name, num) {
     if (megaPalettes[name] !== undefined) {
         name += Object.keys(megaPalettes).length
@@ -241,12 +263,14 @@ async function initAllPalette() {
         let arrowDiv = document.createElement("div");
 
         arrowDiv.className = "paletteArrowDiv";
-        arrowDiv.innerHTML = `<img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
+        arrowDiv.innerHTML = `
+              <img src ="assets/images/buttons/show.png" style="position: absolute;top: -23px;right: -2px;width: 18px;height: auto;cursor: pointer" onclick="showThisPalette('${palSources[i]}',${i})" >
+            <img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
         tdiv.appendChild(arrowDiv);
         container.appendChild(tdiv);
 
         dragElement(tdiv)
-        bindingMouseOver(tdiv)
+        // bindingMouseOver(tdiv)
         let allMarks = allPalettes[i].encodings.range.marks;
 
         let MarkNames = Object.keys(allMarks)
@@ -481,7 +505,7 @@ function appendSingle(palette, name) {
     // container.appendChild(tdiv);
 
     dragElement(tdiv)
-    bindingMouseOver(tdiv)
+    // bindingMouseOver(tdiv)
     let allMarks = palette.encodings.range.marks;
 
     let MarkNames = Object.keys(allMarks)

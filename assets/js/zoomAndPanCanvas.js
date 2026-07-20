@@ -28,7 +28,7 @@ function redraw(canvas,image) {
         -y0 * zoom
     );
 
-    let trect = document.getElementById("sampleDisplay").getBoundingClientRect();
+
 
 
     // ctx.drawImage(currImg, 0, 0,trect.width, trect.height);
