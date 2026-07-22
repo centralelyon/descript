@@ -73,7 +73,7 @@ async function loadDataset(url) {
         data.splice(338, 1)
     }
     chartDataset.data = data
-    fillAxis()
+    // fillAxis()
 }
 
 
@@ -1096,14 +1096,6 @@ function updateDatabinding(elem) {
     // drawSvg()
 }
 
-async function loadCsv(url) {
-
-
-    return await d3.csv(
-        url,
-        d3.autoType
-    )
-}
 
 
 function getKeyByValue(object, value) {
@@ -1480,13 +1472,17 @@ async function drawForce(svg, viewport, data, encodings, order, tmarks, update) 
 
 async function tdrawRefactor(update = false) {
     let svg = d3.select("#fakePreviewSvg")
-
+    let viewport
     if (!update) {
         svg.selectAll("*").remove();
+        viewport  = svg.append("g")
+            .attr("id", "viewport")
+    } else {
+        viewport = svg.select("#viewport")
     }
 
-    let viewport = svg.append("g")
-        .attr("id", "viewport")
+
+
 
     const zoom = d3.zoom()
         .scaleExtent([0.2, 10])

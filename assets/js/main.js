@@ -248,6 +248,7 @@ async function init() {
 
 // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
+    document.getElementById("dataLoader").addEventListener("change", csvLoader);
     // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
@@ -1089,10 +1090,10 @@ window.addEventListener("keydown", (e) => {
     if (e.key === "Shift" && !isDragging) {
         let tcan = document.getElementById("inVis")
         tcan.style.cursor = "move";
-        sampling = false
+        sampling = false/*
         let btn = document.getElementById("moveBtn")
 
-        btn.classList.add("selectedButton");
+        btn.classList.add("selectedButton");*/
     }
 });
 
@@ -1100,9 +1101,9 @@ window.addEventListener("keyup", (e) => {
     if (e.key === "Shift") {
         let tcan = document.getElementById("inVis")
         tcan.style.cursor = "default";
-        let btn = document.getElementById("moveBtn")
+        // let btn = document.getElementById("moveBtn")
 
-        btn.classList.remove("selectedButton");
+        // btn.classList.remove("selectedButton");
         // sampling = true
     }
 });
@@ -1286,8 +1287,8 @@ function initState(state) {
 async function preloadBgImg() {
     const preloadList = ['week05', 'week15']
     const preloadUrl = [
-        "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_05%2Bback.jpg",
-        "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg"
+        "assets/tempData/sources/Giorgia_DearData_15_Back.jpg",
+        "assets/tempData/sources/Stefanie_DearData_05+back.jpg"
        ]
     for (let i = 0; i < preloadList.length; i++) {
         preload[preloadList[i]] = await getImage(preloadUrl[i])
@@ -1298,9 +1299,12 @@ async function preloadBgImg() {
 function getImage(url) {
     return new Promise((resolve, reject) => {
         const img = document.createElement('img');
+        // img.crossOrigin = 'anonymous';
+        img.crossOrigin = "anonymous";
+
         img.onload = () => resolve(img);
         img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-
+        img.crossOrigin = "use-credentials"
         img.src = url;
     });
 }

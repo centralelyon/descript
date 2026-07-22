@@ -1,4 +1,4 @@
-let dataList = ["week15.csv", "week26.csv", "pinguins.csv", 'iris.csv', 'titanic.csv', 'tips.csv']
+let dataList = ["week15.csv", "week26.csv", "penguins.csv", 'iris.csv', 'titanic.csv', 'tips.csv']
 
 
 Array.prototype.sample = function () {
@@ -42,7 +42,7 @@ async function updateDataset() {
     let dataset = document.getElementById("availableData").value
 
     chartDataset.name = dataset
-    if (dataset === "pinguins.csv"|| dataset === "titanic.csv"|| dataset === "tips.csv" || dataset === "iris.csv") {
+    if (dataset === "penguins.csv" || dataset === "titanic.csv" || dataset === "tips.csv" || dataset === "iris.csv") {
         await loadDataset(`assets/tempData/datasets/${dataset}`)
     } else if (dataset === "week15.csv") {
         chartDataset.data = fakeWeek15()
@@ -131,6 +131,37 @@ function fillSidePanel() {
     // }
 
 
+}
+
+
+function csvLoader(e) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const text = e.target.result;
+        const data = d3.csvParse(text);
+
+        chartDataset.data = data
+
+        fillAxis()
+        fillTable()
+        updateShapeOptions()
+
+        d3.selectAll(".dataBindingContainer").selectAll("*").remove()
+
+        tdrawRefactor()
+
+    }
+    reader.readAsText(e.target.files[0]);
+}
+
+async function loadCsv(url) {
+
+
+    return await d3.csv(
+        url,
+        d3.autoType
+    )
 }
 
 

@@ -376,7 +376,7 @@ async function loadSavedPalette(url) {
 
 // megaPalettes[`temp${n}`] = jsonObj
 
-
+return palette
 }
 
 

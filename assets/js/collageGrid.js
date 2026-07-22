@@ -1,3 +1,4 @@
+/*
 function makeCartesian() {
 
 
@@ -123,6 +124,7 @@ function makeCartesian() {
 
     }
 }
+*/
 
 function getOrder(data) {
 
@@ -198,6 +200,143 @@ function makeMorph(palette, data, column) {
     return {scale: sizeScale, can: pal.encodings.morph.max.proto.canvas}
 }
 
+
+// function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) {
+//
+//     let drawnMarks = {}
+//
+//     let tcan = document.createElement("canvas");
+//     tcan.width = 400;
+//     tcan.height = 400;
+//
+//
+//     let tcon = tcan.getContext("2d");
+//
+//     let base = [tcan.width / 2, tcan.height / 2]
+//
+//     for (let j = 0; j < order.length; j++) {
+//
+//
+//         let ref = megaPalettes[order[j]]
+//         if (ref.displayType === "range") {
+//
+//             let mark = marks[order[j]][row[dataBinding[order[j]]]];
+//             if (gridMark !== undefined) {
+//                 mark =  megaPalettes[order[j]].encodings.range.marks[gridMark[order[j]]]
+//
+//             }
+//
+//             let can = mark.proto.canvas
+//             let cl = 1
+//
+//             if (megaGlyph[order[j]].color.dataColumn !== "" && megaGlyph[order[j]].color.dataColumn !== "none") {
+//                 if (megaGlyph[order[j]].color.isLinear) {
+//                     let tcol = megaGlyph[order[j]].color.colorScale(megaGlyph[order[j]].color.linearScale(row[megaGlyph[order[j]].color.dataColumn])).replace("rgb(", "").replace(")", "").split(",")
+//                     can = toColor(can, +tcol[0] * cl, +tcol[1] * cl, +tcol[2] * cl, 210)
+//                 } else {
+//                     let tcol = hexToRgb(megaGlyph[order[j]].color.colors["default"])
+//                     if (megaGlyph[order[j]].color.colors[row[megaGlyph[order[j]].color.dataColumn]]) {
+//                         tcol = hexToRgb(megaGlyph[order[j]].color.colors[row[megaGlyph[order[j]].color.dataColumn]])
+//                     }
+//
+//                     can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+//                 }
+//                 removeColor(230, 230, 230, can, 25)
+//
+//             }
+//
+//
+//             let sc = ref.scale
+//             if (megaGlyph[order[j]].size.dataColumn !== "" && megaGlyph[order[j]].size.dataColumn !== "none") {
+//                 sc *= megaGlyph[order[j]].size.scale(row[megaGlyph[order[j]].size.dataColumn])
+//             }
+//
+//             let orient = 0;
+//             if (megaGlyph[order[j]].orientation.dataColumn !== "" && megaGlyph[order[j]].orientation.dataColumn !== "none") {
+//                 orient = megaGlyph[order[j]].orientation.scale(row[megaGlyph[order[j]].orientation.dataColumn])
+//             }
+//
+//
+//             let sourceW = mark.proto.canvas.width * sc
+//             let sourceH = mark.proto.canvas.height * sc
+//
+//             let offX = base[0]
+//             let offY = base[0]
+//
+//             let toOffX = 0
+//             let toOffY = 0
+//             let drawX, drawY
+//
+//             if (ref.apply) {
+//                 let anchorId = ref.linkTo
+//
+//                 let to = megaPalettes[ref.apply]
+//
+//                 //WHERE PREVIOUS WAS DRAWN
+//                 offX = drawnMarks[ref.apply].x - (drawnMarks[ref.apply].w / 2)
+//                 offY = drawnMarks[ref.apply].y - (drawnMarks[ref.apply].h / 2)
+//
+//                 if (to.displayType === "range") {
+//                     let instancedMark = marks[ref.apply][row[dataBinding[ref.apply]]]
+//
+//                     if (gridMark !== undefined) {
+//
+//                         instancedMark =  megaPalettes[ref.apply].encodings.range.marks[gridMark[ref.apply]]
+//
+//                     }
+//
+//                     let ToAnchor = instancedMark.proto.anchors[anchorId]
+//
+//                     offX += ToAnchor.rx * drawnMarks[ref.apply].w
+//                     offY += ToAnchor.ry * drawnMarks[ref.apply].h
+//
+//                 }
+//
+//                 let selfAnchor = mark.proto.anchors[anchorId]
+//
+//                 toOffX = selfAnchor.rx * sourceW
+//                 toOffY = selfAnchor.ry * sourceH
+//
+//
+//                 drawX = offX - toOffX
+//                 drawY = offY - toOffY
+//
+//                 tcon.drawImage(can,
+//                     drawX,
+//                     drawY,
+//                     sourceW,
+//                     sourceH)
+//
+//             } else {
+//                 drawX = offX - (sourceW / 2 + toOffX)
+//                 drawY = offY - (sourceH / 2 + toOffY)
+//
+//                 tcon.drawImage(can,
+//                     drawX,
+//                     drawY,
+//                     sourceW,
+//                     sourceH)
+//             }
+//
+//             drawnMarks[order[j]] = {x: drawX + sourceW / 2, y: drawY + sourceH / 2, w: sourceW, h: sourceH}
+//
+//
+//         }
+//
+//     }
+//
+//
+//     // return makeCanvasFit(tcan)
+//
+//     let bbox = getMinimalBoundingBox(tcan)
+//
+//     return resizeWithBbox(tcan, bbox)
+//
+//     // tcan
+//
+// }
+
+
 function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) {
 
     let drawnMarks = {}
@@ -237,9 +376,10 @@ function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) 
                     let tcol = hexToRgb(megaGlyph[order[j]].color.colors["default"])
                     if (megaGlyph[order[j]].color.colors[row[megaGlyph[order[j]].color.dataColumn]]) {
                         tcol = hexToRgb(megaGlyph[order[j]].color.colors[row[megaGlyph[order[j]].color.dataColumn]])
+
                     }
 
-                    can = toColor(can, tcol.r * cl, tcol.g * cl, tcol.b * cl, 210)
+                    can = toColor(can, tcol[0] * cl, tcol[1] * cl, tcol[2] * cl, 210)
                 }
                 removeColor(230, 230, 230, can, 25)
 
@@ -254,70 +394,93 @@ function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) 
             let sourceW = mark.proto.canvas.width * sc
             let sourceH = mark.proto.canvas.height * sc
 
-            let offX = base[0]
-            let offY = base[0]
 
-            let toOffX = 0
-            let toOffY = 0
+            let rotDeg = ref.rotation || 0
+            if (megaGlyph[order[j]].orientation &&
+                megaGlyph[order[j]].orientation.dataColumn !== "" &&
+                megaGlyph[order[j]].orientation.dataColumn !== "none") {
+                rotDeg += megaGlyph[order[j]].orientation.scale(row[megaGlyph[order[j]].orientation.dataColumn])
+            }
+            let rotSelf = rotDeg * Math.PI / 180
+
+            let pivotX, pivotY, pivotRx, pivotRy, cumRot
+
             if (ref.apply) {
                 let anchorId = ref.linkTo
 
                 let to = megaPalettes[ref.apply]
+                let parent = drawnMarks[ref.apply]
 
-                //WHERE PREVIOUS WAS DRAWN
-                offX = drawnMarks[ref.apply].x - (drawnMarks[ref.apply].w / 2)
-                offY = drawnMarks[ref.apply].y - (drawnMarks[ref.apply].h / 2)
-                // tcon.fillRect(offX, offY, 5, 5)
+
+                let localX = 0
+                let localY = 0
 
                 if (to.displayType === "range") {
                     let instancedMark = marks[ref.apply][row[dataBinding[ref.apply]]]
 
                     if (gridMark !== undefined) {
 
-                        // console.log(megaPalettes[ref.apply]);
                         instancedMark =  megaPalettes[ref.apply].encodings.range.marks[gridMark[ref.apply]]
-                        // console.log(gridMark[order[j]]);
-                        // console.log("dasdasdasda");
+
                     }
 
                     let ToAnchor = instancedMark.proto.anchors[anchorId]
-                    let tsc = 1
-                    if (instancedMark.scale) {
-                        tsc = instancedMark.scale
-                    }
 
-
-                    offX += ToAnchor.rx * (instancedMark.proto.canvas.width * tsc)
-                    offY += ToAnchor.ry * (instancedMark.proto.canvas.height * tsc)
-
+                    localX = (ToAnchor.rx - parent.pivotRx) * parent.w
+                    localY = (ToAnchor.ry - parent.pivotRy) * parent.h
                 }
-                // tcon.fillStyle = "red"
-                // tcon.fillRect(offX, offY, 5, 5)
+
+
+                let pCos = Math.cos(parent.rot)
+                let pSin = Math.sin(parent.rot)
+
+                let anchorX = parent.pivot.x + (localX * pCos - localY * pSin)
+                let anchorY = parent.pivot.y + (localX * pSin + localY * pCos)
 
                 let selfAnchor = mark.proto.anchors[anchorId]
 
-                // offX += selfAnchor.rx * sourceW
-                // offY += selfAnchor.ry * sourceH
+                cumRot = parent.rot + rotSelf
+                pivotX = anchorX
+                pivotY = anchorY
+                pivotRx = selfAnchor.rx
+                pivotRy = selfAnchor.ry
 
-                toOffX = selfAnchor.rx * sourceW
-                toOffY = selfAnchor.ry * sourceH
-
+                tcon.save()
+                tcon.translate(pivotX, pivotY)
+                tcon.rotate(cumRot)
                 tcon.drawImage(can,
-                    offX - toOffX,
-                    offY - toOffY,
+                    -selfAnchor.rx * sourceW,
+                    -selfAnchor.ry * sourceH,
                     sourceW,
                     sourceH)
+                tcon.restore()
 
             } else {
+                cumRot = rotSelf
+                pivotX = base[0]
+                pivotY = base[1]
+                pivotRx = 0.5
+                pivotRy = 0.5
+
+                tcon.save()
+                tcon.translate(pivotX, pivotY)
+                tcon.rotate(cumRot)
                 tcon.drawImage(can,
-                    offX - (sourceW / 2 + toOffX),
-                    offY - (sourceH / 2 + toOffY),
+                    -sourceW / 2,
+                    -sourceH / 2,
                     sourceW,
                     sourceH)
+                tcon.restore()
             }
 
-            //TODO: bug inducing with chained anchors
-            drawnMarks[order[j]] = {x: offX, y: offY, w: sourceW, h: sourceH}
+            drawnMarks[order[j]] = {
+                pivot: {x: pivotX, y: pivotY},
+                rot: cumRot,
+                w: sourceW,
+                h: sourceH,
+                pivotRx: pivotRx,
+                pivotRy: pivotRy
+            }
 
 
         }
@@ -334,6 +497,15 @@ function makeCollageFromData(palettes, order, marks, row, gridMark = undefined) 
     // tcan
 
 }
+
+
+function getMarkId(name, order, test) {
+
+    return test[order.indexOf(name)]
+
+}
+
+
 
 function getMarkId(name, order, test) {
 

@@ -59,7 +59,6 @@ function showExample() {
 
     let cart = cartesianOfMarks(megaPalettes)
 
-    console.log(cart);
     let n = cart.length
     let size = 120
     let margin = 5
@@ -67,7 +66,6 @@ function showExample() {
     for (let i = 0; i < n; i++) {
         let can = makeCollageFromData(encodings, order, tmarks, data[(Math.random() * data.length) | 0], cart[i])
 
-        console.log(cart[i]);
         let coords = getGridLayout(trect.width, trect.height, n, i, size)
 
         svg.append("image")
@@ -199,9 +197,7 @@ function drawAllCollageAnchor() {
     let keys = Object.keys(megaPalettes)
 
     for (const [key, value] of Object.entries(megaPalettes)) {
-        // console.log(value.linkto);
-        // console.log(value.linkTo);
-        console.log(key)
+
         if (value.linkTo !== undefined) {
             console.log(key);
 
@@ -274,7 +270,6 @@ function drawAllCollageAnchor() {
     }
 
 }
-
 function addPaletteInfoToCollage(palette, name) {
 
     let svg = d3.select("#composition")
@@ -309,15 +304,14 @@ function addPaletteInfoToCollage(palette, name) {
                     anchoring = true
                     anchoringRef = name
 
-                    let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
-
-                    let offx = e.offsetX - imCord.x
-                    let offy = e.offsetY - imCord.y
+                    let [px, py] = d3.pointer(e, svg.node())
+                    let offx = px - drawnMarks[name].x
+                    let offy = py - drawnMarks[name].y
                     svg.append("circle")
                         .attr("cx", drawnMarks[name].x + offx)
                         .attr("cy", drawnMarks[name].y + offy)
                         .attr("r", 5)
-                        .attr("fill", drawnMarks[name].x)
+                        .attr("fill", collageColScale(name))
                         .attr("type", "from")
                         .attr("from", name)
                         .attr("name", name)
@@ -332,14 +326,12 @@ function addPaletteInfoToCollage(palette, name) {
                 } else {
                     if (anchoringRef !== name) {
 
-                        let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
+                        let [px, py] = d3.pointer(e, svg.node())
+                        let offx = px - drawnMarks[name].x
+                        let offy = py - drawnMarks[name].y
 
 
-                        let offx = e.offsetX - imCord.x
-                        let offy = e.offsetY - imCord.y
-
-
-                        let fromCr = d3.select(`circle[from="${tFrom.name}"][nAnchor="${nAnchor}"]`)
+                        let fromCr = d3.select(`circle[from="${tFrom.name}"][nAnchor="${nAnchor}"][type="from"]`)
 
 
                         tTo = {
@@ -397,12 +389,15 @@ function addPaletteInfoToCollage(palette, name) {
                             // .attr("stroke", drawnMarks[name].x)
 
 
-                            setAnchorOnAllMarks(tFrom.name, offx, offy, nAnchor, "")
-
-                            megaPalettes[name].apply = tFrom.name
-                            megaPalettes[name].linkTo = nAnchor
-                            setAnchorOnAllMarks(name, offx, offy, nAnchor, tFrom.name)
+                            setAnchorOnAllMarks(tFrom.name, offx, offy, nAnchor, 0, name)
+                            setAnchorOnAllMarks(name, offx, offy, nAnchor, 0, tFrom.name)
                             // setAnchorOnAllMarks(tFrom.name, offx, offy, name)
+
+                            // Preserve whichever of the two marks already has an
+                            // established tree (so we don't re-root something that's
+                            // already correctly positioned elsewhere); if neither does,
+                            // tFrom becomes root, same as the original convention.
+                            resolveAnchorTree(findRoot(tFrom.name))
                             nAnchor++
                             anchoring = false
                             anchoringRef = ""
@@ -417,25 +412,32 @@ function addPaletteInfoToCollage(palette, name) {
                         }
 
                     } else {
-                        let imCord = {x: +elem.getAttribute("x"), y: +elem.getAttribute("y")}
+                        // Clicked the same mark again before completing the anchor.
+                        // Treat this as repositioning the pending "from" point rather
+                        // than spawning a stray "to" circle: the old code referenced
+                        // tTo.name here (not set for this pair yet) and never reset
+                        // the anchoring state, so the tool got stuck mid-flow.
+                        let [px, py] = d3.pointer(e, svg.node())
+                        let offx = px - drawnMarks[name].x
+                        let offy = py - drawnMarks[name].y
 
+                        d3.select(`circle[from="${name}"][nAnchor="${nAnchor}"][type="from"]`).remove()
 
-                        let offx = e.offsetX - imCord.x
-                        let offy = e.offsetY - imCord.y
                         svg.append("circle")
                             .attr("cx", drawnMarks[name].x + offx)
                             .attr("cy", drawnMarks[name].y + offy)
                             .attr("r", 5)
-                            .attr("fill", drawnMarks[name].x)
-                            .attr("type", "to")
-                            .attr("from", tFrom.name)
-                            .attr("to", tTo.name)
+                            .attr("fill", collageColScale(name))
+                            .attr("type", "from")
+                            .attr("from", name)
                             .attr("name", name)
                             .attr("nAnchor", nAnchor)
                             .call(d3.drag()
                                 .on("start", dragstarted)
                                 .on("drag", dragged)
                                 .on("end", dragended))
+
+                        tFrom = {x: drawnMarks[name].x + offx, y: drawnMarks[name].y + offy, rx: offx, ry: offy, name: name}
                     }
                 }
 
@@ -545,13 +547,14 @@ function addPaletteInfoToCollage(palette, name) {
                     .on("drag", dragged)
                     .on("end", dragended))
 
-            megaPalettes[name].apply = tFrom.name
-            megaPalettes[name].linkTo = nAnchor
+            resolveAnchorTree(findRoot(tFrom.name))
             nAnchor++
         }
     }
     // }
 }
+
+
 
 function hidePalette() {
     const container = document.getElementById("paletteDetails")
@@ -703,10 +706,12 @@ function displayPalette(name) {
 
         let color = makeParamOption("color", columns, name)
         let size = makeParamOption("size", columns, name)
+        let orientation = makeParamOption("orientation", columns, name)
 
         containerControls.appendChild(tdiv)
         containerControls.appendChild(color)
         containerControls.appendChild(size)
+        containerControls.appendChild(orientation)
 
     }
 }
@@ -769,6 +774,56 @@ function setAnchorOnAllMarks(name, x, y, from, nb, related) {
 
 }
 
+
+// Walks .apply pointers upward from `name` to find the current root of
+// whatever tree it already belongs to (a mark with no .apply of its own).
+// Used so that adding a new anchor to an already-connected mark doesn't
+// arbitrarily re-root its existing tree.
+function findRoot(name, visited = new Set()) {
+    if (visited.has(name) || !megaPalettes[name]) return name
+    visited.add(name)
+    let ref = megaPalettes[name]
+    if (!ref.apply) return name
+    return findRoot(ref.apply, visited)
+}
+
+// Recomputes .apply/.linkTo for an entire connected component from scratch,
+// starting at `root`, using proto.anchors[*].relatedTo (on mark0, which every
+// mark in a palette shares identically thanks to setAnchorOnAllMarks) as the
+// single source of truth for the graph. This replaces the old model where
+// .apply/.linkTo were separately mutated by whichever anchor-add happened
+// most recently -- if a mark (like one in the middle of a chain) picked up a
+// second anchor, that overwrite silently discarded its first relationship,
+// even though the anchor geometry itself was still intact. Now every anchor
+// a mark owns stays meaningful: a BFS from `root` assigns each mark exactly
+// one *upstream* anchor (its .apply/.linkTo, pointing toward the root) while
+// every other anchor it owns remains available for whatever attaches to it
+// further downstream, so multi-neighbor marks keep all their real links.
+function resolveAnchorTree(root) {
+    if (!megaPalettes[root]) return
+
+    let visited = new Set([root])
+    let queue = [root]
+
+    megaPalettes[root].apply = ""
+    megaPalettes[root].linkTo = undefined
+
+    while (queue.length) {
+        let current = queue.shift()
+        let anchors = megaPalettes[current].encodings.range.marks["mark0"].proto.anchors || {}
+
+        for (const [anchorId, a] of Object.entries(anchors)) {
+            let neighbor = a.relatedTo
+
+            if (!neighbor || !megaPalettes[neighbor] || visited.has(neighbor)) continue
+
+            visited.add(neighbor)
+            megaPalettes[neighbor].apply = current
+            megaPalettes[neighbor].linkTo = Number(anchorId)
+            queue.push(neighbor)
+        }
+    }
+}
 
 function rand(n) {
     return (Math.random() - 0.5) * n;

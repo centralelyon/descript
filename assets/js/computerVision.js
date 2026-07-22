@@ -555,53 +555,93 @@ function getBBox(canvas) {
     return corners
 }
 
+
+
+// function toColor(canvas, r, g, b, threshold) {
+//
+//     let src = opencv.imread(canvas);
+//     let temp2 = opencv.Mat.ones(src.rows, src.cols, opencv.CV_8UC3);
+//
+//     let res = document.createElement("canvas")
+//     res.width = canvas.width
+//     res.height = canvas.height
+//
+//
+//     let color = new opencv.Scalar(r, g, b, 255)
+//     let white = new opencv.Scalar(255, 255, 255, 255)
+//
+//
+//     temp2.setTo(white)
+//
+//     let lower = [10, 10, 10, 255]
+//     let higher = [threshold, threshold, threshold, threshold]
+//
+//     opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
+//     opencv.cvtColor(src, src, opencv.COLOR_RGB2GRAY, 3);
+//
+//
+//     let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
+//     let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+//
+//     opencv.inRange(src, low, high, src);
+//
+//     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
+//
+//     // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
+//     // let p = new opencv.Point(-1, -1)
+//     // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
+//
+//     temp2.setTo(color, src)
+//
+//     opencv.imshow(res, temp2);
+//
+//     src.delete();
+//     // M.delete();
+//     temp2.delete();
+//     // color.delete();
+//     // low.delete();
+//     // high.delete();
+//
+//     return res
+//
+// }
+
 function toColor(canvas, r, g, b, threshold) {
-
     let src = opencv.imread(canvas);
-    let temp2 = opencv.Mat.ones(src.rows, src.cols, opencv.CV_8UC3);
 
-    let res = document.createElement("canvas")
-    res.width = canvas.width
-    res.height = canvas.height
+    let gray = new opencv.Mat();
+    opencv.cvtColor(src, gray, opencv.COLOR_RGBA2GRAY);
 
+    let lowScalar = new opencv.Scalar(10);
+    let highScalar = new opencv.Scalar(threshold);
 
-    let color = new opencv.Scalar(r, g, b, 255)
-    let white = new opencv.Scalar(255, 255, 255, 255)
+    let low = new opencv.Mat(gray.rows, gray.cols, gray.type(), lowScalar);
+    let high = new opencv.Mat(gray.rows, gray.cols, gray.type(), highScalar);
 
+    let mask = new opencv.Mat();
+    opencv.inRange(gray, low, high, mask);
 
-    temp2.setTo(white)
-
-    let lower = [10, 10, 10, 255]
-    let higher = [threshold, threshold, threshold, threshold]
-
-    opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
-    opencv.cvtColor(src, src, opencv.COLOR_RGB2GRAY, 3);
+    let white = new opencv.Scalar(255, 255, 255, 255);
+    let dst = new opencv.Mat(src.rows, src.cols, opencv.CV_8UC4, white);
 
 
-    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
-    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+    let targetColor = new opencv.Scalar(r, g, b, 255);
+    dst.setTo(targetColor, mask);
 
-    opencv.inRange(src, low, high, src);
+    let res = document.createElement("canvas");
+    res.width = canvas.width;
+    res.height = canvas.height;
+    opencv.imshow(res, dst);
 
-    opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
-
-    // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
-    // let p = new opencv.Point(-1, -1)
-    // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
-
-    temp2.setTo(color, src)
-
-    opencv.imshow(res, temp2);
 
     src.delete();
-    // M.delete();
-    temp2.delete();
-    // color.delete();
-    // low.delete();
-    // high.delete();
+    gray.delete();
+    low.delete();
+    high.delete();
+    mask.delete();
+    dst.delete();
 
-    return res
-
+    return res;
 }
 
 function otherGrab(can, coords, featherAmount = 5) {

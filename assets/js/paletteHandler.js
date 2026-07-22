@@ -38,230 +38,6 @@ let nSelPaltette;
 let nSelMark;
 let nSelType;
 
-/*function addAPalette() {
-
-    megaPalettes["temp" + palIt] = {
-        displayType: "range",
-        encodings: {
-            "range": {marks: {}},
-            "morph": {min: 0, max: 100},
-            "repeat": {}
-        }
-    }
-    // marks["temp" + palIt] = {}
-    displayPalette("temp" + palIt)
-
-    newSelectedPalette = "temp" + palIt
-    ++palIt
-    // fillPalette()
-    // addAMark()
-    // drawSvg()
-}
-
-
-function fillPalette(reset = false) {
-
-    if (reset) {
-        marks = {}
-        primitive = {}
-        global_anchors = {}
-        palette_cat = {}
-        // fillTable()
-    }
-
-    const container = document.getElementById("paletteCont")
-    container.innerHTML = ""
-
-    /!*    const anchorCont = document.createElement("div")
-        anchorCont.className = "paletteMarks"
-        // const anchorBlock = document.createElement("div")
-
-        anchorCont.innerHTML = '' +
-            '<h4 style="display: inline-block">Anchors</h4>'*!/
-    /!*
-
-        let anchorsDiv = document.getElementById("anchorsContainer")
-        if (anchorsDiv === null) {
-            anchorsDiv = document.createElement("div")
-            anchorsDiv.setAttribute("id", "anchorsContainer")
-        }
-
-        updateAnchorCont(anchorsDiv)
-
-        anchorCont.appendChild(anchorsDiv)
-        anchorCont.innerHTML += '<div id="plusAnchor" onclick="addAnchor()">' +
-            '<img src="assets/images/buttons/plus.png" style="width:25px;height:25px;margin-top: 12%;margin-left: 4.4%;">' +
-            '</div>' +
-            '<div class="buttonImg " id="anchorBtn">' +
-            '<img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style=""/>' +
-            '</div>'
-        container.appendChild(anchorCont)
-    *!/
-
-
-    const mess = getOptions()
-
-    let allPalName = ""
-
-    for (const [key, value] of Object.entries(megaPalette2)) {
-        allPalName += `<option >${key}</option>`
-    }
-
-
-    const typesDisplay = "<option value ='range'>range</option>" +
-        "<option value ='repeat'>repeat</option>" +
-        "<option value ='morph'>morph</option>"
-
-    for (const [key, value] of Object.entries(megaPalette2)) {
-        const expo = document.createElement("button")
-        expo.innerHTML = `<img class="buttonImg" src="/assets/images/buttons/export.png">`
-
-        expo.setAttribute("class", "exportPaletteBtn")
-        expo.setAttribute("id", "exportPaletteBtn_" + key)
-
-
-        const tdiv = document.createElement("div")
-        tdiv.id = "palette_" + key
-        tdiv.className = "paletteMarks"
-        tdiv.appendChild(expo)
-        tdiv.innerHTML += `<input type="text" onchange="renameRow(this,'${key}')" row="${tdiv.id}" value="${key}" class="waypointTitle" />`
-
-        if (value.displayType !== undefined) {
-            if (value.displayType === "repeat") {
-                const tdiv_mark = document.createElement("div")
-                tdiv_mark.id = "mark_" + key
-                tdiv_mark.className = "paletteMark"
-                tdiv_mark.setAttribute("key", key)
-
-                tdiv_mark.innerHTML =
-                    // "<div class='primitiveData'>" +
-                    // "<p class='primitiveLabel'> Display </p>" +
-                    // "<select id='" + key + "_displayTypes' class='displayTypes'>" +
-                    // typesDisplay +
-                    // "</select>" +
-                    // "</div>" +
-
-                    "<div class='primitiveData'>" +
-                    "<canvas id='canvas_" + key + "' style='width: 60px;height: 60px'>'" +
-                    "</div>" +
-                    "<div class='primitiveData'>" +
-                    "<p class='primitiveLabel'> From anchor </p>" +
-                    "<select id='" + key + "_markRepeatFrom' class='markRepeatFrom'>" +
-                    "<option selected>None</option>" +
-                    +mess +
-                    "</select>" +
-                    "</div>" +
-
-                    "<div class='primitiveData'>" +
-                    "<p class='primitiveLabel'> To anchor </p>" +
-                    "<select id='" + key + "_markRepeatTo' class='markRepeatTo'>" +
-                    "<option selected>None</option>" +
-                    +mess +
-                    "</select>" +
-                    "</div>"
-
-                tdiv_mark.onclick = function (e) {
-
-                    if (mode !== "anchor") {
-                        if (e.target.matches("canvas")) {
-                            editPalette(this)
-                        }
-                    } else {
-                        //TODO: Set for CATA and other primitive
-                        setAnchorOnProto(e, this)
-                    }
-                }
-
-                tdiv.appendChild(tdiv_mark)
-
-            } else if (value.displayType === "range") {
-
-                makeRangeMark(key, tdiv, value, typesDisplay)
-            } else if (value.displayType === "morph") {
-
-
-                const t = `<div class="primitiveData"> 
-                      <p class='primitiveLabel'> Display </p>
-                    <select id='${key + "_displayTypes"}' class='displayTypes'>${typesDisplay}
-          
-                    </select>
-                    </div>`
-
-                tdiv.innerHTML += t
-
-                let minCan = document.createElement("canvas")
-                minCan.width = 60
-                minCan.height = 60
-
-                let maxCan = document.createElement("canvas")
-                maxCan.width = 60
-                maxCan.height = 60
-
-                megaPalettes[key].encodings.morph.min = {
-                    proto: {
-                        canvas: minCan,
-                        corners: [[0, 0], [minCan.width, minCan.height]],
-                        size: [minCan.width, minCan.height]
-                    },
-                }
-
-                megaPalettes[key].encodings.morph.max = {
-                    proto: {
-                        canvas: maxCan,
-                        corners: [[0, 0], [maxCan.width, maxCan.height]],
-                        size: [maxCan.width, maxCan.height]
-                    },
-                }
-
-                let min = makeSingleMark(key, "min", "morph", minCan)
-                let max = makeSingleMark(key, "max", "morph", maxCan)
-                tdiv.appendChild(min)
-                tdiv.appendChild(max)
-            }
-        } else {
-
-            // let rangeCont = document.createElement("div")
-            // rangeCont.id = "range_"+key
-            makeRangeMark(key, tdiv, value, typesDisplay)
-            // tdiv.appendChild(rangeCont)
-            // makeRangeMark(range, key, tdiv, value, typesDisplay)
-        }
-
-
-
-        container.appendChild(tdiv)
-
-        // setMarkEvent(key, value.displayType)
-
-        document.getElementById("exportPaletteBtn_" + key).onclick = function (e) {
-            console.log("dsadas");
-            savePalette2(key)
-        }
-
-
-
-    }
-
-    let trange = document.getElementById("strokewidth")
-
-
-    trange.onchange = function (e) {
-        console.log("dsdsadas");
-        const val = parseInt(document.getElementById("strokewidth").value);
-        stWidth = val
-        console.log("dsdsadas");
-    }
-
-    document.getElementById('strokecolor').onchange = function () {
-
-        stColor = this.value
-    }
-    // populateSelect()
-    // updateLink2Palette()
-    updateSvg()
-}*/
-
-
 function editPalette(e) {
     let el = e
 
@@ -282,22 +58,18 @@ function editPalette(e) {
 
         }
         selectedPalette = [key, num, type]
-
-
     }
 
     let trange = document.getElementById("strokewidth")
     trange.onchange = function (e) {
         const val = parseInt(document.getElementById("strokewidth").value);
         stWidth = val
-
     }
 
     document.getElementById('strokecolor').onchange = function () {
 
         stColor = this.value
     }
-
 
     paletteResetZoom()
 
@@ -388,8 +160,7 @@ function editPalette(e) {
     can.addEventListener("mousewheel", paletteZoom, false);
     can.addEventListener("DOMMouseScroll", paletteZoom, false);
     can.addEventListener("wheel", paletteZoom, {passive: false});
-    // can.addEventListener("mousewheel", zoom, false);
-    // can.addEventListener("DOMMouseScroll", zoom, false);
+
 
     window.removeEventListener("keydown", paletteKeyHandler)
     window.addEventListener("keydown", paletteKeyHandler)
@@ -461,9 +232,6 @@ function onClickPalette(e) {
         let xy = getMousePos(e);
         xy = toWorld(xy, paletteOrigin, paletteScale)
 
-        // Rotate the click back into paletteTempCan's own (unrotated) pixel
-        // space before sampling — otherwise this samples the wrong pixel
-        // whenever the canvas preview is rotated.
         const canvasXY = paletteToCanvasSpace(xy)
 
         let tcan = paletteTempCan
@@ -627,10 +395,6 @@ function drawPalette(cont, x, y, w, type, can) {
 
     const rawPrev = stroke.length ? stroke[stroke.length - 1] : null
 
-    // Local copies only — never mutate strokePoint/prevPoint in place, or the
-    // next call (and the stroke history pushed in onMouseMovePalette) would
-    // see an already-shifted value and end up drawing in the wrong frame,
-    // which is what turned rotated strokes into jagged shapes.
     let start = [strokePoint[0], strokePoint[1]]
     let end = [x, y]
     let prev = rawPrev ? [rawPrev[0], rawPrev[1]] : null
@@ -656,8 +420,7 @@ function drawPalette(cont, x, y, w, type, can) {
     cont.lineWidth = w
 
     if (prev) {
-        // Quadratic-smooth through the last three points instead of a straight
-        // segment, so fast strokes don't come out faceted.
+
         const midPrev = [(prev[0] + start[0]) / 2, (prev[1] + start[1]) / 2]
         const midCurr = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2]
         cont.moveTo(midPrev[0], midPrev[1])
@@ -678,8 +441,7 @@ function drawPalette(cont, x, y, w, type, can) {
 }
 
 function getPaletteInkWidth(e, xy) {
-    // Real stylus/touch pressure when available; mice report 0 or undefined,
-    // so fall back to a neutral mid-pressure in that case.
+
     const pressure = (e.pressure && e.pressure > 0) ? e.pressure : 0.5
 
     const now = performance.now()
@@ -691,8 +453,7 @@ function getPaletteInkWidth(e, xy) {
     const dist = Math.hypot(dx, dy)
     const speed = dist / dt // px per ms
 
-    // Faster movement -> thinner line, slower -> thicker, mimicking how a
-    // real pen lays down more ink when it lingers.
+
     const speedFactor = clampVal(1.15 - speed * 1.5, 0.35, 1.15)
 
     return Math.max(1, stWidth * pressure * speedFactor)
@@ -904,11 +665,6 @@ function paletteRedraw() {
 }
 
 function paletteToCanvasSpace(xy) {
-    // xy is in the (possibly visually rotated) display frame produced by
-    // paletteRedraw. paletteTempCan's own pixel data is never rotated, so a
-    // click needs to be rotated back around the canvas center before it can
-    // be used to index into it directly (getImageData/putImageData), the
-    // same compensation drawPalette applies via the context transform.
     if (!primRot) return {x: xy.x, y: xy.y}
 
     const cx = paletteTempCan.width / 2
@@ -960,7 +716,7 @@ function floodFillPaletteCanvas(canvas, startX, startY, fillHex, tolerance) {
     const [fr, fg, fb] = hexToRgb(fillHex)
     const fa = 255
 
-    // Already the fill color (within tolerance)? Nothing to do.
+
     if (Math.abs(targetR - fr) <= tolerance && Math.abs(targetG - fg) <= tolerance &&
         Math.abs(targetB - fb) <= tolerance && Math.abs(targetA - fa) <= tolerance) {
         return
@@ -1063,7 +819,7 @@ function paletteKeyHandler(e) {
 }
 
 
-function paletteScaleAt(x, y, scaleBy) {  // at pixel coords x, y scale by scaleBy
+function paletteScaleAt(x, y, scaleBy) {
     paletteScale *= scaleBy;
     paletteOrigin.x = x - (x - paletteOrigin.x) * scaleBy;
     paletteOrigin.y = y - (y - paletteOrigin.y) * scaleBy;
@@ -1082,7 +838,7 @@ function savePalette() {
         if (selectedPalette[2] === "mark") {
             if (selectedPalette[1]) {
                 resCan = megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.canvas
-                // resCan = marks[selectedPalette[0]][selectedPalette[1]].proto.canvas
+
             } else {
                 resCan = marks[selectedPalette[0]].proto.canvas
             }
@@ -1132,17 +888,10 @@ function savePalette() {
 
 
     if (selectedPalette) {
-/*        let oldCan = document.getElementById("canvas_" + selectedPalette[0] + "_" + selectedPalette[1])
-        oldCan.width = tw
-        oldCan.height = th
 
-        let oldCon = oldCan.getContext('2d')
-
-        oldCon.drawImage(resCan, 0, 0, tw, th)*/
         if (selectedPalette[2] === "mark" && !palSwitch) {
             if (selectedPalette[1]) {
 
-                // marks[selectedPalette[0]][selectedPalette[1]].proto.corners = corn
                 megaPalettes[selectedPalette[0]].encodings.range.marks[selectedPalette[1]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
             } else {
                 marks[selectedPalette[0]].proto.corners = [[corn.x, corn.y], [corn.x + corn.width, corn.y + corn.height]]
@@ -1166,7 +915,6 @@ function savePalette() {
 function toBW() {
     let src = opencv.imread(paletteTempCan);
 
-    // paletteTempCan.style.filter = 'grayscale(1)';
 
     let temp = new opencv.MatVector();
     let temp2 = new opencv.MatVector();
@@ -1241,189 +989,6 @@ function clampVal(val, min, max) {
 
     return Math.max(Math.min(val, max), min)
 }
-//
-// function setAnchorOnProto(e, el) {
-//
-//     if (e.target.matches("canvas")) {
-//         const xy = getMousePos(e)
-//
-//
-//         let tcan = e.target
-//         let trect = tcan.getBoundingClientRect()
-//         let key = el.getAttribute("key")
-//         let type = el.getAttribute("type")
-//         let num = el.getAttribute("number")
-//
-//
-//         let selProto
-//         let source
-//         let scale = 1
-//
-//         if (type === "range") {
-//             selProto = megaPalettes[key].encodings.range.marks[num].proto
-//             source = megaPalettes[key].encodings.range.marks[num].source
-//             if (megaPalettes[key].encodings.range.scale) {
-//                 scale = megaPalettes[key].encodings.range.scale
-//             }
-//
-//         } else if (type === "morph") {
-//             selProto = megaPalettes[key].encodings.morph[num].proto
-//             source = megaPalettes[key].encodings.morph[num].source
-//             if (megaPalettes[key].scale) {
-//                 scale = megaPalettes[key].encodings.morph.scale
-//             }
-//         }
-//
-//
-//         let tw = selProto.corners[1][0] - selProto.corners[0][0]
-//         let th = selProto.corners[1][1] - selProto.corners[0][1]
-//
-//
-//         let tx = xy.x
-//         let ty = xy.y
-//
-//         if (source) {
-//
-//             if (source.width * scale < tw && source.height * scale < th) {
-//
-//                 tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-//                 ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-//                 // tx = (xy.x *source.width) / tw
-//                 // ty = (xy.y *source.height) / th
-//
-//             } else {
-//
-//                 // tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-//                 // ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-//
-//
-//                 tx = clampVal(xy.x - tw / 2 + source.width / 2, 0, source.width)
-//                 ty = clampVal(xy.y - th / 2 + source.height / 2, 0, source.height)
-//             }
-//             tw = source.width * scale
-//             th = source.height * scale
-//         }
-//
-//
-//         if (selProto.anchors === undefined) {
-//             selProto.anchors = {}
-//         }
-//         selProto.anchors[currAnchor] = {
-//             x: tx,
-//             y: ty,
-//             rx: tx / tw,
-//             ry: ty / th,
-//
-//
-//             // px: (tx - tw / 2),
-//             // py: (ty - th / 2),
-//             // prx: (tx - tw / 2) / tw,
-//             // pry: (ty - th / 2) / th,
-//         }
-//
-//
-//         console.log(selProto.anchors[currAnchor]);
-//         console.log(source.width, source.height);
-//
-//         let cont = source.getContext("2d")
-//         cont.beginPath();
-//         cont.arc(selProto.anchors[currAnchor].x, selProto.anchors[currAnchor].y, 3, 0, 2 * Math.PI);
-//         cont.closePath()
-//         cont.fill();
-//
-//
-//         // if (type === "mark") {
-//         if (global_anchors[currAnchor] === undefined) {
-//             global_anchors[currAnchor] = {}
-//         }
-//
-//         global_anchors[currAnchor].from = {
-//             type: type,
-//             key: key,
-//             number: num,
-//             data: selProto.anchors[currAnchor]
-//         }
-//
-//         // }
-//         /*        else if (type === "cat") {
-//                     if (global_anchors[currAnchor] === undefined) {
-//                         global_anchors[currAnchor] = {}
-//                     }
-//                     palette_cat[key].apply = global_anchors[currAnchor].from
-//
-//                     global_anchors[currAnchor].to = {
-//                         type: type,
-//                         key: key,
-//                         data: selProto.anchors[currAnchor]
-//                     }
-//
-//                 }*/
-//
-//         // updateAnchorCont()
-//         updateLinkTo()
-//     }
-// }
-
-
-// function exportPalette(key, type) {
-//     const elem = "";
-//     let tdat
-//     if (type === "mark") {
-//         tdat = marks[key]
-//     }
-//
-//     if (type === "primitive") {
-//         tdat = primitive[key]
-//     }
-//     if (type === "category") {
-//         tdat = palette_cat[key]
-//     }
-//
-//     for (const [key, value] of Object.entries(tdat)) {
-//
-//         const tval = {...value}
-//         if (tval?.proto?.canvas) {
-//             tval.proto.canvas = tval.proto.canvas.toDataURL("image/png")
-//         }
-//         tdat[key] = tval
-//     }
-//
-//     const res = {
-//         type: type,
-//         data: tdat,
-//         name: key
-//     }
-//
-//     download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
-// }
-//
-// function importPalette(e) {
-//     const reader = new FileReader();
-//
-//     reader.onload = async function (e) {
-//         let jsonObj = JSON.parse(e.target.result);
-//
-//         for (const [key, value] of Object.entries(jsonObj.encodings.range.marks)) {
-//             if (value.proto) {
-//                 value.proto.canvas = await convertToCanvas(value.proto.canvas)
-//             }
-//
-//             if (value.source) {
-//                 value.source = await convertToCanvas(value.source)
-//             }
-//         }
-//
-//
-//         let n = Object.keys(megaPalettes).length
-//
-//         megaPalettes[`temp${n}`] = jsonObj
-//
-//
-//         fillPalette(false)
-//     }
-//     reader.readAsText(e.target.files[0]);
-// }
-
 
 
 function updateMarksBindingDisplay(palette) {

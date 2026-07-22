@@ -33,6 +33,7 @@
     <script src="assets/js/AllPalettes.js"></script>
     <script src="assets/js/datasetStuff.js"></script>
     <script src="assets/js/zoomAndPanCanvas.js"></script>
+    <script src="assets/js/serverStuff.js"></script>
     <script src="assets/js/main.js"></script>
 
 
@@ -65,7 +66,7 @@
 
         <h5 style="color:#fff;margin-right: 15px;margin-left:20px ">Dataset </h5>
         <select id="availableData" style="margin-right: 15px"> </select>
-        <button onclick="">Import CSV</button>
+        <button onclick="fakeFile('dataLoader')">Import CSV</button>
 
         <!--        <button onclick="switchPalette()">Make a Palette</button>-->
 
@@ -89,7 +90,7 @@
         <img id="sideImg" src="assets/images/buttons/side.png">
     </div>
 </div>-->
-
+<input type="file" name="img" id="dataLoader" style="display: none;"/>
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -312,11 +313,11 @@
                         </div>-->
                 <div style="position: absolute;margin-top:3px;margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
                     <div class="buttonImg">
-                        <img id="moveBtn"
+                <!--        <img id="moveBtn"
                              src="assets/images/buttons/move.png" class="lightBorder"
                              onclick="switchSampleSelect(this,'move')"
-                             style="display: inline-block"/>
-                        <p style="font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">
+                             style="display: inline-block"/>-->
+                        <p style="margin-left: 40px;font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">
                             Hold shift to pan</p>
                     </div>
                     <div class="buttonImg">

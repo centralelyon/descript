@@ -266,8 +266,7 @@ async function addGrabSample(x, y, width, height) {
     tcan.width = trec.width
     tcan.height = trec.height
 
-    tcont.drawImage(can,0,0,trec.width,trec.height);
-
+    tcont.drawImage(can, 0, 0, trec.width, trec.height);
 
 
     let tx = trec.width
@@ -574,14 +573,16 @@ function movePalette2Available() {
             }
         }
 
-        console.log(tpal);
-
+        if (useServer) {
+            uploadPalette(tpal,name)
+        } else {
+            savePal(tpal, name)
+        }
         appendSingle(tpal, name)
         currSampleList = {}
         document.getElementById("marksHolder").innerHTML = ""
         document.getElementById("newPaletteName").value = ""
         // switchPalette()
-        savePal(tpal, name)
 
 
     }
