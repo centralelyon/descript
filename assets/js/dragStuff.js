@@ -41,6 +41,8 @@ function dragElement(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+
+        if (!e.target.matches("img"))
         tsvg.classList.add("dropArea")
     }
 
@@ -317,7 +319,7 @@ function dropPalette(e, elmnt) {
         let num = +elmnt.getAttribute("number")
         let name = elmnt.getAttribute("name")
 
-        selectThisPalette(name,num)
+        selectThisPalette(name, num)
     }
 }
 
@@ -493,21 +495,24 @@ function dragended(event, d) {
     updateSvg()
 }
 
-
+//Reorder of pixel-mark
 function dragElement3(elmnt) {
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
     elmnt.onmousedown = dragMouseDown;
 
     let placeholder = document.createElement("div");
     placeholder.classList.add("placeholder");
 
+    let gap = document.createElement("div");
+    gap.classList.add("gapHolder");
+
+    let inserted = false
+
     let key = elmnt.getAttribute("key");
 
     function dragMouseDown(e) {
         e = e || window.event;
-        // e.preventDefault();
-        selectedDataColumn = elmnt.getAttribute("datacolumn");
+
         const rect = elmnt.getBoundingClientRect();
 
         offsetX = e.clientX - rect.left
@@ -519,46 +524,58 @@ function dragElement3(elmnt) {
         document.onmouseup = closeDragElement;
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
+        elmnt.classList.add("dragging");
+        inserted = false
     }
 
     function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
-        // calculate the new cursor position:
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-
-        // set the element's new position:
-        elmnt.style.position = "absolute";
-
-        let tcords = elmnt.parentElement.getBoundingClientRect();
-
-        elmnt.style.left =
-            ((e.pageX - offsetX)) + "px";
-
-        elmnt.style.top =
-            ((e.pageY - offsetY + 50) - 50) + "px";
-
-        // elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        // elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-
 
         let container = document.getElementById("list-" + key)
-        let tt = getInsertionPoint(container, (e.pageY))
-        // tt === placeholder.nextSibling ||
+        console.log(inserted);
+        if (!inserted) {
+            console.log(inserted);
+            inserted = true;
+            let rect = elmnt.getBoundingClientRect();
+            elmnt.style.position = "absolute";
+            gap.style.height = rect.height + "px"
+            gap.style.width = rect.width + "px"
+            container.insertBefore(gap, elmnt);
 
-        if (tt.matches(".colorBrand") || tt.matches(".sizeDiv")) {
+        }
+
+
+        let parentRect = elmnt.parentElement.getBoundingClientRect()
+
+        elmnt.style.top =
+            ((e.pageY - offsetY) - (parentRect.top)) + "px";
+
+        let tt = getInsertionPoint(container, e.clientY, placeholder)
+
+
+        if (tt && (tt.matches(".colorBrand") || tt.matches(".sizeDiv"))) {
             return;
         }
+
         if (tt) {
             container.insertBefore(placeholder, tt);
         } else {
-            container.appendChild(placeholder);
-        }
 
+            let moreCan = container.querySelector(".moreCan")
+
+            container.insertBefore(placeholder, moreCan);
+        }
     }
+
+
+    /*        if (tt) {
+                container.insertBefore(placeholder, tt);
+            } else {
+                container.appendChild(placeholder);
+            }
+
+        }*/
 
     function closeDragElement(e) {
         // stop moving when mouse button is released:
@@ -569,7 +586,8 @@ function dragElement3(elmnt) {
         document.onmousemove = null;
         dragging = false
         let telem = placeholder.nextSibling
-
+        elmnt.classList.remove("dragging")
+        gap.remove()
         if (telem !== null) {
             let curNb = elmnt.getAttribute("number")
 
@@ -608,28 +626,38 @@ function dragElement3(elmnt) {
     }
 }
 
-
-function getInsertionPoint(container, mouseY) {
+function getInsertionPoint(container, mouseY, placeholder) {
     const items = [...container.children].filter(
-        el =>
-            !el.classList.contains("dragging") &&
-            !el.classList.contains("placeholder")
+        el => !el.classList.contains("dragging")
+            && !el.classList.contains("placeholder")
+            && !el.classList.contains("colorBrand")
+            && !el.classList.contains("sizeDiv")
+            && !el.classList.contains("markAnchorSvg")
+            && !el.classList.contains("dataBindingLabel")
+            && !el.classList.contains("dataBindingContainer")
+            && !el.classList.contains("moreCan")
+            && !el.classList.contains("palettePlusMark")
     );
 
-    let closest = null;
-    let closestOffset = Number.NEGATIVE_INFINITY;
+    const BUFFER = 8;
 
     for (const item of items) {
         const rect = item.getBoundingClientRect();
-        const offset = mouseY - (rect.top + rect.height / 2);
+        const middle = rect.top + rect.height / 2;
 
-        if (offset < 0 && offset > closestOffset) {
-            closestOffset = offset;
-            closest = item;
+        const placeholderIsBefore =
+            !!(item.compareDocumentPosition(placeholder) & Node.DOCUMENT_POSITION_PRECEDING);
+
+        if (placeholderIsBefore) {
+
+            if (mouseY < middle + BUFFER) return item;
+        } else {
+
+            if (mouseY < middle - BUFFER) return item;
         }
     }
 
-    return closest;
+    return null;
 }
 
 /////////////////// Drag marks in composition
@@ -639,7 +667,7 @@ function markDragStarted(event, d) {
     markOffx = event.x - mark.attr("x")
     markOffy = event.y - mark.attr("y")
 
-    console.log();
+
     mark.style("cursor", "grabbing");
 }
 
@@ -651,10 +679,10 @@ function markDragged(event, d) {
 
     // console.log(event.x, "vs", drawnMarks[name].x, "with", markOffx)
 
-    elem.attr("x", event.x- markOffx);
+    elem.attr("x", event.x - markOffx);
     elem.attr("y", event.y - markOffy);
 
-    drawnMarks[name].x = event.x- markOffx
+    drawnMarks[name].x = event.x - markOffx
     drawnMarks[name].y = event.y - markOffy
     // drawnMarks[name]
     // d3.select("circles")
@@ -667,6 +695,179 @@ function markDragEnded(event, d) {
     // d.fy = null;
     let mark = d3.select(this)
     mark.style("cursor", "grab");
-    markOffx =0
-    markOffy =0
+    markOffx = 0
+    markOffy = 0
+}
+
+
+function dragElement4(elmnt) {
+    var offsetX, offsetY;
+    var scrollParent, prevOverflow;
+    var startLeft, startTop;
+    var currentX = 0, currentY = 0;
+    var rafId = null;
+    var hasDragged = false;
+    var DRAG_THRESHOLD = 3;
+    var lastClientX = 0, lastClientY = 0;
+    var currentHoverTarget = null;
+
+    elmnt.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+
+        hasDragged = false;
+        if (!e.target.matches("img")) {
+            const rect = elmnt.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            // instead of reparenting, just let the parent stop clipping for now
+            scrollParent = elmnt.parentElement;
+            prevOverflow = scrollParent.style.overflow;
+            scrollParent.style.overflow = "visible";
+
+            startLeft = rect.left;
+            startTop = rect.top;
+            // hasDragged = false;
+
+            elmnt.style.position = "fixed";
+            elmnt.style.top = startTop + "px";
+            elmnt.style.left = startLeft + "px";
+            elmnt.style.margin = "0";
+            elmnt.style.pointerEvents = "none";
+            // no appendChild — elmnt never leaves its original spot in the DOM
+
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            elmnt.classList.add("draggingSample");
+        }
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+
+        currentX = e.clientX - offsetX - startLeft;
+        currentY = e.clientY - offsetY - startTop;
+        lastClientX = e.clientX;
+        lastClientY = e.clientY;
+
+        if (!hasDragged && (Math.abs(currentX) > DRAG_THRESHOLD || Math.abs(currentY) > DRAG_THRESHOLD)) {
+            hasDragged = true;
+        }
+
+        if (rafId === null) {
+            rafId = requestAnimationFrame(applyPosition);
+        }
+
+        d3.selectAll(".paletteMark").style("border", "")
+        if (e.target.matches(".paletteMark")) {
+            // updateSvg();
+            e.target.style.border = "dashed 3px #424242"
+
+        } else if (e.target.parentElement.matches(".paletteMark")) {
+            e.target.parentElement.style.border = "dashed 3px #424242"
+            // e.target.parentElement.style.boxShadow = "0 0 0 2px rgba(255, 200, 0, 0.6)"
+        }
+    }
+
+    function applyPosition() {
+        elmnt.style.transform = `translate(${currentX}px, ${currentY}px)`;
+
+        const under = document.elementFromPoint(lastClientX, lastClientY);
+        const target = under ? under.closest(".paletteMark") : null;
+
+        if (target !== currentHoverTarget) {
+            if (currentHoverTarget) currentHoverTarget.classList.remove("drag-hover");
+            if (target) target.classList.add("drag-hover");
+            currentHoverTarget = target;
+        }
+
+        rafId = null;
+    }
+
+    function closeDragElement(e) {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        elmnt.classList.remove("draggingSample");
+
+        if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+        if (currentHoverTarget) {
+            currentHoverTarget.classList.remove("drag-hover");
+        }
+
+        elmnt.style.transform = "";
+        elmnt.style.pointerEvents = "";
+        elmnt.style.position = "";
+
+
+        scrollParent.style.overflow = prevOverflow;
+
+        if (hasDragged) {
+            elmnt.addEventListener("click", suppressClick, {capture: true, once: true});
+            d3.selectAll(".paletteMark").style("border", "")
+
+            let telem
+            if (e.target.matches(".paletteMark")) {
+                telem = e.target
+
+            } else if (e.target.parentElement.matches(".paletteMark")) {
+                telem = e.target.parentElement
+            }
+
+            if (telem) {
+                let key = telem.getAttribute("key")
+                let number = telem.getAttribute("number")
+                let tcan = telem.querySelector('canvas');
+                let newCan = elmnt.querySelector('canvas');
+
+                let th = 60
+                let tw = 60
+
+                console.log(newCan.width, newCan.height)
+                if (newCan.height > th) {
+                    tw = (th * newCan.width) / newCan.height
+                } else {
+                    // th = newCan.height
+                }
+
+                if (newCan.width > tw && th > 60) {
+                    th = (tw * newCan.height) / newCan.width
+                } else if (tw > 60) {
+
+                } else {
+                    // tw = newCan.width
+                }
+
+                tcan.with = tw
+                tcan.height = th
+
+                let tcon = tcan.getContext("2d")
+
+                tcon.drawImage(newCan, 0, 0, tw, th)
+
+                megaPalettes[key].encodings.range.marks[number].proto.canvas = cloneCanvas(newCan)
+                megaPalettes[key].encodings.range.marks[number].source = cloneCanvas(newCan)
+                updateSvg();
+            }
+        } else {
+
+            if (!e.target.matches("img")) {
+
+                console.log(e.target);
+                let newCan = elmnt.querySelector('canvas');
+                currSampleEdited = newCan
+                editPalette(newCan)
+            }
+        }
+    }
+
+    function suppressClick(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
 }

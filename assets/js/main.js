@@ -44,6 +44,8 @@ const fakePalettes = []
 let palSwitch = false
 
 
+const preload = {}
+
 const sampleImageList = [
     "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Stefanie_DearData_26%2Bback.jpg",
     "https://dataroom.liris.cnrs.fr/vizvid/dear_data_images/Giorgia_DearData_15_Back.jpg",
@@ -206,6 +208,8 @@ async function init() {
     // let authorRef = author === "giorgia" ? 0 : 1;
     // loadExamples(week);
 
+
+    await preloadBgImg()
     if (urlParams.has("state")) {
         let name = urlParams.get("state");
 
@@ -244,7 +248,8 @@ async function init() {
 
 // document.getElementById("jsonLoader").addEventListener("change", importFromJson);
     document.getElementById("imgLoader").addEventListener("change", importImg);
-    document.getElementById("paletteLoader").addEventListener("change", importPalette);
+    document.getElementById("dataLoader").addEventListener("change", csvLoader);
+    // document.getElementById("paletteLoader").addEventListener("change", importPalette);
 
 
     document.getElementById("glyphTree").addEventListener("click", cancelCollapse)
@@ -262,8 +267,22 @@ async function init() {
 
 
     stateSel.onchange = loadState
+
+
 }
 
+function selectTab(tab) {
+
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+    });
+
+    displayMode = tab.innerHTML
+
+    switchPalette()
+
+    tab.classList.add('active');
+}
 
 async function getData(url) {
 
@@ -452,6 +471,8 @@ onkeydown = function (e) {
         dragMod = true
         let svg = d3.select("#svgDisplay")
         svg.selectAll("image").style("cursor", "grab")
+
+
     }
 
     if (keymap[18]) {
@@ -796,6 +817,7 @@ async function convertToCanvas(url) {
     const can = document.createElement('canvas');
     const cont = can.getContext('2d');
     const img = new Image;
+    img.crossOrigin = "anonymous";
 
     await new Promise(r => img.onload = r, img.src = url);
 
@@ -898,7 +920,7 @@ docReady(function () {
 })
 
 
-async function fillAllPalette() {
+/*async function fillAllPalette() {
 
 
     let tdat = []
@@ -940,48 +962,105 @@ async function fillAllPalette() {
 
     }
 
-}
+}*/
 
 
 function displaySample() {
     let canContainer = document.getElementById("canvasContainer");
-    let svgContainer = document.getElementById("fakePreviewSvg");
+    let sampleContainer = document.getElementById("samplingHolder");
 
-    let tableContainer = document.getElementById("newTableContainer");
-    let settingsContainer = document.getElementById("settingsContainer");
+
     canContainer.style.display = "block"
-    svgContainer.style.display = "none"
-    tableContainer.style.display = "none"
-    settingsContainer.style.display = "none"
+    sampleContainer.style.display = "block"
+
 }
 
-
 function hideSample() {
-
     let canContainer = document.getElementById("canvasContainer");
-    let svgContainer = document.getElementById("fakePreviewSvg");
+    let sampleContainer = document.getElementById("samplingHolder");
 
-    let tableContainer = document.getElementById("newTableContainer");
-    let settingsContainer = document.getElementById("settingsContainer");
 
     canContainer.style.display = "none"
+    sampleContainer.style.display = "none"
+
+}
+
+function showViz() {
+    let svgContainer = document.getElementById("fakePreviewSvg");
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    let cont = document.getElementById("svgHolder");
+
+    cont.style.display = "block"
+
     svgContainer.style.display = "block"
     tableContainer.style.display = "block"
     settingsContainer.style.display = "flex"
 }
 
 
+function hideViz() {
+    let svgContainer = document.getElementById("fakePreviewSvg");
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+    let cont = document.getElementById("svgHolder");
+
+    cont.style.display = "none"
+    svgContainer.style.display = "none"
+    tableContainer.style.display = "none"
+    settingsContainer.style.display = "none"
+}
+
+
+function hideCart() {
+    let cont = document.getElementById("cartesianHolder");
+    cont.style.display = "none";
+}
+
+function showCart() {
+    let cont = document.getElementById("cartesianHolder");
+    cont.style.display = "block";
+    showExample()
+}
+
+/*function hideSample() {
+
+    let canContainer = document.getElementById("canvasContainer");
+    let sampleContainer = document.getElementById("samplingHolder");
+    let svgContainer = document.getElementById("fakePreviewSvg");
+
+
+    let tableContainer = document.getElementById("newTableContainer");
+    let settingsContainer = document.getElementById("settingsContainer");
+
+    canContainer.style.display = "none"
+    sampleContainer.style.display = "none"
+    svgContainer.style.display = "block"
+    tableContainer.style.display = "block"
+    settingsContainer.style.display = "flex"
+}*/
+
+
 function switchPalette() {
 
-    palSwitch = !palSwitch
 
+    if (displayMode === "Visualization") {
 
-    if (palSwitch) {
+        palSwitch = false
+        hideSample()
+        hideCart()
+        showViz()
+    } else if (displayMode === "Cartesian Grid") {
+
+        hideSample()
+        hideViz()
+        showCart()
+    } else if (displayMode === "Source Image") {
+        palSwitch = true
         d3.select("#sampleDisplay").style("display", "none").selectAll("image").remove();
         displaySample()
-
-    } else {
-        hideSample()
+        hideViz()
+        hideCart()
     }
 
 }
@@ -1010,8 +1089,11 @@ function fakeWeek26() {
 window.addEventListener("keydown", (e) => {
     if (e.key === "Shift" && !isDragging) {
         let tcan = document.getElementById("inVis")
-        tcan.style.cursor = "grab";
-        sampling = false
+        tcan.style.cursor = "move";
+        sampling = false/*
+        let btn = document.getElementById("moveBtn")
+
+        btn.classList.add("selectedButton");*/
     }
 });
 
@@ -1019,6 +1101,9 @@ window.addEventListener("keyup", (e) => {
     if (e.key === "Shift") {
         let tcan = document.getElementById("inVis")
         tcan.style.cursor = "default";
+        // let btn = document.getElementById("moveBtn")
+
+        // btn.classList.remove("selectedButton");
         // sampling = true
     }
 });
@@ -1102,19 +1187,12 @@ async function loadStateFromJson(source) {
             });
             pending.push(p);
 
-            /*            pending.push(new Promise((resolve, reject) => {
-                            img.onload = resolve;
-                            img.onerror = reject;
-                            document.body.appendChild(img);
-                        }));*/
-
-
-            // img.decode()
-
             return img;
         }
 
+
         if (value?.__type === "canvas") {
+
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
 
@@ -1131,6 +1209,25 @@ async function loadStateFromJson(source) {
             }));
 
             img.src = value.data;
+
+            return canvas;
+        } else if (key === "canvas") {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const img = new Image();
+
+            pending.push(new Promise((resolve, reject) => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve();
+                };
+                img.onerror = reject;
+            }));
+
+            img.src = value;
 
             return canvas;
         }
@@ -1199,3 +1296,40 @@ function initState(state) {
 
 }
 
+async function preloadBgImg() {
+    const preloadList = ['week05', 'week15']
+    const preloadUrl = [
+        "assets/tempData/sources/Giorgia_DearData_15_Back.jpg",
+        "assets/tempData/sources/Stefanie_DearData_05+back.jpg"
+    ]
+    for (let i = 0; i < preloadList.length; i++) {
+        preload[preloadList[i]] = await getImage(preloadUrl[i])
+
+    }
+}
+
+function getImage(url) {
+    return new Promise((resolve, reject) => {
+        const img = document.createElement('img');
+        // img.crossOrigin = 'anonymous';
+        img.crossOrigin = "anonymous";
+
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+        img.crossOrigin = "use-credentials"
+        img.src = url;
+    });
+}
+
+async function tempFixSavedPalette(file, preloadName) {
+
+    let json = await loadStateFromJson(`assets/tempData/palettes/${file}`)
+
+
+    json.originImg = ""
+    json.preloadName = preloadName;
+    console.log(json);
+
+    download(dumpObject(json), file, "text/json");
+
+}

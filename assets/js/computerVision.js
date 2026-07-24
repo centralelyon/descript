@@ -524,7 +524,6 @@ function getBBox(canvas) {
     contours2.delete();
     hierarchy2.delete();
 
-    // If there is multiple contours we mix to make the biggest BBox
     let corners = [[undefined, undefined], [undefined, undefined]]
     for (let i = 0; i < points.length; i++) {
         const tpoints = points[i].map(d => ([d.x, d.y]))
@@ -556,84 +555,141 @@ function getBBox(canvas) {
     return corners
 }
 
+
+
+// function toColor(canvas, r, g, b, threshold) {
+//
+//     let src = opencv.imread(canvas);
+//     let temp2 = opencv.Mat.ones(src.rows, src.cols, opencv.CV_8UC3);
+//
+//     let res = document.createElement("canvas")
+//     res.width = canvas.width
+//     res.height = canvas.height
+//
+//
+//     let color = new opencv.Scalar(r, g, b, 255)
+//     let white = new opencv.Scalar(255, 255, 255, 255)
+//
+//
+//     temp2.setTo(white)
+//
+//     let lower = [10, 10, 10, 255]
+//     let higher = [threshold, threshold, threshold, threshold]
+//
+//     opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
+//     opencv.cvtColor(src, src, opencv.COLOR_RGB2GRAY, 3);
+//
+//
+//     let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
+//     let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+//
+//     opencv.inRange(src, low, high, src);
+//
+//     opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
+//
+//     // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
+//     // let p = new opencv.Point(-1, -1)
+//     // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
+//
+//     temp2.setTo(color, src)
+//
+//     opencv.imshow(res, temp2);
+//
+//     src.delete();
+//     // M.delete();
+//     temp2.delete();
+//     // color.delete();
+//     // low.delete();
+//     // high.delete();
+//
+//     return res
+//
+// }
+
 function toColor(canvas, r, g, b, threshold) {
-
     let src = opencv.imread(canvas);
-    let temp2 = opencv.Mat.ones(src.rows, src.cols, opencv.CV_8UC3);
 
-    let res = document.createElement("canvas")
-    res.width = canvas.width
-    res.height = canvas.height
+    let gray = new opencv.Mat();
+    opencv.cvtColor(src, gray, opencv.COLOR_RGBA2GRAY);
 
+    let lowScalar = new opencv.Scalar(10);
+    let highScalar = new opencv.Scalar(threshold);
 
-    let color = new opencv.Scalar(r, g, b, 255)
-    let white = new opencv.Scalar(255, 255, 255, 255)
+    let low = new opencv.Mat(gray.rows, gray.cols, gray.type(), lowScalar);
+    let high = new opencv.Mat(gray.rows, gray.cols, gray.type(), highScalar);
 
+    let mask = new opencv.Mat();
+    opencv.inRange(gray, low, high, mask);
 
-    temp2.setTo(white)
-
-    let lower = [10, 10, 10, 255]
-    let higher = [threshold, threshold, threshold, threshold]
-
-    opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 3);
-    opencv.cvtColor(src, src, opencv.COLOR_RGB2GRAY, 3);
+    let white = new opencv.Scalar(255, 255, 255, 255);
+    let dst = new opencv.Mat(src.rows, src.cols, opencv.CV_8UC4, white);
 
 
-    let low = new opencv.Mat(src.rows, src.cols, src.type(), lower);
-    let high = new opencv.Mat(src.rows, src.cols, src.type(), higher);
+    let targetColor = new opencv.Scalar(r, g, b, 255);
+    dst.setTo(targetColor, mask);
 
-    opencv.inRange(src, low, high, src);
+    let res = document.createElement("canvas");
+    res.width = canvas.width;
+    res.height = canvas.height;
+    opencv.imshow(res, dst);
 
-    opencv.cvtColor(temp2, temp2, opencv.COLOR_RGB2RGBA, 4);
-
-    // let M = opencv.Mat.ones(2, 2, opencv.CV_8U);
-    // let p = new opencv.Point(-1, -1)
-    // opencv.dilate(src, src, M, p, 1, opencv.BORDER_CONSTANT, opencv.morphologyDefaultBorderValue());
-
-    temp2.setTo(color, src)
-
-    opencv.imshow(res, temp2);
 
     src.delete();
-    // M.delete();
-    temp2.delete();
-    // color.delete();
-    // low.delete();
-    // high.delete();
+    gray.delete();
+    low.delete();
+    high.delete();
+    mask.delete();
+    dst.delete();
 
-    return res
-
+    return res;
 }
 
-
-function otherGrab(can, coords) {
-
+function otherGrab(can, coords, featherAmount = 5) {
     let src = opencv.imread(can);
     opencv.cvtColor(src, src, opencv.COLOR_RGBA2RGB, 0);
+
     let mask = new opencv.Mat();
     let bgdModel = new opencv.Mat();
     let fgdModel = new opencv.Mat();
-    let rect = new opencv.Rect(coords.x, coords.y, coords.w, coords.h);
 
-    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 10, opencv.GC_INIT_WITH_RECT);
-// draw foreground
-    for (let i = 0; i < src.rows; i++) {
-        for (let j = 0; j < src.cols; j++) {
-            if (mask.ucharPtr(i, j)[0] == 0 || mask.ucharPtr(i, j)[0] == 2) {
-                src.ucharPtr(i, j)[0] = 0;
-                src.ucharPtr(i, j)[1] = 0;
-                src.ucharPtr(i, j)[2] = 0;
-            }
-        }
+    const x = Math.max(0, Math.min(coords.x, src.cols - 1));
+    const y = Math.max(0, Math.min(coords.y, src.rows - 1));
+    const w = Math.max(1, Math.min(coords.w, src.cols - x));
+    const h = Math.max(1, Math.min(coords.h, src.rows - y));
+    let rect = new opencv.Rect(x, y, w, h);
+
+    opencv.grabCut(src, mask, rect, bgdModel, fgdModel, 5, opencv.GC_INIT_WITH_RECT);
+
+    let alpha = new opencv.Mat(mask.rows, mask.cols, opencv.CV_8UC1, new opencv.Scalar(0));
+    const maskData = mask.data;
+    const alphaData = alpha.data;
+    for (let i = 0; i < maskData.length; i++) {
+
+        alphaData[i] = (maskData[i] & 1) ? 255 : 0;
     }
-    opencv.cvtColor(src, src, opencv.COLOR_RGB2RGBA, 0);
-    opencv.imshow(can, src);
+
+    if (featherAmount > 0) {
+        const k = featherAmount * 2 + 1; // kernel size must be odd
+        opencv.GaussianBlur(alpha, alpha, new opencv.Size(k, k), 0, 0, opencv.BORDER_DEFAULT);
+    }
+
+    let dst = new opencv.Mat();
+    opencv.cvtColor(src, dst, opencv.COLOR_RGB2RGBA, 0);
+    const dstData = dst.data;
+    for (let i = 0; i < alphaData.length; i++) {
+        dstData[i * 4 + 3] = alphaData[i];
+    }
+
+    opencv.imshow(can, dst);
+
     src.delete();
     mask.delete();
     bgdModel.delete();
     fgdModel.delete();
+    alpha.delete();
+    dst.delete();
 
-    return can
+    return can;
 }
 
 

@@ -33,6 +33,7 @@
     <script src="assets/js/AllPalettes.js"></script>
     <script src="assets/js/datasetStuff.js"></script>
     <script src="assets/js/zoomAndPanCanvas.js"></script>
+    <script src="assets/js/serverStuff.js"></script>
     <script src="assets/js/main.js"></script>
 
 
@@ -50,6 +51,11 @@
 <div style="display: flex;border-bottom: 2px solid #333;width: 100vw;height: 39px;background-color: #424242">
     <h3 style="display: inline;font-weight: 700;margin-left:10px;color: #eeeeee;line-height: 29px">Descript</h3>
     <div style="display: flex;font-weight: 700;margin-left:140px;color: #eeeeee">
+        <div>
+            <input type="checkbox" id="server"  style="display: inline-block" name="server" value="server" checked>
+            <p style="margin-right: 9px;line-height: 17px;width: 80px;display: inline-block">Use server</p>
+
+        </div>
         <p style="margin-right: 9px;line-height: 17px;width: 80px">Load an Example...</p>
         <select id="stateSelector" style="color: #424242"></select>
         <!--        <img onclick="loadState()" src="assets/images/buttons/right.png" style="filter:invert(1);width: 25px;height: 26px;cursor: pointer">-->
@@ -65,7 +71,7 @@
 
         <h5 style="color:#fff;margin-right: 15px;margin-left:20px ">Dataset </h5>
         <select id="availableData" style="margin-right: 15px"> </select>
-        <button onclick="">Import CSV</button>
+        <button onclick="fakeFile('dataLoader')">Import CSV</button>
 
         <!--        <button onclick="switchPalette()">Make a Palette</button>-->
 
@@ -89,7 +95,7 @@
         <img id="sideImg" src="assets/images/buttons/side.png">
     </div>
 </div>-->
-
+<input type="file" name="img" id="dataLoader" style="display: none;"/>
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -105,6 +111,12 @@
                 <!--                <p style="margin: 0;font-size:16pt;font-weight: 600;width: 350px;margin-left: 38px"> Available-->
                 <!--                    Palettes</p>-->
                 <div id="AllPaletteCont">
+
+                    <div style="width: 100%; margin-top: 50%;text-align: center;margin-left: -15px"
+                         id="AllPalettesLoading">
+                        <h3 style="width: 100%;text-align: center"> Loading...</h3>
+                        <img style="width: 30%;height: auto" src="assets/images/buttons/loading.gif">
+                    </div>
 
                 </div>
 
@@ -128,21 +140,28 @@
         <div style="text-align: center">
             <!--            <p style="margin: 0;font-size:16pt;font-weight: 600;width: 322px;text-align: center;;margin-top: -11px;margin-bottom: 11px">-->
             <!--                Composition</p>-->
-            <div class="buttonImg" style="position: absolute;width: 15px;margin-left: 10px" id="anchorBtn">
-                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()" style="width: 25px"/>
+            <div class="buttonImg" style="position: absolute;width: 15px;margin-left: -23px" id="anchorBtn">
+                <img src="assets/images/buttons/anchor.png" onClick="setAnchor()"
+                     style="width: 25px;border: solid 1px #424242"/>
             </div>
-            <svg id="composition" width="320" height="320"
+            <!--            <svg id="cartesian" width="320" height="320"
+                             style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
+
+
+                        </svg>-->
+            <svg id="composition" width="400" height="400"
                  style="background-color:#fff;border: 1px solid #555;border-radius: 7px;margin-left:10px;margin-right: 10px ">
 
 
             </svg>
+
         </div>
         <div id="MarksPaletteList">
 
         </div>
     </div>
 
-    <div style="width: calc(100% - 650px);border-radius: 14px;margin-top: 32px;position: relative">
+    <div style="width: calc(92.5% - 650px);border-radius: 14px;margin-top: 32px;position: relative">
         <!--        <div style="display: none" id="paletteDetails">
 
                     <div style="position: absolute;width: 18px;height: 18px;right: 65px;top: 13px;cursor: pointer">
@@ -171,26 +190,8 @@
 
         <div>
             <div class="" style="display: none" id="paletteContainer">
-                <div style="height: 350px;display: inline-block;background: rgba(250,250,250,0.25);padding: 10px;border: 1px solid #fff;">
-                    <canvas style="height: 100%;width: 400px" id="paletteEdit"></canvas>
-                    <div style="display: flex;margin-top:10px ">
-                        <p style="font-weight: 600;display: inline-block;margin-bottom: 0;margin-right: 10px">
-                            Orientation:</p>
-                        <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
-                        <!--              <div style="display: inline-block">
-                                            <p style="font-weight: 600;display: inline-block">Anchors</p>
-                                            <div id="anchorsContainer" style="display: inline-block"></div>
 
-                                            <div id="plusAnchor" onclick="addAnchor()">
-                                                <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
-                                            </div> -->
-                    </div>
-                </div>
-                <div id="closePaletteContainer" style="">
-                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()"
-                         src="assets/images/buttons/cross.png">
-                </div>
-                <div style="display: inline-block;width: 40px;position: absolute;top:83px;margin-left:5px "
+                <div style="display: flex;width: 100%;margin-left:0px;border-bottom: solid 1px rgba(241,241,241,0.68);margin-top:-14px "
                      id="editControl">
 
                     <div class="buttonImg">
@@ -205,27 +206,88 @@
                                    <img src="assets/images/buttons/anchor.png" onclick="setAnchor()" class="lightBorder" style=""/>
                                </div>-->
                     <div class="buttonImg selectablePallete">
+                        <img onclick="switchmod('eyedropper')" src="assets/images/buttons/pick-color.png" style=""/>
+                    </div>
+
+                    <div class="buttonImg selectablePallete">
 
                         <img onclick="switchmod('erase')" src="assets/images/buttons/eraser.png" style=""/>
                     </div>
                     <div id="selectedButton2" class="buttonImg selectablePallete">
                         <img onclick="switchmod('stroke')" src="assets/images/buttons/stroke.png" style=""/>
                     </div>
-                    <div class="buttonImg ">
-                        <input type="range" min="1" max="5" style="width: 42px" value="1" id="strokewidth">
+
+
+                    <div class="buttonImg selectablePallete">
+                        <img onclick="switchmod('fill')" src="assets/images/buttons/paint-bucket.png" style="transform: scaleX(-1)"/>
+                    </div>
+
+
+                    <div>
+                        <div style="display: flex;margin-left:42px ">
+                            <div class="buttonImg">
+                                <img src="assets/images/buttons/right.png"
+                                     onclick="paletteRestoreSnapshot(paletteUndoStack.pop())"
+
+                                     style="transform: scaleX(-1)"/>
+                            </div>
+                            <div class="buttonImg">
+                                <img src="assets/images/buttons/right.png" onclick=""
+                                     style=""/>
+                            </div>
+                        </div>
+
 
                     </div>
-                    <div class="buttonImg">
-                        <input style="width: 35px;margin-top:-10px " type="color" value="#000000" id="strokecolor">
-                    </div>
-                    <div style="margin-top: -10px" class="buttonImg">
-                        <img src="assets/images/buttons/disk.png" onclick="savePalette()" style=""/>
+                    <div style="display: flex;margin-left:42px ">
+                        <div style="" class="buttonImg">
+                            <img src="assets/images/buttons/disk.png" onclick="savePalette()" style=""/>
+                        </div>
                     </div>
                 </div>
+                <div style="display: flex;width: 90%;margin-left:5px;justify-content: space-evenly; ">
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;;margin-right: 5px;margin-top: 3px;font-weight: 550">Size: </p>
+                        <input type="range" min="1" max="10" style="width: 120px;margin-bottom: 0" value="1"
+                               id="strokewidth">
+
+                    </div>
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;margin-right: 5px;margin-top: 3px;font-weight: 550">Color: </p>
+                        <input style="width: 25px;border-radius:8px;padding: 0;border: solid 1px #f1f1f1;margin-top: 4px;margin-bottom: 3px;height: 25px; "
+                               type="color" value="#000000" id="strokecolor">
+                    </div>
+                    <div style="display: flex">
+                        <p style="margin-bottom: 0;margin-right: 5px;margin-top: 3px;font-weight: 550">Hand-style: </p>
+                    <input type="checkbox" onchange="togglePaletteInk(this.checked)">
+                    </div>
+                </div>
+                <div style="height: 475px;display: inline-block;background: rgba(250,250,250,0.05);padding: 1px;border-radius: 9px;border: 1px solid #f1f1f1;">
+                    <canvas style="height: 100%;width: 550px" id="paletteEdit"></canvas>
+                    <div style="display: flex;margin-top:10px ">
+                        <p style="font-weight: 600;display: inline-block;margin-bottom: 0;margin-right: 10px">
+                            Rotation:</p>
+                        <input type="range" min="0" max="360" value="0" id="paletteEditRotate" style="width: 230px">
+                        <!--              <div style="display: inline-block">
+                                            <p style="font-weight: 600;display: inline-block">Anchors</p>
+                                            <div id="anchorsContainer" style="display: inline-block"></div>
+
+                                            <div id="plusAnchor" onclick="addAnchor()">
+                                                <img src="assets/images/buttons/plus.png" style="width:25px;height:25px">
+                                            </div> -->
+                    </div>
+                </div>
+                <div id="closePaletteContainer" style="">
+                    <img style="width: inherit;filter: invert(1)" onclick="hidePaletteContainer()"
+                         src="assets/images/buttons/cross.png">
+                </div>
+
+
             </div>
         </div>
-        <div id="canvasContainer" style="display: none;width: 100%;z-index: 2">
-            <div style="display: flex"><p>Upload an image.. </p>
+        <div id="canvasContainer" style="display: none;width: 100%;z-index: 2;margin-top: -50px;margin-left: -19px">
+            <div style="display: flex;margin-bottom: -15px;margin-left: 138px;margin-top: 14px">
+                <p>Upload an image.. </p>
                 <div class="buttonImg" style="padding: 0;border: none">
                     <input type="file" name="img" id="imgLoader" style="display: none;"/>
                     <img src="assets/images/buttons/addimg.png" class="lightBorder"
@@ -234,23 +296,35 @@
                 <p> ..Or load an example:</p>
 
             </div>
+
+
             <div id="selFlat"></div>
+        </div>
+        <!--        <div style="display: flex;">-->
+        <div class="tabHolder">
+            <div class="tab active" num="0" onclick="selectTab(this)">Visualization</div>
+            <div class="tab" num="1" onclick="selectTab(this)">Cartesian Grid</div>
+            <div class="tab" num="2" onclick="selectTab(this)">Source Image</div>
 
-            <div style="display: flex;">
-                <div id="inVisHolder"
-                     style="width: calc(100% - 650px);position: relative;background-color:#fff;max-height: 80vh;">
-                    <div style=";position:absolute;">
-                        <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer"
-                             onclick="switchPalette()">
+            <!--            <div class="tab">Settings</div>-->
+        </div>
+
+        <div id="samplingHolder" style="display: none;width: 100%;z-index: 2">
+            <div id="inVisHolder"
+                 style="">
+                <!--        <div style=";position:absolute;">
+                            <img src="assets/images/buttons/left.png" style="width: 25px;cursor: pointer"
+                                 onclick="switchPalette()">
+                        </div>-->
+                <div style="position: absolute;margin-top:3px;margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
+                    <div class="buttonImg">
+                <!--        <img id="moveBtn"
+                             src="assets/images/buttons/move.png" class="lightBorder"
+                             onclick="switchSampleSelect(this,'move')"
+                             style="display: inline-block"/>-->
+                        <p style="margin-left: 40px;font-weight: 600;height: 30px;width: 200px;position: absolute;display: inline-block">
+                            Hold shift to pan</p>
                     </div>
-                    <canvas id="inVis"
-                            style="width: 100%;height: 100%;border-radius: 5px;border: solid 1px #555;"></canvas>
-                    <svg id="sampleDisplay"
-                         style="width: 100%;height: 100%;position: absolute;pointer-events: none;top: 0">
-
-                    </svg>
-                </div>
-                <div style="margin-left:5px;width: 30px;display: flex;justify-content: center;flex-direction: column">
                     <div class="buttonImg">
                         <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"
                              onclick="switchSampleSelect(this,'rect')" style=""/>
@@ -261,533 +335,494 @@
                              style=""/>
                     </div>
 
+
                     <div class="buttonImg">
                         <img src="assets/images/buttons/magic.png" class="lightBorder"
                              onclick="switchSampleSelect(this,'grab')"
                              style=""/>
                     </div>
-                    <div>
-                        <div class="buttonImg" style="padding: 0;border: none">
-                            <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
-                            <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
-                            <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
-                        </div>
-                    </div>
+                    <!--            <div>
+                                    <div class="buttonImg" style="padding: 0;border: none">
+                                        &lt;!&ndash;                        <input type="file" name="img" id="imgLoader" style="display: none;"/>&ndash;&gt;
+                                        &lt;!&ndash;                        <img src="assets/images/buttons/addimg.png" class="lightBorder"&ndash;&gt;
+                                        &lt;!&ndash;                             style="" onclick="fakeFile('imgLoader')"/>&ndash;&gt;
+                                    </div>
+                                </div>-->
                 </div>
+
+                <canvas id="inVis"
+                        style="width: 100%;height: 100%;border-radius: 5px"></canvas>
+                <svg id="sampleDisplay"
+                     style="width: 100%;height: 100%;position: absolute;pointer-events: none;top: 0">
+
+                </svg>
             </div>
 
-            <!--            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
-
-            <!--            </div>-->
-            <div style=";overflow-y: auto;height: 161px" id="paletteCont">
-                <div style="display: flex">
+            <div id="paletteCont">
+                <div style="display: flex;height: 27px">
                     <div>
                         <img onclick="movePalette2Available()" src="assets/images/buttons/disk.png" class="btnDisabled"
                              style="width: 20px;cursor: pointer" id="exportPalette"/>
                     </div>
-                    <p style="font-weight: 600;"> Name: </p><input oninput="updateName(this)" type="text"
-                                                                   id="newPaletteName"
-                                                                   placeholder="Type a name here...">
+                    <p style="font-weight: 600;margin-left: 10px"> Name: </p><input
+                        style="height: 22px;margin-left: 10px" oninput="updateName(this)" type="text"
+                        id="newPaletteName"
+                        placeholder="Type a name here...">
 
                 </div>
                 <div id="marksHolder"
-                     style="display: flex;height: 100px;border: solid 1px #424242;border-radius: 5px;padding: 5px">
-
-                </div>
-            </div>
-
-
-        </div>
-
-        <!--        <div id="sidebar">
-                    <div id="sideArrow" onclick="openNav()" class="openbtn" style=" ">
-                        <img id="sideImg" src="assets/images/buttons/side.png">
-                    </div>
-                    <div style="" class="sideContent">
-                        <div>
-                            <p style="margin: 0;font-size:16pt;font-weight: 600;"> Dataset</p>
-                            &lt;!&ndash;                    <select id="availableData"> </select>&ndash;&gt;
-                            &lt;!&ndash;                    <button onclick="">Import CSV</button>&ndash;&gt;
-                            <h5>Data Columns</h5>
-
-                            <div id="datasetInfo" style="border-top:  solid 1px #424242;"></div>
-                        </div>
-
-
-                        &lt;!&ndash;            <div id="AllPaletteCont">&ndash;&gt;
-
-                        &lt;!&ndash;            </div>&ndash;&gt;
-
-
-                    </div>
-                </div>-->
-
-        <!--        <div id="fakePreview">-->
-        <!--        <div>
-                    <button style="border: darkred solid 1px" onclick="switchForce()"> Force Layout</button>
-                    <button  onclick="switchGrid()"> Grid Layout</button>
-
-                </div>-->
-
-        <!--        <div style="position:absolute;right: 5px;margin-top:10px" onclick="switchSettings()">
-                    <img                src="assets/images/buttons/cogs.png" style="width: 20px"/>
-                    <div id="settingsSandbox">
-                        <div id="layoutList">
-                            <div onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
-                            <div onclick="switchLayout(this, 'grid')">Grid</div>
-                            <div onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
-                        </div>
-                        <div id="optionsSandbox" style="display: flex;">
-                            <div>
-                                <p style="margin-bottom: 2px">x-axis</p>
-                                <select onchange="updateAxis(this)" id="x-axis">
-                                    <option value="none">none</option>
-                                </select>
-
-                            </div>
-                            <div>
-                                <p style="margin-bottom: 2px">y-axis</p>
-                                <select onchange="updateAxis(this)" id="y-axis">
-                                    <option value="none">none</option>
-                                </select>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                -->
-
-
-        <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
-        <div id="settingsContainer" style="display: flex;position:absolute;left: 5px;margin-top:-41px"
-             onclick="switchSettings()">
-
-            <div style="display: flex;height: 50px" id="settingsSandbox">
-                <div style="font-weight: 600"> Layout:</div>
-                <div style="margin-left: 5px;margin-right: 5px" id="layoutList">
-                    <div id="layout-force" onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
-                    <div id="layout-grid" onclick="switchLayout(this, 'grid')">Grid</div>
-                    <div id="layout-scatterplot" onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
-                    <!--                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>-->
-                </div>
-                <div id="optionsSandbox" style="display: flex;margin-top: -9px">
-                    <div>
-                        <p style="margin-bottom: -5px">x-axis</p>
-                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
-                                id="x-axis">
-                            <option value="none">none</option>
-                        </select>
-
-                    </div>
-                    <div>
-                        <p style="margin-bottom: -5px">y-axis</p>
-                        <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
-                                id="y-axis">
-                            <option value="none">none</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div id="newTableContainer" style="width: 97%;overflow-y: auto;height: 200px">
-            <table id="newDataTable" style="height: 250px;display: table;width: 100%">
-                <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
-            </table>
-        </div>
-
-
-        <!--        <div id="datasetContainer"-->
-        <!--             style="width: 98%; padding: 20px;display: flex;justify-content: space-around;flex-direction: column;">-->
-        <!--&lt;!&ndash;            <div id="sandboxControls" style="width: 100%;display: flex;justify-content: center;">-->
-        <!--                <h4 style="margin-right: 15px">Dataset </h4>-->
-        <!--                <select id="availableData" style="margin-right: 15px"> </select>-->
-        <!--                <button onclick="">Import CSV</button>-->
-
-        <!--            </div>&ndash;&gt;-->
-
-        <!--&lt;!&ndash;            <div style="width: 100%;height: 320px;overflow-y: scroll;">&ndash;&gt;-->
-        <!--&lt;!&ndash;                <table id="newDataTable" style="height: 250px;display: table;width: 100%">&ndash;&gt;-->
-        <!--&lt;!&ndash;                    &lt;!&ndash;                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>&ndash;&gt;&ndash;&gt;-->
-        <!--&lt;!&ndash;                </table>&ndash;&gt;-->
-        <!--            </div>-->
-        <!--        </div>-->
-
-        <!--        &lt;!&ndash;        </div>&ndash;&gt;-->
-    </div>
-    <!--</div>-->
-
-
-    <!--<div id="fakeGrammar"></div>-->
-    <div style="display: none" id="markTreeList">
-
-
-        <ul id="glyphTree" class="tree">
-
-        </ul>
-    </div>
-
-    <div class="container" style="max-width: unset;width:94vw;margin-bottom: 5%;display: none" id="testContainer">
-
-        <div id="paletteCollector" style="display: none">
-            <div class="row" style="margin-top: 3%;text-align: center;display:flex">
-                <div class="one column"></div>
-                <!--       <div class="ten column" id="selFlat">
-                           &lt;!&ndash;            <p id="selFlatLabel"> Load one of Dear data's example:</p>&ndash;&gt;
-
-                       </div>-->
-                <div class="one column"></div>
-            </div>
-            <div class="row" style="margin-top: 0.5%;text-align: center;display:flex">
-                <div class="one column" style="">
-                    <div class="buttonImg">
-                        <!--                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"-->
-                        <!--                         onclick="switchSampleSelect(this,'rect')" style=""/>-->
-                    </div>
-                    <div class="buttonImg">
-                        <img src="assets/images/buttons/lasso.png" class="lightBorder"
-                             onclick="switchSampleSelect(this,'free')"
-                             style=""/>
-                    </div>
-                    <!--        <div class="buttonImg">
-                                <img src="assets/images/buttons/magic.png" class="lightBorder" onclick="testEdge()"
-                                     style=""/>
-                            </div>-->
-                    <div class="buttonImg">
-                        <img src="assets/images/buttons/magic.png" class="lightBorder"
-                             onclick="switchSampleSelect(this,'grab')"
-                             style=""/>
-                    </div>
-                    <div>
-                        <div class="buttonImg" style="padding: 0;border: none">
-                            <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
-                            <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
-                            <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
-                        </div>
-                    </div>
-                </div>
-                <div class="ten columns " style="margin-left:1%">
-
-                    <!--                <canvas class="lightBorder" id="inVis"-->
-                    <!--                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>-->
-                </div>
-
-            </div>
-
-            <!--    <div class="row" style="margin-top: 0;text-align: center;display:none">
-                    <div class="one column"></div>
-                    <div class="ten columns " style="margin: 0;text-align: center;height: 300px">
-
-
-                        <div id="marks" style="margin-top: 0;">
-
-                        </div>
-                    </div>
-
-                </div>-->
-
-
-            <!--–––––––––––––––––––––– SVG Stuff –––––––––––––––––––––––––––– -->
-
-            <div class="row" style="margin-top: 0;text-align: center;display:flex">
-                <div class="one column"></div>
-                <div class="ten columns" style="margin: 0;text-align: center;">
-
-
-                    <div id="marksDisplay" style="margin-top: 0;width: 100%">
-                        <!--<div id="svgControl">
-                            <div class="buttonImg" id="selectedButton3">
-                                <img src="assets/images/buttons/default.png" class="lightBorder"
-                                     onclick="switchSvg(sampleData,'default')"
-                                     style=""/>
-                            </div>
-                            <div class="buttonImg">
-                                <img src="assets/images/buttons/grid.png" class="lightBorder"
-                                     onclick="switchSvg(sampleData,'grid')"
-                                     style=""/>
-                            </div>
-                            <div class="buttonImg">
-                                <img src="assets/images/buttons/chart.png" class="lightBorder"
-                                     onclick="switchSvg(sampleData,'scatter')"
-                                     style=""/>
-                            </div>-->
-                        <!--                <div class="buttonImg">
-                                            <img src="assets/images/buttons/cat.png" class="lightBorder"
-                                                 onclick="switchSvg(sampleData,'default')"
-                                                 style=""/>
-                                        </div>
-                    -->
-                        <!--   <div id="secondControl"
-                                style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
-                       </div>-->
-                        <!--                    <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
-                        <!---->
-                        <!--                    </div>-->
-
-                        <!--   <svg style="width: 100%; height: 0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
-                                id="svgDisplay">
-
-                           </svg>
-           -->
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!------------------------  Palette Stuff  ----------------------------------------------------------->
-
-        <div class="row" style="margin-top: 0;text-align: center;position: relative">
-            <h3 style="width: 100%;text-align:center;display: inline-block">
-                <input type="file" name="img" id="paletteLoader" style="display: none;"/>
-                <img src="assets/images/buttons/export.png" class="buttonImg" style=";cursor: pointer"
-                     onclick="fakeFile('paletteLoader')">
-                Palettes <img src="assets/images/buttons/plus.png" class="buttonImg" style="margin-top: 41px;
-  width: 25px;
-  margin-left: 5px;cursor: pointer"
-                              onclick="addAPalette(  )">
-            </h3>
-
-            <!--        <div style="margin-left:50px;width: 85vw;overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">-->
-            <!--        </div>-->
-
-        </div>
-
-
-        <!--  DataTable Stuff------------------------------------------------------------------------>
-        <!--    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-                <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Datatable
-                </h3>
-                <div class="twelve columns">
-                    <table id="datatable" style="width: 101%">
-                        <tr id="tableHeader"></tr>
-                    </table>
-
-
-                </div>
-
-            </div>
-            <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
-                <div class="twelve columns">
-                    <div id="newDataTable"></div>
-                    <div>
-                        <button onclick="saveRow()"> Save</button>
-                    </div>
-                </div>
-
-            </div>-->
-
-        <!--  Collage Stuff------------------------------------------------------------------------>
-
-        <!--    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage
-                <div style="margin-top: 0px" class="buttonImg">
-                    <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
-                </div>
-            </h3>
-
-
-            <div class="row" style="margin-top: 0;text-align: center;display:flex">
-
-                <div style=" height: 300px;display: inline-block">
-                    <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px"
-                         width="300" height="300">
-
-                    </svg>
-                </div>
-
-                <div id="collageData" class="four columns"
-                     style="display: inline-block">
-                    <div id="collageList">
-
-                    </div>
-
-                    <div id="collageInput" style="display: flex">
-                        <select id="collageSel">
-
-                        </select>
-                        <input style="width: 75px" type="number" id="dataVal">
-
-                        <div class="buttonImg" onclick="addCollage()">
-                            <img src="assets/images/buttons/plus.png" class="lightBorder">
-                        </div>
-
-                    </div>
-                </div>
-            </div>-->
-        <!--  Grid Stuff------------------------------------------------------------------------>
-        <!--    <div class="row" style="margin-top: 0;text-align: center;display:flex">
-                <div class="twelve columns">
-                    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage Grid
-                    </h3>
-
-                    <div id="AllPaletteCont"></div>
-                </div>
-            </div>-->
-
-
-        <!--
-            <div id="sidebar">
-                <div id="sideArrow" onclick="openNav()" class="openbtn" style=" ">
-                    <img id="sideImg" style="transform: scaleX(-1)" src="assets/images/buttons/side.png">
-                </div>
-                <div style="" class="sideContent">
-                    <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
-                    &lt;!&ndash;            <div id="AllPaletteCont">&ndash;&gt;
-
-                    &lt;!&ndash;            </div>&ndash;&gt;
-
-
-                </div>
-            </div>
-        -->
-
-
-        <div style="display: flex">
-            <svg id="composition" width="500" height="500" style="border: 1px solid #555">
-
-
-            </svg>
-            <div>
-                <textarea style="width: 600px;height: 100%;resize: none"></textarea>
-            </div>
-        </div>
-        <!--  SANDBOX Stuff------------------------------------------------------------------------>
-        <div class="row" style="margin-top: 0;text-align: center;display:flex">
-            <div class="twelve columns">
-                <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%"> Sandbox
-                    <button onclick="switchGrid()"> Grid Layout</button>
-                    <button onclick="switchForce()"> Force Layout</button>
-                </h3>
-
-                <div style="display: flex">
-                    <div style="width:40% ;">
-                        <div>
-                            <h5> Chart Settings</h5>
-                            <div id="chartSettings"></div>
-                        </div>
-                        <div>
-                            <h5> Composition</h5>
-                            <!-- <div id="fakeGrammar"></div>
-                             <div id="markTreeList">
-
-
-                                 <ul id="glyphTree" class="tree">
-
-                                 </ul>-->
-
-
-                            <div style="width: 100%;">
-                                <div class="buttonImg">
-                                    <img src="assets/images/buttons/plus.png"
-                                         onclick="addAMark()" style=""/>
-                                </div>
-                            </div>
-
-                            <!--                        </div>-->
-
-                            <!--                        <div>
-                                                        <ul class="tree">
-                                                            <li>
-                                                                <details open>
-                                                                    <summary>Giant planets</summary>
-                                                                    <ul>
-                                                                        <li>
-                                                                            <details open>
-                                                                                <summary>Gas giants</summary>
-                                                                                <ul>
-                                                                                    <li>Jupiter</li>
-                                                                                    <li>Saturn</li>
-                                                                                </ul>
-                                                                            </details>
-                                                                        </li>
-                                                                        <li>
-                                                                            <details open>
-                                                                                <summary>Ice giants</summary>
-                                                                                <ul>
-                                                                                    <li>Uranus</li>
-                                                                                    <li>Neptune</li>
-                                                                                </ul>
-                                                                            </details>
-                                                                        </li>
-                                                                    </ul>
-                                                                </details>
-                                                            </li>
-
-                                                        </ul>
-                                                    </div>-->
-                        </div>
-                    </div>
-
-
-                    <!--                <div id="fakePreview">
-                                        <svg id="fakePreviewSvg"></svg>
-                                    </div>-->
-
-                </div>
-            </div>
-        </div>
-
-
-        <!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
-
-        <dialog id="markMod" class="modal">
-            <div id="closeMod" style="width: 20px;height: 20px;float: right;position: relative">
-                <img style="width: inherit" src="assets/images/buttons/cross.png">
-            </div>
-            <div id="modalSideButtons" class="modalSideButtons">
-                <img style="width: inherit" src="assets/images/buttons/rule.png" onclick="switchSelectMod(this,'rule')"
-                     id="selectModBut">
-                <!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
-                <img style="width: inherit" src="assets/images/buttons/rotation.png"
-                     onclick="switchSelectMod(this,'rotation')">
-                <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
-                <img style="width: inherit" src="assets/images/buttons/background.png" onclick="initColor(this)">
-                <!--            <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">-->
-                <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
-
-            </div>
-            <div id="modalVal" style="display: inline;position: absolute;left: 35%;font-weight: 700"></div>
-            <div id="modalCore" style="width: 70%;display: inline-block">
-                <canvas class="" id="modalCanvas"
-                        style="border-right:solid rgba(10, 10, 10, 0.6) thin;cursor: crosshair ">
-
-                </canvas>
-            </div>
-            <div id="sideModal" style="width: 25%;position: relative;display: inline-block;display: contents">
-                <div id="markInfos" style="">
-
-                </div>
-
-                <div id="markCategories"
                      style="">
 
                 </div>
             </div>
-        </dialog>
+        </div>
+
+        <!--            <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
+
+        <!--            </div>-->
 
 
-        <div id="catMod" class="modal"
-             style="height: fit-content;max-width: 680px;position: absolute;top:30%;right:-7%;background: white;display: none">
-            <div id="closeCatMod" style="width: 20px;height: 20px;float: right;position: relative;z-index: 99">
-                <img style="width: inherit" src="assets/images/buttons/cross.png">
+        <div id="svgHolder" style="height: 100%;">
+            <svg style="background-color:#fff;" id="fakePreviewSvg"></svg>
+            <div id="settingsContainer" style="display: flex;position:absolute;left: 5px;margin-top:-41px"
+                 onclick="switchSettings()">
+
+                <div style="display: flex;height: 50px" id="settingsSandbox">
+                    <div style="font-weight: 600"> Layout:</div>
+                    <div style="margin-left: 5px;overflow: hidden;margin-right: 5px" id="layoutList">
+                        <div id="layout-force" onclick="switchLayout(this, 'force')" class="selectedLayout">Force</div>
+                        <div id="layout-grid" onclick="switchLayout(this, 'grid')">Grid</div>
+                        <div id="layout-scatterplot" onclick="switchLayout(this, 'scatterplot')"> Scatterplot</div>
+                        <!--                    <div onclick="switchLayout(this, 'Stack')"> Stack (wip)</div>-->
+                    </div>
+                    <div id="optionsSandbox" style="display: flex;margin-top: -9px">
+                        <div>
+                            <p style="margin-bottom: -5px">x-axis</p>
+                            <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
+                                    id="x-axis">
+                                <option value="none">none</option>
+                            </select>
+
+                        </div>
+                        <div>
+                            <p style="margin-bottom: -5px">y-axis</p>
+                            <select style="height: 22px;padding: unset;padding-left: 5px" onchange="updateAxis(this)"
+                                    id="y-axis">
+                                <option value="none">none</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <div class="catModContainer" style="position: relative">
-                <div id="catProto" style="">
-                    <p style="text-align:center;font-weight: bold;color: #333;text-decoration: underline;">
-                        Prototype</p>
-                    <canvas style="height: 350px;width: 100%" id="catProtoCanvas">
-
-                    </canvas>
-
-                </div>
-                <div id="catData" style="">
-                    <table id="catModTable">
-
-                    </table>
-                </div>
+            <div id="newTableContainer" style="border-radius: 14px;width: 97%;overflow-y: auto;height: 261px">
+                <table id="newDataTable" style="height: 260px;display: table;width: 100%">
+                    <!--                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>-->
+                </table>
             </div>
         </div>
+
+        <div id="cartesianHolder" style="height: 100%;display: none;">
+            <svg style="background-color:#fff;" id="bigCartesian">
+
+            </svg>
+        </div>
+
     </div>
+
+
+    <!--        <div id="datasetContainer"-->
+    <!--             style="width: 98%; padding: 20px;display: flex;justify-content: space-around;flex-direction: column;">-->
+    <!--&lt;!&ndash;            <div id="sandboxControls" style="width: 100%;display: flex;justify-content: center;">-->
+    <!--                <h4 style="margin-right: 15px">Dataset </h4>-->
+    <!--                <select id="availableData" style="margin-right: 15px"> </select>-->
+    <!--                <button onclick="">Import CSV</button>-->
+
+    <!--            </div>&ndash;&gt;-->
+
+    <!--&lt;!&ndash;            <div style="width: 100%;height: 320px;overflow-y: scroll;">&ndash;&gt;-->
+    <!--&lt;!&ndash;                <table id="newDataTable" style="height: 250px;display: table;width: 100%">&ndash;&gt;-->
+    <!--&lt;!&ndash;                    &lt;!&ndash;                <tr> <th>Id</th><th>Category</th><th>x</th><th>y</th></tr>&ndash;&gt;&ndash;&gt;-->
+    <!--&lt;!&ndash;                </table>&ndash;&gt;-->
+    <!--            </div>-->
+    <!--        </div>-->
+
+    <!--        &lt;!&ndash;        </div>&ndash;&gt;-->
+</div>
+<!--</div>-->
+
+
+<!--<div id="fakeGrammar"></div>-->
+<div style="display: none" id="markTreeList">
+
+
+    <ul id="glyphTree" class="tree">
+
+    </ul>
+</div>
+
+<div class="container" style="max-width: unset;width:94vw;margin-bottom: 5%;display: none" id="testContainer">
+
+    <div id="paletteCollector" style="display: none">
+        <div class="row" style="margin-top: 3%;text-align: center;display:flex">
+            <div class="one column"></div>
+            <!--       <div class="ten column" id="selFlat">
+                       &lt;!&ndash;            <p id="selFlatLabel"> Load one of Dear data's example:</p>&ndash;&gt;
+
+                   </div>-->
+            <div class="one column"></div>
+        </div>
+        <div class="row" style="margin-top: 0.5%;text-align: center;display:flex">
+            <div class="one column" style="">
+                <div class="buttonImg">
+                    <!--                    <img id="selectedButton" src="assets/images/buttons/rect.png" class="lightBorder"-->
+                    <!--                         onclick="switchSampleSelect(this,'rect')" style=""/>-->
+                </div>
+                <div class="buttonImg">
+                    <img src="assets/images/buttons/lasso.png" class="lightBorder"
+                         onclick="switchSampleSelect(this,'free')"
+                         style=""/>
+                </div>
+                <!--        <div class="buttonImg">
+                            <img src="assets/images/buttons/magic.png" class="lightBorder" onclick="testEdge()"
+                                 style=""/>
+                        </div>-->
+                <div class="buttonImg">
+                    <img src="assets/images/buttons/magic.png" class="lightBorder"
+                         onclick="switchSampleSelect(this,'grab')"
+                         style=""/>
+                </div>
+                <div>
+                    <div class="buttonImg" style="padding: 0;border: none">
+                        <!--                        <input type="file" name="img" id="imgLoader" style="display: none;"/>-->
+                        <!--                        <img src="assets/images/buttons/addimg.png" class="lightBorder"-->
+                        <!--                             style="" onclick="fakeFile('imgLoader')"/>-->
+                    </div>
+                </div>
+            </div>
+            <div class="ten columns " style="margin-left:1%">
+
+                <!--                <canvas class="lightBorder" id="inVis"-->
+                <!--                        style="z-index: 99;display: inline-block;border-radius:5px;width: 100%;height: 100%"></canvas>-->
+            </div>
+
+        </div>
+
+        <!--    <div class="row" style="margin-top: 0;text-align: center;display:none">
+                <div class="one column"></div>
+                <div class="ten columns " style="margin: 0;text-align: center;height: 300px">
+
+
+                    <div id="marks" style="margin-top: 0;">
+
+                    </div>
+                </div>
+
+            </div>-->
+
+
+        <!--–––––––––––––––––––––– SVG Stuff –––––––––––––––––––––––––––– -->
+
+        <div class="row" style="margin-top: 0;text-align: center;display:flex">
+            <div class="one column"></div>
+            <div class="ten columns" style="margin: 0;text-align: center;">
+
+
+                <div id="marksDisplay" style="margin-top: 0;width: 100%">
+                    <!--<div id="svgControl">
+                        <div class="buttonImg" id="selectedButton3">
+                            <img src="assets/images/buttons/default.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'default')"
+                                 style=""/>
+                        </div>
+                        <div class="buttonImg">
+                            <img src="assets/images/buttons/grid.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'grid')"
+                                 style=""/>
+                        </div>
+                        <div class="buttonImg">
+                            <img src="assets/images/buttons/chart.png" class="lightBorder"
+                                 onclick="switchSvg(sampleData,'scatter')"
+                                 style=""/>
+                        </div>-->
+                    <!--                <div class="buttonImg">
+                                        <img src="assets/images/buttons/cat.png" class="lightBorder"
+                                             onclick="switchSvg(sampleData,'default')"
+                                             style=""/>
+                                    </div>
+                -->
+                    <!--   <div id="secondControl"
+                            style="display: inline-block;position: absolute;width: fit-content;margin-left:10px "></div>
+                   </div>-->
+                    <!--                    <div id="sampledMarks" style="width: 100%;height: 120px;border: 1px solid black;border-radius: 5px">-->
+                    <!---->
+                    <!--                    </div>-->
+
+                    <!--   <svg style="width: 100%; height: 0" preserveAspectRatio="xMinYMin meet" viewBox="0 0 600 600"
+                            id="svgDisplay">
+
+                       </svg>
+       -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<!------------------------  Palette Stuff  ----------------------------------------------------------->
+
+<!--    <div class="row" style="margin-top: 0;text-align: center;position: relative">
+        <h3 style="width: 100%;text-align:center;display: inline-block">
+            <input type="file" name="img" id="paletteLoader" style="display: none;"/>
+            <img src="assets/images/buttons/export.png" class="buttonImg" style=";cursor: pointer"
+                 onclick="fakeFile('paletteLoader')">
+            Palettes <img src="assets/images/buttons/plus.png" class="buttonImg" style="margin-top: 41px;
+  width: 25px;
+  margin-left: 5px;cursor: pointer"
+                          onclick="addAPalette(  )">
+        </h3>
+
+        &lt;!&ndash;        <div style="margin-left:50px;width: 85vw;overflow-y: auto;min-height: 200px;max-height: 600px" id="paletteCont">&ndash;&gt;
+        &lt;!&ndash;        </div>&ndash;&gt;
+
+    </div>-->
+
+
+<!--  DataTable Stuff------------------------------------------------------------------------>
+<!--    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
+        <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Datatable
+        </h3>
+        <div class="twelve columns">
+            <table id="datatable" style="width: 101%">
+                <tr id="tableHeader"></tr>
+            </table>
+
+
+        </div>
+
+    </div>
+    <div class="row" style="margin-top: 0;text-align: center;max-height: 450px;overflow-y: auto">
+        <div class="twelve columns">
+            <div id="newDataTable"></div>
+            <div>
+                <button onclick="saveRow()"> Save</button>
+            </div>
+        </div>
+
+    </div>-->
+
+<!--  Collage Stuff------------------------------------------------------------------------>
+
+<!--    <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage
+        <div style="margin-top: 0px" class="buttonImg">
+            <img src="assets/images/buttons/disk.png" class="lightBorder" onclick="saveCollage()" style=""/>
+        </div>
+    </h3>
+
+
+    <div class="row" style="margin-top: 0;text-align: center;display:flex">
+
+        <div style=" height: 300px;display: inline-block">
+            <svg viewBox="0 0 300 300" class="lightBorder" id="collageSvg" style="width: 300px;height: 300px"
+                 width="300" height="300">
+
+            </svg>
+        </div>
+
+        <div id="collageData" class="four columns"
+             style="display: inline-block">
+            <div id="collageList">
+
+            </div>
+
+            <div id="collageInput" style="display: flex">
+                <select id="collageSel">
+
+                </select>
+                <input style="width: 75px" type="number" id="dataVal">
+
+                <div class="buttonImg" onclick="addCollage()">
+                    <img src="assets/images/buttons/plus.png" class="lightBorder">
+                </div>
+
+            </div>
+        </div>
+    </div>-->
+<!--  Grid Stuff------------------------------------------------------------------------>
+<!--    <div class="row" style="margin-top: 0;text-align: center;display:flex">
+        <div class="twelve columns">
+            <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%">Collage Grid
+            </h3>
+
+            <div id="AllPaletteCont"></div>
+        </div>
+    </div>-->
+
+
+<!--
+    <div id="sidebar">
+        <div id="sideArrow" onclick="openNav()" class="openbtn" style=" ">
+            <img id="sideImg" style="transform: scaleX(-1)" src="assets/images/buttons/side.png">
+        </div>
+        <div style="" class="sideContent">
+            <p style="margin: 0;font-size:16pt;font-weight: 600;"> Available Palettes</p>
+            &lt;!&ndash;            <div id="AllPaletteCont">&ndash;&gt;
+
+            &lt;!&ndash;            </div>&ndash;&gt;
+
+
+        </div>
+    </div>
+-->
+
+
+<!--<div style="display: flex">
+    <svg id="composition" width="500" height="500" style="border: 1px solid #555">
+
+
+    </svg>
+    <div>
+        <textarea style="width: 600px;height: 100%;resize: none"></textarea>
+    </div>
+</div>
+&lt;!&ndash;  SANDBOX Stuff&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&ndash;&gt;
+<div class="row" style="margin-top: 0;text-align: center;display:flex">
+    <div class="twelve columns">
+        <h3 style="width: 100%;text-align:center;display: inline-block;margin-top:3%"> Sandbox
+            <button onclick="switchGrid()"> Grid Layout</button>
+            <button onclick="switchForce()"> Force Layout</button>
+        </h3>
+
+        <div style="display: flex">
+            <div style="width:40% ;">
+                <div>
+                    <h5> Chart Settings</h5>
+                    <div id="chartSettings"></div>
+                </div>
+                <div>
+                    <h5> Composition</h5>
+                    &lt;!&ndash; <div id="fakeGrammar"></div>
+                     <div id="markTreeList">
+
+
+                         <ul id="glyphTree" class="tree">
+
+                         </ul>&ndash;&gt;
+
+
+                    <div style="width: 100%;">
+                        <div class="buttonImg">
+                            <img src="assets/images/buttons/plus.png"
+                                 onclick="addAMark()" style=""/>
+                        </div>
+                    </div>
+
+                    &lt;!&ndash;                        </div>&ndash;&gt;
+
+                    &lt;!&ndash;                        <div>
+                                                <ul class="tree">
+                                                    <li>
+                                                        <details open>
+                                                            <summary>Giant planets</summary>
+                                                            <ul>
+                                                                <li>
+                                                                    <details open>
+                                                                        <summary>Gas giants</summary>
+                                                                        <ul>
+                                                                            <li>Jupiter</li>
+                                                                            <li>Saturn</li>
+                                                                        </ul>
+                                                                    </details>
+                                                                </li>
+                                                                <li>
+                                                                    <details open>
+                                                                        <summary>Ice giants</summary>
+                                                                        <ul>
+                                                                            <li>Uranus</li>
+                                                                            <li>Neptune</li>
+                                                                        </ul>
+                                                                    </details>
+                                                                </li>
+                                                            </ul>
+                                                        </details>
+                                                    </li>
+
+                                                </ul>
+                                            </div>&ndash;&gt;
+                </div>
+            </div>
+
+
+            &lt;!&ndash;                <div id="fakePreview">
+                                <svg id="fakePreviewSvg"></svg>
+                            </div>&ndash;&gt;
+
+        </div>
+    </div>
+</div>-->
+
+
+<!--–––––––––––––––––––––– Modal Stuff –––––––––––––––––––––––––––– -->
+
+<dialog id="markMod" class="modal">
+    <div id="closeMod" style="width: 20px;height: 20px;float: right;position: relative">
+        <img style="width: inherit" src="assets/images/buttons/cross.png">
+    </div>
+    <div id="modalSideButtons" class="modalSideButtons">
+        <img style="width: inherit" src="assets/images/buttons/rule.png" onclick="switchSelectMod(this,'rule')"
+             id="selectModBut">
+        <!--            <img src="assets/images/buttons/poly.png" style="width: inherit"/>-->
+        <img style="width: inherit" src="assets/images/buttons/rotation.png"
+             onclick="switchSelectMod(this,'rotation')">
+        <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">
+        <img style="width: inherit" src="assets/images/buttons/background.png" onclick="initColor(this)">
+        <!--            <img style="width: inherit" src="assets/images/buttons/reset.png" onclick="resetZoom()">-->
+        <img style="width: inherit" src="assets/images/buttons/del.png" onclick="deleteMark()">
+
+    </div>
+    <div id="modalVal" style="display: inline;position: absolute;left: 35%;font-weight: 700"></div>
+    <div id="modalCore" style="width: 70%;display: inline-block">
+        <canvas class="" id="modalCanvas"
+                style="border-right:solid rgba(10, 10, 10, 0.6) thin;cursor: crosshair ">
+
+        </canvas>
+    </div>
+    <div id="sideModal" style="width: 25%;position: relative;display: inline-block;display: contents">
+        <div id="markInfos" style="">
+
+        </div>
+
+        <div id="markCategories"
+             style="">
+
+        </div>
+    </div>
+</dialog>
+
+
+<div id="catMod" class="modal"
+     style="height: fit-content;max-width: 680px;position: absolute;top:30%;right:-7%;background: white;display: none">
+    <div id="closeCatMod" style="width: 20px;height: 20px;float: right;position: relative;z-index: 99">
+        <img style="width: inherit" src="assets/images/buttons/cross.png">
+    </div>
+    <div class="catModContainer" style="position: relative">
+        <div id="catProto" style="">
+            <p style="text-align:center;font-weight: bold;color: #333;text-decoration: underline;">
+                Prototype</p>
+            <canvas style="height: 350px;width: 100%" id="catProtoCanvas">
+
+            </canvas>
+
+        </div>
+        <div id="catData" style="">
+            <table id="catModTable">
+
+            </table>
+        </div>
+    </div>
+</div>
+</div>
 
 
 </body>

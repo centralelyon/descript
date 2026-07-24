@@ -1,10 +1,20 @@
 let allPalettes = []
 
-let palSources = [
+let displayMode = "Visualization"
 
-    "week15_squares",
-    "week15_RightSymbol",
-    "week15_InnerCircle",
+let palSources = [
+    // "test"
+    "week15_square",
+    // "week15_test",
+    "week15_rightSymbol",
+    // "week15_Symbol",
+    // "week15_InnerCircle",
+    "week15_circle",
+    "week05_cost",
+    "week05_empty",
+    "week05_full",
+    "week05_star",
+    "week05_type"
     // "week26_circle",
     // "sudoku_time",
     // "sudoku_level",
@@ -105,7 +115,6 @@ function addASelectedPalette(key) {
     propertyContainer.innerHTML = `<div style="display: flex"><div class="dataSelectContainer" key="${key}" type="shape" style=""><p  style=" ">Mark:</p><select oninput="updateSelectBind('${key}')" class="dataSelect" id="shape-${key}" style="">${options}</select></div></div>`;
 
 
-
     // propertyContainer.appendChild(arrowDiv);
     let sel = makeEncodingSelect(key)
     let selectHold = document.createElement("div");
@@ -145,7 +154,29 @@ function setAddNewMenu() {
 }
 
 
-function selectThisPalette(name,num) {
+async function showThisPalette(name, num) {
+    console.log(num);
+    console.log(allPalettes[num].originImg);
+
+    let tab = document.querySelector(`.tab[num="2"]`);
+
+    tab.click()
+
+    if (allPalettes[num].originImg) {
+        let tcan = document.getElementById("inVis")
+        // await allPalettes[num].originImg.decode()
+
+        resetView(tcan, allPalettes[num].originImg)
+
+
+        displayAllMarksInSvg(allPalettes[num].sampling)
+    }
+
+
+}
+
+
+function selectThisPalette(name, num) {
     if (megaPalettes[name] !== undefined) {
         name += Object.keys(megaPalettes).length
     }
@@ -190,7 +221,12 @@ function selectThisPalette(name,num) {
     if (tflag) {
         tdrawRefactor()
     } else {
-        updateSvg()
+        if (displayMode == "Visualization") {
+            updateSvg()
+        } else if (displayMode == "Cartesian Grid") {
+            updateSvg(true)
+        }
+
     }
 
 }
@@ -211,7 +247,7 @@ async function initAllPalette() {
 
     container.innerHTML = "";
 
-    container.appendChild(setAddNewMenu());
+    // container.appendChild(setAddNewMenu());
 
     for (let i = 0; i < allPalettes.length; i++) {
         let tdiv = document.createElement("div");
@@ -227,12 +263,14 @@ async function initAllPalette() {
         let arrowDiv = document.createElement("div");
 
         arrowDiv.className = "paletteArrowDiv";
-        arrowDiv.innerHTML = `<img src ="assets/images/buttons/side.png" style="transform: scaleX(-1);cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
+        arrowDiv.innerHTML = `
+              <img src ="assets/images/buttons/show.png" style="position: absolute;top: -23px;right: -2px;width: 18px;height: auto;cursor: pointer" onclick="showThisPalette('${palSources[i]}',${i})" >
+            <img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${palSources[i]}',${i})" >`
         tdiv.appendChild(arrowDiv);
         container.appendChild(tdiv);
 
         dragElement(tdiv)
-        bindingMouseOver(tdiv)
+        // bindingMouseOver(tdiv)
         let allMarks = allPalettes[i].encodings.range.marks;
 
         let MarkNames = Object.keys(allMarks)
@@ -253,7 +291,6 @@ async function initAllPalette() {
                 b64 = allMarks[MarkNames[j]].proto.canvas
                 allMarks[MarkNames[j]].source = allMarks[MarkNames[j]].proto.canvas
             }
-
             let tcan = cloneCanvas(b64)
             tcan.style.width = `${subW}px`
             tcan.style.height = `${subH}px`
@@ -290,31 +327,57 @@ async function initAllPalette() {
 
 async function loadSavedPalette(url) {
 
-
     const palette = await d3.json(url)
-
+    console.log(palette);
 
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
         if (value.proto) {
+
+
             value.proto.canvas = await convertToCanvas(value.proto.canvas)
+
+            // console.log(tcan);
+            // value.proto.canvas = tcan
+
             // removeColor(241, 241, 241,   value.proto.canvas, 15)
         }
 
-        if (value.source) {
-            value.source = await convertToCanvas(value.source)
-            // removeColor(241, 241, 241, value.source, 15)
-        }
+        /*      if (value.source) {
+                  console.log("here");
+                  value.source = await convertToCanvas(value.source)
+                  // removeColor(241, 241, 241, value.source, 15)
+              }*/
+    }
+
+    for (const [key, value] of Object.entries(palette.sampling)) {
+        value.canvas = await convertToCanvas(value.canvas)
     }
 
 
+    if (palette.originImg) {
+        if (palette.originImg !== "") {
+            const img = new Image();
+            img.src = palette.originImg;
+            palette.originImg = img;
+        }
+    }
+    if (palette.preloadName) {
+        if (palette.preloadName !== "") {
+            palette.originImg = preload[palette.preloadName];
+        }
+    }
+    // console.log(preload[palette.preloadName]);
+    // console.log(palette.originImg);
+
+    document.body.appendChild(palette.originImg);
     let n = Object.keys(megaPalettes).length
 
 
     allPalettes.push(palette)
 
-    // megaPalettes[`temp${n}`] = jsonObj
+// megaPalettes[`temp${n}`] = jsonObj
 
-
+return palette
 }
 
 
@@ -382,32 +445,39 @@ function bindingMouseOver(elem) {
     elem.addEventListener("mouseout", hideOrigin)
 
 
-    function displayOrigin(e) {
-
+    async function displayOrigin(e) {
 
         let tempKey = elem.getAttribute("name")
         let tempNum = +elem.getAttribute("number");
-        if (tempNum) {
-            if (allPalettes[tempNum].originImg) {
-                displaySample()
 
-                let tcan = document.getElementById("inVis")
-                resetView(tcan, allPalettes[tempNum].originImg)
+        if (tempNum !== undefined) {
+            if (displayMode === "Visualization") {
+
+                if (allPalettes[tempNum].originImg) {
+                    displaySample()
+
+                    let tcan = document.getElementById("inVis")
+                    await allPalettes[tempNum].originImg.decode()
+
+                    resetView(tcan, allPalettes[tempNum].originImg)
 
 
-                displayAllMarksInSvg(allPalettes[tempNum].sampling)
-            } else {
-                hideSample()
+                    displayAllMarksInSvg(allPalettes[tempNum].sampling)
+                } else {
+                    hideSample()
+                }
+
+
             }
-
-
         }
     }
 
     function hideOrigin() {
         tempKey = undefined
         tempNum = undefined
-        hideSample()
+        if (displayMode === "Visualization") {
+            hideSample()
+        }
     }
 
 
@@ -429,14 +499,26 @@ function appendSingle(palette, name) {
     tdiv.innerHTML = `<p>${name}</p>`;
     canContainer.className = "canPreview";
 
+
+
+    let arrowDiv = document.createElement("div");
+
+    arrowDiv.className = "paletteArrowDiv";
+    arrowDiv.innerHTML = `
+              <img src ="assets/images/buttons/show.png" style="position: absolute;top: -23px;right: -2px;width: 18px;height: auto;cursor: pointer" onclick="showThisPalette('${name}',${palSources.length-1})" >
+            <img src ="assets/images/buttons/right-arrow.png" style=";cursor: pointer" onclick="selectThisPalette('${name}',${palSources.length-1})" >`
+
     tdiv.appendChild(canContainer);
-    console.log(container.getElementsByTagName('div')[2]);
+    tdiv.appendChild(arrowDiv);
+
+
     container.insertBefore(tdiv, container.firstChild.nextSibling);
+
 
     // container.appendChild(tdiv);
 
     dragElement(tdiv)
-    bindingMouseOver(tdiv)
+    // bindingMouseOver(tdiv)
     let allMarks = palette.encodings.range.marks;
 
     let MarkNames = Object.keys(allMarks)
@@ -586,8 +668,10 @@ function updateDotsAndSvgs() {
 }
 
 
-function savePal(palette, key) {
+async function savePal(palette, key) {
 
+    palette = deepClone(palette)
+    console.log(palette);
     let res = {}
     for (const [key, value] of Object.entries(palette)) {
         if (typeof value === "object" && key !== "originImg" && key !== "sampling") {
@@ -597,22 +681,30 @@ function savePal(palette, key) {
 
     }
 
-    res.originImg = imageToBase64(palette.originImg)
+    // palette.originImg.crossOrigin = "anonymous";
 
+    palette.originImg.crossOrigin = "anonymous";
+    await palette.originImg.decode();
+    let tstr = imageToBase64(palette.originImg)
+
+    palette.originImg = tstr
     const marks = {}
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
-        marks[key] = {
-            ...value,
-            proto: {
-                ...value.proto
-            }
-        };
+        /*        marks[key] = {
+                    ...value,
+                    proto: {
+                        ...value.proto
+                    }
+                };*/
 
-        marks[key].proto.canvas = cloneCanvas(palette.encodings.range.marks[key].proto.canvas).toDataURL("image/png")
+        console.log(key);
+
+        // marks[key].proto.canvas = cloneCanvas(palette.encodings.range.marks[key].proto.canvas).toDataURL("image/png")
+        value.proto.canvas = value.proto.canvas.toDataURL("image/png")
 
         if (palette.encodings.range.marks[key].source) {
 
-            marks[key].source = cloneCanvas(palette.encodings.range.marks[key].source).toDataURL("image/png")
+            value.source = value.source.toDataURL("image/png")
         }
     }
 
@@ -623,9 +715,12 @@ function savePal(palette, key) {
         sample[key].canvas = cloneCanvas(palette.sampling[key].canvas).toDataURL("image/png")
     }
 
-    res.sampling = sample
+    palette.sampling = sample
 
-    download(JSON.stringify(res), "palette_" + key + ".json", "text/json");
+
+    let tt = document.querySelector(".tab").click()
+    console.log(tt);
+    download(JSON.stringify(palette), "palette_" + key + ".json", "text/json");
 
 }
 

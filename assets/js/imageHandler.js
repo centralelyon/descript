@@ -1,3 +1,5 @@
+let reducedDim = [0,0]
+
 function loadImg(src) {
 
     let im = new Image();
@@ -9,65 +11,66 @@ function loadImg(src) {
         let can = document.getElementById("inVis")
 
         let cont = can.getContext('2d');
-        fitCanvas(can,im)
+        fitCanvas(can, im)
 
-        enableZoomPan(can,im)
+        // enableZoomPan(can, im)
 
         // let rate = fixRatio2([im.width, im.height], [can.getBoundingClientRect().width, 9999])
 
 
-
         // cont.drawImage(im, 0, 0, rate[0], rate[1])
-        cont.drawImage(im, 0, 0, viewDim[0], viewDim[1]);
+
+
+        let th = Math.min(im.height, viewDim[1])
+        // let tw = Math.min(im.width, th * tRatio)
+
+        let tw = Math.min( (im.width *th) / im.height, viewDim[0])
+
+
+        reducedDim = [tw,th]
+
+        cont.drawImage(im, 0, 0, tw, th);
 
         // fillSvg(sampleData)
-         // addAPalette()
+        // addAPalette()
 
     };
 
     im.src = src
+    im.decode()
     // addAPalette()
 
 }
 
 
-
-function fitCanvas(canvas,image) {
+function fitCanvas(canvas, image) {
     let trect = document.getElementById("inVisHolder").getBoundingClientRect()
+    let tScreenHeight = window.innerHeight;
 
-    let t = Math.round((image.height * trect.width) / image.width)
+
+    console.log(image.width);
+
+    let tRatio = image.width / image.height;
+
+    // let tw =
+    // let th = Math.min(image.height, tScreenHeight * 0.72)
+    // let tw = Math.min(image.width, th * tRatio)
+    let t = Math.min(Math.round((image.height * trect.width) / image.width), tScreenHeight * 0.71)
     viewDim = [trect.width, t]
+
+    let th = Math.min(image.height, viewDim[1])
+    // let tw = Math.min(im.width, th * tRatio)
+
+    let tw = Math.min( (image.width *th) / image.height, viewDim[0])
+
+
+    reducedDim = [tw,th]
+
     canvas.width = viewDim[0]
     canvas.style.width = viewDim[0] + 'px';
     canvas.style.height = viewDim[1] + "px"
     canvas.height = viewDim[1]
-}
-function fixRatio2(im, sv) {
-
-    //size based
-    let aspr = im[0] / im[1];
-    let svAspr = sv[0] / sv[1];
-
-    if (im[0] < sv[0] && im[1] < sv[1]) {
-        // Image plus petite
-        return [im[0], im[1], aspr];
-    }
-
-    if (im[0] > sv[0] || im[1] > sv[1]) {
-        // Image plus grande
-        let vr = sv[1] / im[1];
-        let hr = sv[0] / im[0];
-
-        if (vr < hr) {
-            // Image Horizontale
-            return [(sv[1] * im[0]) / im[1], sv[1]];
-        } else if (vr > hr) {
-            // Image Verticale
-            return [sv[0], (sv[0] * im[1]) / im[0]];
-        } else {
-            return [sv[0], (sv[0] * im[1]) / im[0]];
-        }
-    }
+    enableZoomPan(canvas, image)
 }
 
 
@@ -103,14 +106,14 @@ function drawSamples(samples) {
         //         cont.drawImage(sample.canvas, -tw/ 2, -th / 2, tw, th);
         //         cont.restore();
         //     } else {
-                cont.drawImage(
-                    sample.canvas,
-                    sample.rx * can.width,
-                    sample.ry * can.height,
-                    sample.rWidth * can.width,
-                    sample.rHeight * can.height
-                );
-            // }
+        cont.drawImage(
+            sample.canvas,
+            sample.rx * can.width,
+            sample.ry * can.height,
+            sample.rWidth * can.width,
+            sample.rHeight * can.height
+        );
+        // }
         // }
 
 
