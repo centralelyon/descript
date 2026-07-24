@@ -328,6 +328,7 @@ async function initAllPalette() {
 async function loadSavedPalette(url) {
 
     const palette = await d3.json(url)
+    console.log(palette);
 
     for (const [key, value] of Object.entries(palette.encodings.range.marks)) {
         if (value.proto) {

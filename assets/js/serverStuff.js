@@ -10,17 +10,18 @@ async function getPaletteList() {
     let palettes = await d3.json(serverBaseUrl + "palettes")
 
 
-    console.log(palettes);
-
-
     for (const [key, value] of Object.entries(palettes)) {
-        palSources.push(key)
 
+        let t = await loadStateFromJson(serverBaseUrl + "palettes/" + value.name)
 
-        let t = await loadSavedPalette(serverBaseUrl + "palettes/" + value.name)
+        console.log(t);
+
+        if (!t.preloadName) {
+            t.originImg = await getImage(t.originImg)
+        }
+
 
         appendSingle(t, value.name)
-
     }
 
 }
@@ -34,8 +35,7 @@ function login() {
 }
 
 
-
-function uploadPalette(palette,name) {
+function uploadPalette(palette, name) {
 
     if (credentials === "") {
         login()
@@ -49,33 +49,22 @@ function uploadPalette(palette,name) {
         tt.originImg = tsrc
     }
 
-    console.log(tt);
 
-    const blob =  new Blob([JSON.stringify(tt)], {type: "application/json"})
+    const blob = new Blob([JSON.stringify(tt)], {type: "application/json"})
     const data = new FormData();
 
-    // data.append("document", blob, name+".json");
-    // data.append("document", blob, name+".json");
-    // data.append("document", JSON.stringify(tt));
-
     data.append(
-        "document",
-        new Blob([JSON.stringify(tt)], { type: "text/json" }),
-        name+".json"
+        "file",
+        blob,
+        name + ".json"
     );
 
 
-    fetch(serverBaseUrl +"palettes", {
+    fetch(serverBaseUrl + "palettes", {
         method: 'POST',
         headers: {
             "Authorization": `Basic ${credentials}`,
-            'Accept': 'application/json',
-
-
         },
-        body:  data
-
-
+        body: data
     })
-
 }

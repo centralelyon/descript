@@ -1187,19 +1187,12 @@ async function loadStateFromJson(source) {
             });
             pending.push(p);
 
-            /*            pending.push(new Promise((resolve, reject) => {
-                            img.onload = resolve;
-                            img.onerror = reject;
-                            document.body.appendChild(img);
-                        }));*/
-
-
-            // img.decode()
-
             return img;
         }
 
+
         if (value?.__type === "canvas") {
+
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
 
@@ -1216,6 +1209,25 @@ async function loadStateFromJson(source) {
             }));
 
             img.src = value.data;
+
+            return canvas;
+        } else if (key === "canvas") {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const img = new Image();
+
+            pending.push(new Promise((resolve, reject) => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    resolve();
+                };
+                img.onerror = reject;
+            }));
+
+            img.src = value;
 
             return canvas;
         }
@@ -1289,7 +1301,7 @@ async function preloadBgImg() {
     const preloadUrl = [
         "assets/tempData/sources/Giorgia_DearData_15_Back.jpg",
         "assets/tempData/sources/Stefanie_DearData_05+back.jpg"
-       ]
+    ]
     for (let i = 0; i < preloadList.length; i++) {
         preload[preloadList[i]] = await getImage(preloadUrl[i])
 
